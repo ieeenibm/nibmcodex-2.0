@@ -23,8 +23,9 @@ export default function Header() {
   return (
     <header className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? 'bg-navy-900/90 backdrop-blur-md border-b border-white/5 py-4' : 'bg-transparent py-6'}`}>
       <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-mono font-bold text-cyan-300">
-          CodeX <span className="text-white">2.0</span>
+        <Link href="/" className="text-xl md:text-2xl font-mono font-bold text-white">
+          NIBM<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-cyan-500">CodeX</span>
+          <sup className="ml-0.5 text-xs md:text-sm text-cyan-300 font-mono">2.0</sup>
         </Link>
         
         <nav className="hidden md:flex gap-8">

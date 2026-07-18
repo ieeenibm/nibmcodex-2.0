@@ -6,8 +6,9 @@ export default function Footer() {
       <div className="container mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
           <div className="md:col-span-1">
-            <Link href="/" className="text-2xl font-mono font-bold text-cyan-300 block mb-6">
-              CodeX <span className="text-white">2.0</span>
+            <Link href="/" className="text-2xl font-mono font-bold text-white block mb-6">
+              NIBM<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-cyan-500">CodeX</span>
+              <sup className="ml-0.5 text-sm text-cyan-300 font-mono">2.0</sup>
             </Link>
             <p className="text-slate-400 text-sm">
               The ultimate 48-hour hackathon experience pushing the boundaries of innovation and technology.
