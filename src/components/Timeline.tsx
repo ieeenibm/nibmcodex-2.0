@@ -39,11 +39,12 @@ export default function Timeline() {
   }, []);
 
   const steps = [
-    { title: 'Registration Opens', date: 'October 1, 2026', desc: 'Secure your spot for the ultimate hackathon experience.' },
-    { title: 'Team Formation', date: 'October 15, 2026', desc: 'Finalize your teams and prepare your tech stack.' },
-    { title: 'Opening Ceremony', date: 'October 22, 2026 - 09:00 AM', desc: 'Kickoff event at NIBM Auditorium.' },
-    { title: 'Coding Sprint', date: 'Oct 22 - Oct 23', desc: '48 hours of continuous innovation and building.' },
-    { title: 'Final Pitches & Awards', date: 'October 23, 2026 - 05:00 PM', desc: 'Present your solutions to the judges.' },
+    { title: 'Branch Awareness Sessions', date: 'Coming Soon', desc: 'Roadshow events across NIBM branches to raise awareness and inspire participation.' },
+    { title: 'Galle & Matara', date: 'Coming Soon', desc: 'Awareness sessions and workshops at NIBM Galle and Matara campuses.' },
+    { title: 'Kandy & Kurunegala KIC', date: 'Coming Soon', desc: 'Engaging the Kandy and Kurunegala innovation communities with hands-on sessions.' },
+    { title: 'AI/ML Workshop', date: 'Coming Soon', desc: 'An immersive workshop exploring artificial intelligence and machine learning technologies.' },
+    { title: 'Summit', date: 'Coming Soon', desc: 'The main summit — where the brightest minds gather to innovate and compete.' },
+    { title: 'IEEE Xtreme 20.0', date: 'Coming Soon', desc: '24-Hour Coding Challenge — a global hackathon experience right here at NIBM.' },
   ];
 
   return (

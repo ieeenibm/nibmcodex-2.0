@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const spaceMono = Space_Mono({ subsets: ['latin'], weight: ['400', '700'], variable: '--font-mono' });
 
 export const metadata: Metadata = {
-  title: 'NIBM CodeX 2.0',
+  title: 'NIBMCodeX 2.0',
   description: 'The ultimate hackathon experience',
 };
 

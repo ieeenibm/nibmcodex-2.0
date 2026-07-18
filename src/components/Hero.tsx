@@ -47,7 +47,8 @@ export default function Hero() {
         </div>
         
         <h1 className="text-5xl md:text-7xl lg:text-9xl font-bold tracking-tighter mb-6 text-white hero-anim">
-          NIBM <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-cyan-500">CODEX</span> 2.0
+          NIBM<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-cyan-500">CodeX</span>
+          <sup className="text-3xl md:text-4xl lg:text-5xl ml-1 text-cyan-300 font-mono">2.0</sup>
         </h1>
         
         <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 hero-anim">
@@ -55,11 +56,11 @@ export default function Hero() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4 hero-anim">
-          <a href="#register" className="px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-navy-900 font-bold uppercase tracking-wider transition-colors clip-slanted">
-            Register Now
-          </a>
-          <a href="#about" className="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold uppercase tracking-wider transition-colors clip-slanted">
+          <a href="#about" className="px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-navy-900 font-bold uppercase tracking-wider transition-colors clip-slanted">
             Learn More
+          </a>
+          <a href="#timeline" className="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold uppercase tracking-wider transition-colors clip-slanted">
+            View Timeline
           </a>
         </div>
       </div>

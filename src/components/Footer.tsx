@@ -19,17 +19,16 @@ export default function Footer() {
             <ul className="space-y-4 text-sm text-slate-400">
               <li><Link href="#about" className="hover:text-cyan-300 transition-colors">About Event</Link></li>
               <li><Link href="#timeline" className="hover:text-cyan-300 transition-colors">Schedule</Link></li>
-              <li><Link href="#committee" className="hover:text-cyan-300 transition-colors">Committee</Link></li>
-              <li><Link href="#sponsors" className="hover:text-cyan-300 transition-colors">Sponsors</Link></li>
+              <li><Link href="#faq" className="hover:text-cyan-300 transition-colors">FAQ</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">Contact</h4>
             <ul className="space-y-4 text-sm text-slate-400">
-              <li>contact@nibmcodex.com</li>
-              <li>+94 77 123 4567</li>
-              <li>NIBM, Colombo 07</li>
+              <li>nibmcodex@gmail.com</li>
+              <li className="text-slate-500 italic">Contact number coming soon</li>
+              <li>NIBM World Wide,<br/>Vidya Mawatha,<br/>Colombo 07</li>
             </ul>
           </div>
 
@@ -44,7 +43,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
-          <p>&copy; 2026 NIBM CodeX. All rights reserved.</p>
+          <p>&copy; 2026 NIBMCodeX. All rights reserved.</p>
           <p className="mt-4 md:mt-0">Designed for the Future.</p>
         </div>
       </div>
