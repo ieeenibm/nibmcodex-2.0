@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy-900: #0a0e17;
+  --color-navy-800: #0d1326;
+  --color-navy-700: #111a36;
+  
+  --color-cyan-300: #67e8f9;
+  --color-cyan-400: #22d3ee;
+  --color-cyan-500: #06b6d4;
+}
+
+:root {
+  --background: var(--color-navy-900);
+  --foreground: #f8fafc;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+.clip-slanted {
+  clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+}
