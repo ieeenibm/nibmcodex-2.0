@@ -253,5 +253,3 @@ Modified:
 ---
 
 > **Note**: This `ANCHOR.md` supersedes `nibmcodex-spec.md` as the living reference document for current project state.
->
-> *Last updated: July 18, 2026 · Created with ❤️ by Buffy (Freebuff)*
