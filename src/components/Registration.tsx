@@ -1,76 +1,68 @@
 'use client';
-import { useRef, useEffect } from 'react';
-import anime from 'animejs';
+import { motion } from 'framer-motion';
+import Magnetic from './ui/Magnetic';
 
 export default function Registration() {
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          anime({
-            targets: '.reg-anim',
-            translateY: [30, 0],
-            opacity: [0, 1],
-            duration: 800,
-            delay: anime.stagger(100),
-            easing: 'easeOutQuad'
-          });
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <section id="register" ref={sectionRef} className="py-32 relative bg-navy-900 border-t border-white/5">
-      <div className="container mx-auto px-6 md:px-12">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-16 reg-anim opacity-0">
-            <span className="inline-block px-3 py-1 mb-4 border border-cyan-300/30 text-cyan-300 text-xs font-mono uppercase tracking-widest clip-slanted">
+    <section id="register" className="py-32 relative bg-navy-950 border-t border-white/5 overflow-hidden">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(34,211,238,0.05),transparent_50%)] z-0"></div>
+      
+      <div className="container mx-auto px-6 md:px-12 relative z-10">
+        <div className="max-w-4xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-20"
+          >
+            <span className="inline-block px-4 py-1 mb-6 border border-white/10 text-cyan-400 text-xs font-mono uppercase tracking-[0.2em] rounded-full">
               Registration
             </span>
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Join CodeX 2.0</h2>
-            <p className="text-slate-400">Secure your spot. Limited slots available for the 48-hour sprint.</p>
-          </div>
+            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tighter">Join NIBMCodeX 2.0</h2>
+            <p className="text-slate-400 text-lg font-light">Secure your spot. Limited slots available for the 48-hour sprint.</p>
+          </motion.div>
 
-          <form className="bg-navy-800/50 p-8 md:p-12 border border-white/10 clip-slanted reg-anim opacity-0" onSubmit={(e) => e.preventDefault()}>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <motion.form 
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="glass-panel p-8 md:p-16 clip-slanted" 
+            onSubmit={(e) => e.preventDefault()}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               <div>
-                <label className="block text-sm font-mono text-cyan-300 mb-2 uppercase">Full Name</label>
-                <input type="text" className="w-full bg-navy-900 border border-white/20 p-3 text-white focus:outline-none focus:border-cyan-300 transition-colors clip-slanted" placeholder="John Doe" />
+                <label className="block text-xs font-mono text-cyan-400 mb-3 uppercase tracking-widest">Full Name</label>
+                <input type="text" className="w-full bg-navy-950/50 border border-white/10 p-4 text-white focus:outline-none focus:border-cyan-400 focus:bg-white/5 transition-all duration-300 clip-slanted" placeholder="John Doe" />
               </div>
               <div>
-                <label className="block text-sm font-mono text-cyan-300 mb-2 uppercase">Email Address</label>
-                <input type="email" className="w-full bg-navy-900 border border-white/20 p-3 text-white focus:outline-none focus:border-cyan-300 transition-colors clip-slanted" placeholder="john@example.com" />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-              <div>
-                <label className="block text-sm font-mono text-cyan-300 mb-2 uppercase">Phone Number</label>
-                <input type="tel" className="w-full bg-navy-900 border border-white/20 p-3 text-white focus:outline-none focus:border-cyan-300 transition-colors clip-slanted" placeholder="+94 7X XXX XXXX" />
-              </div>
-              <div>
-                <label className="block text-sm font-mono text-cyan-300 mb-2 uppercase">Institution</label>
-                <input type="text" className="w-full bg-navy-900 border border-white/20 p-3 text-white focus:outline-none focus:border-cyan-300 transition-colors clip-slanted" placeholder="University / Campus" />
+                <label className="block text-xs font-mono text-cyan-400 mb-3 uppercase tracking-widest">Email Address</label>
+                <input type="email" className="w-full bg-navy-950/50 border border-white/10 p-4 text-white focus:outline-none focus:border-cyan-400 focus:bg-white/5 transition-all duration-300 clip-slanted" placeholder="john@example.com" />
               </div>
             </div>
 
-            <div className="mb-8">
-              <label className="block text-sm font-mono text-cyan-300 mb-2 uppercase">Team Name (Optional)</label>
-              <input type="text" className="w-full bg-navy-900 border border-white/20 p-3 text-white focus:outline-none focus:border-cyan-300 transition-colors clip-slanted" placeholder="Enter team name" />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+              <div>
+                <label className="block text-xs font-mono text-cyan-400 mb-3 uppercase tracking-widest">Phone Number</label>
+                <input type="tel" className="w-full bg-navy-950/50 border border-white/10 p-4 text-white focus:outline-none focus:border-cyan-400 focus:bg-white/5 transition-all duration-300 clip-slanted" placeholder="+94 7X XXX XXXX" />
+              </div>
+              <div>
+                <label className="block text-xs font-mono text-cyan-400 mb-3 uppercase tracking-widest">Institution</label>
+                <input type="text" className="w-full bg-navy-950/50 border border-white/10 p-4 text-white focus:outline-none focus:border-cyan-400 focus:bg-white/5 transition-all duration-300 clip-slanted" placeholder="University / Campus" />
+              </div>
             </div>
 
-            <button type="submit" className="w-full py-4 bg-cyan-500 hover:bg-cyan-400 text-navy-900 font-bold uppercase tracking-widest transition-colors clip-slanted text-lg">
-              Submit Registration
-            </button>
-          </form>
+            <div className="mb-12">
+              <label className="block text-xs font-mono text-cyan-400 mb-3 uppercase tracking-widest">Team Name (Optional)</label>
+              <input type="text" className="w-full bg-navy-950/50 border border-white/10 p-4 text-white focus:outline-none focus:border-cyan-400 focus:bg-white/5 transition-all duration-300 clip-slanted" placeholder="Enter team name" />
+            </div>
+
+            <Magnetic>
+              <button type="submit" className="w-full py-6 bg-cyan-500 hover:bg-cyan-400 text-navy-950 font-bold uppercase tracking-[0.2em] transition-colors clip-slanted text-lg active:scale-95">
+                Submit Registration
+              </button>
+            </Magnetic>
+          </motion.form>
         </div>
       </div>
     </section>

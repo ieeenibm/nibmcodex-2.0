@@ -1,83 +1,91 @@
 'use client';
-import { useEffect, useRef } from 'react';
-import anime from 'animejs';
+import { useRef } from 'react';
+import { motion, useScroll, useSpring } from 'framer-motion';
+import SpotlightCard from './ui/SpotlightCard';
 
 export default function Timeline() {
-  const sectionRef = useRef<HTMLElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
+  
+  // Track vertical scroll progress relative to this specific section
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start center", "end center"]
+  });
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            anime({
-              targets: '.timeline-item',
-              translateX: [-50, 0],
-              opacity: [0, 1],
-              duration: 800,
-              delay: anime.stagger(200),
-              easing: 'easeOutQuad'
-            });
-            anime({
-              targets: '.timeline-line',
-              height: ['0%', '100%'],
-              duration: 1500,
-              easing: 'easeInOutQuad'
-            });
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
+  // Apply a spring physics layer to make the vertical progress line feel buttery smooth
+  const scaleY = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
 
   const steps = [
-    { title: 'Branch Awareness Sessions', date: 'Coming Soon', desc: 'Roadshow events across NIBM branches to raise awareness and inspire participation.' },
-    { title: 'Galle & Matara', date: 'Coming Soon', desc: 'Awareness sessions and workshops at NIBM Galle and Matara campuses.' },
-    { title: 'Kandy & Kurunegala KIC', date: 'Coming Soon', desc: 'Engaging the Kandy and Kurunegala innovation communities with hands-on sessions.' },
-    { title: 'AI/ML Workshop', date: 'Coming Soon', desc: 'An immersive workshop exploring artificial intelligence and machine learning technologies.' },
-    { title: 'Summit', date: 'Coming Soon', desc: 'The main summit — where the brightest minds gather to innovate and compete.' },
-    { title: 'IEEE Xtreme 20.0', date: 'Coming Soon', desc: '24-Hour Coding Challenge — a global hackathon experience right here at NIBM.' },
+    { title: 'Branch Awareness Sessions', date: 'Phase 1', desc: 'Kickstarting the journey across branches.' },
+    { title: 'Galle Matara', date: 'Phase 2', desc: 'Regional awareness and team formations.' },
+    { title: 'Kandy Kurunegala KIC', date: 'Phase 3', desc: 'Expanding the grid to Kandy and Kurunegala.' },
+    { title: 'AI ML Workshop', date: 'Phase 4', desc: 'Hands-on session to level up your machine learning skills.' },
+    { title: 'Summit', date: 'Phase 5', desc: 'The grand gathering of minds.' },
+    { title: 'IEEE Xtreme 20.0', date: 'Phase 6', desc: '24 Hours Coding Challenge. The ultimate test.' },
   ];
 
   return (
-    <section id="timeline" ref={sectionRef} className="py-32 bg-navy-900 relative">
+    <section id="timeline" ref={containerRef} className="py-32 bg-navy-950 relative border-t border-white/5">
       <div className="container mx-auto px-6 md:px-12">
-        <div className="text-center mb-20">
-          <span className="inline-block px-3 py-1 mb-4 border border-cyan-300/30 text-cyan-300 text-xs font-mono uppercase tracking-widest clip-slanted">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-24"
+        >
+          <span className="inline-block px-4 py-1 mb-6 border border-white/10 text-cyan-400 text-xs font-mono uppercase tracking-[0.2em] rounded-full glass-panel-light shadow-xl">
             Journey
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-white">Event Timeline</h2>
-        </div>
+          <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter drop-shadow-2xl">Event Timeline</h2>
+          <p className="text-slate-400 mt-4 font-light tracking-wide max-w-lg mx-auto">The roadmap leading up to the ultimate challenge.</p>
+        </motion.div>
 
-        <div className="max-w-4xl mx-auto relative">
-          {/* Vertical dotted line */}
-          <div className="absolute left-[27px] md:left-1/2 top-0 bottom-0 w-px border-l-2 border-dashed border-white/20 timeline-line origin-top -translate-x-1/2"></div>
+        <div className="max-w-5xl mx-auto relative">
+          {/* Faded Background Line */}
+          <div className="absolute left-[27px] md:left-1/2 top-0 bottom-0 w-[1px] bg-white/10 -translate-x-1/2 z-0"></div>
           
-          <div className="space-y-12">
+          {/* Animated Active Line */}
+          <motion.div 
+            style={{ scaleY, originY: 0 }} 
+            className="absolute left-[27px] md:left-1/2 top-0 bottom-0 w-[2px] bg-cyan-400 -translate-x-1/2 z-0 shadow-[0_0_15px_rgba(34,211,238,0.5)]"
+          ></motion.div>
+          
+          <div className="space-y-16">
             {steps.map((step, idx) => (
-              <div key={idx} className={`relative flex items-center md:justify-between flex-col md:flex-row timeline-item opacity-0 ${idx % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
+              <div key={idx} className={`relative flex items-center md:justify-between flex-col md:flex-row ${idx % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
                 
                 {/* Marker */}
-                <div className="absolute left-[15px] md:left-1/2 w-6 h-6 rounded-full bg-navy-900 border-2 border-cyan-300 -translate-x-1/2 z-10 flex items-center justify-center shadow-[0_0_15px_rgba(103,232,249,0.5)]">
-                  <div className="w-2 h-2 rounded-full bg-cyan-300"></div>
-                </div>
+                <motion.div 
+                  initial={{ scale: 0 }}
+                  whileInView={{ scale: 1 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
+                  className="absolute left-[15px] md:left-1/2 w-6 h-6 rounded-full bg-navy-950 border-2 border-cyan-400 -translate-x-1/2 z-10 flex items-center justify-center shadow-[0_0_10px_rgba(34,211,238,0.4)]"
+                >
+                  <div className="w-1.5 h-1.5 rounded-full bg-cyan-400"></div>
+                </motion.div>
 
                 {/* Content Card */}
-                <div className={`w-full md:w-[45%] pl-16 md:pl-0 ${idx % 2 === 0 ? 'md:text-left' : 'md:text-right'}`}>
-                  <div className="bg-white/5 border border-white/10 p-6 clip-slanted hover:bg-white/10 transition-colors">
-                    <div className="text-cyan-300 font-mono text-sm mb-2">{step.date}</div>
-                    <h3 className="text-xl font-bold text-white mb-2">{step.title}</h3>
-                    <p className="text-slate-400">{step.desc}</p>
-                  </div>
-                </div>
+                <motion.div 
+                  initial={{ opacity: 0, x: idx % 2 === 0 ? 50 : -50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
+                  className={`w-full md:w-[45%] pl-16 md:pl-0 ${idx % 2 === 0 ? 'md:text-left' : 'md:text-right'}`}
+                >
+                  <SpotlightCard className="glass-panel-light p-8 clip-slanted group hover:border-cyan-400/30 transition-all duration-500 shadow-xl">
+                    <div className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-3 flex items-center gap-2 md:inline-flex">
+                       <span className="w-2 h-2 rounded-sm bg-cyan-400/50 inline-block group-hover:bg-cyan-400 transition-colors"></span>
+                       {step.date}
+                    </div>
+                    <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors tracking-tight">{step.title}</h3>
+                    <p className="text-slate-400 font-light leading-relaxed text-sm md:text-base">{step.desc}</p>
+                  </SpotlightCard>
+                </motion.div>
                 
                 {/* Empty space for alternating layout */}
                 <div className="hidden md:block md:w-[45%]"></div>

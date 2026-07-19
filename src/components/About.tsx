@@ -1,75 +1,61 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
-import anime from 'animejs';
+import SpotlightCard from './ui/SpotlightCard';
 
 export default function About() {
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            anime({
-              targets: '.about-anim',
-              translateY: [40, 0],
-              opacity: [0, 1],
-              duration: 1000,
-              delay: anime.stagger(150),
-              easing: 'easeOutQuart'
-            });
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.2 }
-    );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
-
   const stats = [
     { label: 'Dates', value: 'Oct 22-23' },
-    { label: 'Venue', value: 'NIBM Auditorium' },
+    { label: 'Venue', value: 'NIBM' },
     { label: 'Prize Pool', value: 'Rs 100K+' },
     { label: 'Participants', value: '200+' }
   ];
 
   return (
-    <section id="about" ref={sectionRef} className="relative py-32 w-full flex items-center min-h-[80vh] overflow-hidden">
-      <div className="absolute inset-0 z-0">
+    <section id="about" className="relative py-32 w-full flex items-center min-h-[80vh] overflow-hidden bg-navy-950 border-t border-white/5">
+      <div className="absolute inset-0 z-0 opacity-40">
         <Image
           src="/images/symmetrical-corridor.png"
           alt="Symmetrical Corridor"
           fill
           className="object-cover object-center"
         />
-        <div className="absolute inset-0 bg-navy-900/80 backdrop-blur-[2px]"></div>
+        <div className="absolute inset-0 bg-navy-950/90 backdrop-blur-md"></div>
       </div>
 
       <div className="relative z-10 container mx-auto px-6 md:px-12">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-8 about-anim opacity-0">
-            Welcome to the <span className="text-cyan-300">Next Frontier</span>
-          </h2>
-          
-          <p className="text-lg md:text-xl text-slate-300 mb-16 leading-relaxed about-anim opacity-0">
-            NIBM CodeX 2.0 is more than just a hackathon. It's a 48-hour sprint of pure innovation, 
-            collaboration, and technological breakthrough. Join the brightest minds as we build 
-            solutions that push the boundaries of what's possible.
-          </p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.8 }}
+          >
+            <h2 className="text-4xl md:text-6xl font-bold text-white mb-8 tracking-tighter">
+              Welcome to the <span className="text-gradient-cyan">Next Frontier</span>
+            </h2>
+            
+            <p className="text-lg md:text-xl text-slate-400 mb-16 leading-relaxed font-light tracking-wide">
+              NIBMCodeX 2.0 is more than just a hackathon. It's a 48-hour sprint of pure innovation, 
+              collaboration, and technological breakthrough. Join the brightest minds as we build 
+              solutions that push the boundaries of what's possible.
+            </p>
+          </motion.div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {stats.map((stat, idx) => (
-              <div key={idx} className="bg-white/5 border border-white/10 p-6 clip-slanted backdrop-blur-sm about-anim opacity-0 hover:bg-white/10 transition-colors">
-                <div className="text-2xl md:text-3xl font-mono font-bold text-cyan-300 mb-2">{stat.value}</div>
-                <div className="text-sm uppercase tracking-wider text-slate-400">{stat.label}</div>
-              </div>
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+              >
+                <SpotlightCard className="h-full glass-panel-light p-8 clip-slanted flex flex-col items-center justify-center">
+                  <div className="text-2xl md:text-3xl font-mono font-bold text-white mb-2">{stat.value}</div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-cyan-400/80">{stat.label}</div>
+                </SpotlightCard>
+              </motion.div>
             ))}
           </div>
         </div>

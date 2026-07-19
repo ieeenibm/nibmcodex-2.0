@@ -1,32 +1,9 @@
 'use client';
-import { useEffect, useRef } from 'react';
-import anime from 'animejs';
+import { motion } from 'framer-motion';
+import SpotlightCard from './ui/SpotlightCard';
+import Magnetic from './ui/Magnetic';
 
 export default function Sponsors() {
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          anime({
-            targets: '.sponsor-anim',
-            translateY: [30, 0],
-            opacity: [0, 1],
-            duration: 800,
-            delay: anime.stagger(100),
-            easing: 'easeOutQuad'
-          });
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
-
   const sponsors = [
     { name: 'TechVision', tier: 'Platinum' },
     { name: 'CloudDynamics', tier: 'Gold' },
@@ -38,49 +15,69 @@ export default function Sponsors() {
 
   const getTierColor = (tier: string) => {
     switch(tier) {
-      case 'Platinum': return 'text-cyan-300 border-cyan-300/50 bg-cyan-300/10';
-      case 'Gold': return 'text-yellow-400 border-yellow-400/50 bg-yellow-400/10';
-      case 'Silver': return 'text-slate-300 border-slate-300/50 bg-slate-300/10';
-      case 'Bronze': return 'text-orange-400 border-orange-400/50 bg-orange-400/10';
-      default: return 'text-white border-white/20 bg-white/5';
+      case 'Platinum': return 'text-cyan-400 border-cyan-400/30';
+      case 'Gold': return 'text-yellow-400 border-yellow-400/30';
+      case 'Silver': return 'text-slate-300 border-slate-300/30';
+      case 'Bronze': return 'text-orange-400 border-orange-400/30';
+      default: return 'text-white border-white/20';
     }
   };
 
   return (
-    <section id="sponsors" ref={sectionRef} className="py-32 bg-navy-900">
+    <section id="sponsors" className="py-32 bg-navy-950 border-t border-white/5">
       <div className="container mx-auto px-6 md:px-12">
-        <div className="text-center mb-20">
-          <span className="inline-block px-3 py-1 mb-4 border border-cyan-300/30 text-cyan-300 text-xs font-mono uppercase tracking-widest clip-slanted">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-24"
+        >
+          <span className="inline-block px-4 py-1 mb-6 border border-white/10 text-cyan-400 text-xs font-mono uppercase tracking-[0.2em] rounded-full">
             Partners
           </span>
-          <h2 className="text-4xl md:text-5xl font-bold text-white">Our Sponsors</h2>
-        </div>
+          <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter">Our Sponsors</h2>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto mb-20">
           {sponsors.map((sponsor, idx) => (
-            <div key={idx} className="sponsor-anim opacity-0 bg-white/5 border border-white/10 p-8 clip-slanted hover:bg-white/10 transition-all duration-300 group">
-              <div className={`inline-block px-2 py-1 text-xs uppercase tracking-wider mb-6 border ${getTierColor(sponsor.tier)}`}>
-                {sponsor.tier}
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-navy-900 border border-white/20 flex items-center justify-center group-hover:border-cyan-300 transition-colors">
-                  <div className="w-4 h-4 bg-slate-400 group-hover:bg-cyan-300 transition-colors"></div>
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ delay: idx * 0.1, duration: 0.5 }}
+            >
+              <SpotlightCard className="glass-panel-light p-8 clip-slanted h-full flex flex-col group">
+                <div className={`self-start px-3 py-1 text-xs font-mono uppercase tracking-widest mb-8 border ${getTierColor(sponsor.tier)} bg-white/5`}>
+                  {sponsor.tier}
                 </div>
-                <h3 className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors">{sponsor.name}</h3>
-              </div>
-            </div>
+                <div className="flex items-center gap-6 mt-auto">
+                  <div className="w-12 h-12 bg-navy-950 border border-white/10 flex items-center justify-center group-hover:border-cyan-400 transition-colors duration-500 rounded-full">
+                    <div className="w-2 h-2 rounded-full bg-slate-500 group-hover:bg-cyan-400 transition-colors duration-500 shadow-[0_0_10px_rgba(34,211,238,0)] group-hover:shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
+                  </div>
+                  <h3 className="text-2xl font-bold text-slate-200 group-hover:text-white transition-colors tracking-tight">{sponsor.name}</h3>
+                </div>
+              </SpotlightCard>
+            </motion.div>
           ))}
         </div>
 
-        <div className="text-center sponsor-anim opacity-0">
-          <div className="bg-navy-800 border border-white/10 p-8 max-w-2xl mx-auto clip-slanted">
-            <h3 className="text-2xl font-bold text-white mb-4">Want to sponsor us?</h3>
-            <p className="text-slate-400 mb-6">Join us in shaping the future of technology by supporting the brightest minds.</p>
-            <button className="px-8 py-3 bg-white/10 hover:bg-cyan-500 hover:text-navy-900 text-white font-bold uppercase tracking-wider transition-colors clip-slanted">
-              Become a Partner
-            </button>
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center"
+        >
+          <div className="glass-panel p-12 max-w-2xl mx-auto clip-slanted">
+            <h3 className="text-3xl font-bold text-white mb-4 tracking-tighter">Want to sponsor us?</h3>
+            <p className="text-slate-400 mb-10 font-light text-lg">Join us in shaping the future of technology by supporting the brightest minds.</p>
+            <Magnetic>
+              <button className="px-10 py-5 glass-panel-light hover:bg-cyan-500 hover:text-navy-950 hover:border-transparent text-white font-bold uppercase tracking-widest transition-all duration-300 clip-slanted active:scale-95">
+                Become a Partner
+              </button>
+            </Magnetic>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

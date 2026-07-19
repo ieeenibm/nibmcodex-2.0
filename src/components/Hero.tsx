@@ -1,75 +1,93 @@
 'use client';
-import { useEffect, useRef } from 'react';
+import { motion, useScroll, useTransform, Variants } from 'framer-motion';
 import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
-import anime from 'animejs';
+import Magnetic from './ui/Magnetic';
 
 export default function Hero() {
-  const textRef = useRef<HTMLDivElement>(null);
+  const { scrollY } = useScroll();
+  const y = useTransform(scrollY, [0, 1000], [0, 300]);
+  const opacity = useTransform(scrollY, [0, 500], [1, 0]);
 
-  useEffect(() => {
-    if (textRef.current) {
-      const el = textRef.current;
-      el.style.opacity = '1';
-      anime({
-        targets: '.hero-anim',
-        translateY: [50, 0],
-        opacity: [0, 1],
-        duration: 1200,
-        delay: anime.stagger(200),
-        easing: 'easeOutExpo'
-      });
+  const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+        delayChildren: 0.3,
+      }
     }
-  }, []);
+  };
+
+  const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 30, filter: "blur(10px)" },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      filter: "blur(0px)",
+      transition: { type: "spring", stiffness: 100, damping: 20 }
+    }
+  };
 
   return (
     <section id="hero" className="relative h-screen w-full flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0 z-0">
+      {/* Parallax Background Image */}
+      <motion.div style={{ y, scale: 1.05 }} className="absolute inset-0 z-0">
         <Image
           src="/images/wide-cityscape.png"
           alt="Tron Cityscape"
           fill
           className="object-cover object-center"
           priority
+          quality={100}
         />
-        {/* Dark gradient overlay for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-navy-900/60 via-navy-900/40 to-navy-900"></div>
-      </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-navy-950/70 via-navy-950/40 to-navy-950"></div>
+      </motion.div>
 
       {/* Content */}
-      <div 
-        ref={textRef} 
-        className="relative z-10 container mx-auto px-6 text-center opacity-0 flex flex-col items-center mt-20"
+      <motion.div 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="relative z-10 container mx-auto px-6 text-center flex flex-col items-center mt-20"
       >
-        <div className="inline-block px-4 py-1.5 mb-6 border border-cyan-300/30 bg-cyan-300/10 text-cyan-300 text-xs font-mono uppercase tracking-widest clip-slanted hero-anim">
+        <motion.div variants={itemVariants} className="inline-block px-5 py-2 mb-8 glass-panel-light text-cyan-300 text-xs font-mono uppercase tracking-[0.3em] clip-slanted shadow-[0_0_20px_rgba(34,211,238,0.1)]">
           October 22-23, 2026 • NIBM
-        </div>
+        </motion.div>
         
-        <h1 className="text-5xl md:text-7xl lg:text-9xl font-bold tracking-tighter mb-6 text-white hero-anim">
-          NIBM<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-cyan-500">CodeX</span>
-          <sup className="text-3xl md:text-4xl lg:text-5xl ml-1 text-cyan-300 font-mono">2.0</sup>
-        </h1>
+        <motion.h1 variants={itemVariants} className="text-6xl md:text-8xl lg:text-[10rem] font-bold tracking-tighter mb-6 text-white leading-none">
+          NIBM<span className="text-gradient-cyan">CodeX</span> 2.0
+        </motion.h1>
         
-        <p className="text-lg md:text-xl text-slate-300 max-w-2xl mx-auto mb-10 hero-anim">
+        <motion.p variants={itemVariants} className="text-lg md:text-2xl text-slate-300 max-w-2xl mx-auto mb-12 font-light tracking-wide">
           The ultimate 48-hour hackathon experience. Build, innovate, and conquer the digital frontier.
-        </p>
+        </motion.p>
 
-        <div className="flex flex-col sm:flex-row gap-4 hero-anim">
-          <a href="#about" className="px-8 py-4 bg-cyan-500 hover:bg-cyan-400 text-navy-900 font-bold uppercase tracking-wider transition-colors clip-slanted">
-            Learn More
-          </a>
-          <a href="#timeline" className="px-8 py-4 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold uppercase tracking-wider transition-colors clip-slanted">
-            View Timeline
-          </a>
-        </div>
-      </div>
+        <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-6 items-center">
+          <Magnetic>
+            <a href="#about" className="group relative inline-flex items-center justify-center px-10 py-5 bg-cyan-500 text-navy-950 font-bold uppercase tracking-widest clip-slanted overflow-hidden transition-transform active:scale-95">
+              <span className="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-black"></span>
+              <span className="relative z-10">Learn More</span>
+              <div className="absolute inset-0 h-full w-full bg-white/20 group-hover:translate-x-full transition-transform duration-500 ease-out -translate-x-full skew-x-12"></div>
+            </a>
+          </Magnetic>
+        </motion.div>
+      </motion.div>
 
       {/* Scroll indicator */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center animate-bounce">
-        <span className="text-xs font-mono text-slate-400 mb-2 uppercase tracking-widest">Scroll</span>
-        <ChevronDown className="text-cyan-300" size={24} />
-      </div>
+      <motion.div 
+        style={{ opacity }}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center"
+      >
+        <span className="text-xs font-mono text-slate-500 mb-3 uppercase tracking-[0.2em]">Scroll</span>
+        <motion.div
+          animate={{ y: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+        >
+          <ChevronDown className="text-cyan-400" size={24} strokeWidth={1.5} />
+        </motion.div>
+      </motion.div>
     </section>
   );
 }

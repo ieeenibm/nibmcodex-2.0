@@ -1,32 +1,9 @@
 'use client';
-import { useState, useRef, useEffect } from 'react';
-import anime from 'animejs';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
-  const sectionRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          anime({
-            targets: '.faq-anim',
-            translateY: [20, 0],
-            opacity: [0, 1],
-            duration: 800,
-            delay: anime.stagger(100),
-            easing: 'easeOutQuad'
-          });
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (sectionRef.current) observer.observe(sectionRef.current);
-    return () => observer.disconnect();
-  }, []);
 
   const faqs = [
     { q: 'Who can participate?', a: 'Any university student with a passion for coding can join.' },
@@ -36,32 +13,58 @@ export default function FAQ() {
   ];
 
   return (
-    <section className="py-32 bg-navy-900 border-t border-white/5" ref={sectionRef}>
+    <section className="py-32 bg-navy-950 border-t border-white/5">
       <div className="container mx-auto px-6 md:px-12 max-w-4xl">
-        <div className="text-center mb-16 faq-anim opacity-0">
-          <span className="inline-block px-3 py-1 mb-4 border border-cyan-300/30 text-cyan-300 text-xs font-mono uppercase tracking-widest clip-slanted">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-20"
+        >
+          <span className="inline-block px-4 py-1 mb-6 border border-white/10 text-cyan-400 text-xs font-mono uppercase tracking-[0.2em] rounded-full">
             Questions
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-white">FAQ</h2>
-        </div>
+          <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter">FAQ</h2>
+        </motion.div>
 
         <div className="space-y-4">
           {faqs.map((faq, idx) => (
-            <div key={idx} className="bg-white/5 border border-white/10 clip-slanted faq-anim opacity-0 overflow-hidden">
+            <motion.div 
+              key={idx} 
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+              className="glass-panel-light clip-slanted overflow-hidden"
+            >
               <button 
-                className="w-full text-left p-6 flex justify-between items-center text-white hover:text-cyan-300 transition-colors"
+                className="w-full text-left p-6 md:p-8 flex justify-between items-center text-white hover:text-cyan-400 transition-colors"
                 onClick={() => setOpen(open === idx ? null : idx)}
               >
-                <span className="font-bold">{faq.q}</span>
-                <span className={`transform transition-transform ${open === idx ? 'rotate-180' : ''}`}>↓</span>
+                <span className="text-lg md:text-xl font-bold tracking-tight">{faq.q}</span>
+                <motion.span 
+                  animate={{ rotate: open === idx ? 180 : 0 }}
+                  transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                  className="text-cyan-400 text-2xl font-light"
+                >
+                  ↓
+                </motion.span>
               </button>
-              <div 
-                className="px-6 text-slate-400 transition-all duration-300 ease-in-out overflow-hidden"
-                style={{ maxHeight: open === idx ? '100px' : '0', paddingBottom: open === idx ? '1.5rem' : '0' }}
-              >
-                {faq.a}
-              </div>
-            </div>
+              <AnimatePresence>
+                {open === idx && (
+                  <motion.div 
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 200, damping: 25 }}
+                  >
+                    <div className="px-6 md:px-8 pb-8 text-slate-400 font-light leading-relaxed text-lg">
+                      {faq.a}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
           ))}
         </div>
       </div>

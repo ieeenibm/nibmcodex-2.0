@@ -1,51 +1,63 @@
 import Link from 'next/link';
+import Magnetic from './ui/Magnetic';
 
 export default function Footer() {
   return (
-    <footer className="bg-navy-950 pt-20 pb-10 border-t border-white/5">
-      <div className="container mx-auto px-6 md:px-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+    <footer className="bg-[#02040a] pt-24 pb-12 border-t border-white/5 relative overflow-hidden">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
+      
+      <div className="container mx-auto px-6 md:px-12 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
           <div className="md:col-span-1">
-            <Link href="/" className="text-2xl font-mono font-bold text-white block mb-6">
-              NIBM<span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-cyan-500">CodeX</span>
-              <sup className="ml-0.5 text-sm text-cyan-300 font-mono">2.0</sup>
+            <Link href="/" className="text-3xl font-bold tracking-tighter block mb-6">
+              <span className="text-white">NIBM</span>
+              <span className="text-cyan-400">CodeX</span>
+              <span className="text-white ml-1 font-light opacity-80">2.0</span>
             </Link>
-            <p className="text-slate-400 text-sm">
+            <p className="text-slate-500 text-sm font-light leading-relaxed pr-4">
               The ultimate 48-hour hackathon experience pushing the boundaries of innovation and technology.
             </p>
           </div>
           
           <div>
-            <h4 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">Quick Links</h4>
-            <ul className="space-y-4 text-sm text-slate-400">
-              <li><Link href="#about" className="hover:text-cyan-300 transition-colors">About Event</Link></li>
-              <li><Link href="#timeline" className="hover:text-cyan-300 transition-colors">Schedule</Link></li>
-              <li><Link href="#faq" className="hover:text-cyan-300 transition-colors">FAQ</Link></li>
+            <h4 className="text-white font-mono font-bold mb-8 uppercase tracking-[0.2em] text-xs">Quick Links</h4>
+            <ul className="space-y-4 text-sm text-slate-400 font-light">
+              <li><Link href="#about" className="hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">About Event</Link></li>
+              <li><Link href="#timeline" className="hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">Schedule</Link></li>
+              <li><Link href="#faq" className="hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">FAQ</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">Contact</h4>
-            <ul className="space-y-4 text-sm text-slate-400">
-              <li>nibmcodex@gmail.com</li>
-              <li className="text-slate-500 italic">Contact number coming soon</li>
-              <li>NIBM World Wide,<br/>Vidya Mawatha,<br/>Colombo 07</li>
+            <h4 className="text-white font-mono font-bold mb-8 uppercase tracking-[0.2em] text-xs">Contact</h4>
+            <ul className="space-y-4 text-sm text-slate-400 font-light">
+              <li className="hover:text-cyan-400 transition-colors cursor-pointer w-max">
+                <a href="mailto:nibmcodex@gmail.com">nibmcodex@gmail.com</a>
+              </li>
+              <li className="hover:text-cyan-400 transition-colors cursor-pointer w-max">
+                &lt;&lt;contact number still not decided&gt;&gt;
+              </li>
+              <li className="leading-relaxed">
+                NIBM World Wide,<br />
+                Vidya Mawatha,<br />
+                Colombo 07
+              </li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-white font-bold mb-6 uppercase tracking-wider text-sm">Socials</h4>
-            <ul className="space-y-4 text-sm text-slate-400">
-              <li><a href="#" className="hover:text-cyan-300 transition-colors">LinkedIn</a></li>
-              <li><a href="#" className="hover:text-cyan-300 transition-colors">Instagram</a></li>
-              <li><a href="#" className="hover:text-cyan-300 transition-colors">Facebook</a></li>
-            </ul>
+            <h4 className="text-white font-mono font-bold mb-8 uppercase tracking-[0.2em] text-xs">Socials</h4>
+            <div className="flex flex-col space-y-4 text-sm text-slate-400 font-light">
+              <Magnetic><a href="#" className="hover:text-cyan-400 transition-colors self-start">LinkedIn</a></Magnetic>
+              <Magnetic><a href="#" className="hover:text-cyan-400 transition-colors self-start">Instagram</a></Magnetic>
+              <Magnetic><a href="#" className="hover:text-cyan-400 transition-colors self-start">Facebook</a></Magnetic>
+            </div>
           </div>
         </div>
 
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500">
+        <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center text-xs text-slate-600 font-light tracking-wide">
           <p>&copy; 2026 NIBMCodeX. All rights reserved.</p>
-          <p className="mt-4 md:mt-0">Designed for the Future.</p>
+          <p className="mt-4 md:mt-0 uppercase tracking-widest text-slate-500">Designed for the Future.</p>
         </div>
       </div>
     </footer>

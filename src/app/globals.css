@@ -1,9 +1,10 @@
 @import "tailwindcss";
 
 @theme {
-  --color-navy-900: #0a0e17;
-  --color-navy-800: #0d1326;
-  --color-navy-700: #111a36;
+  --color-navy-950: #02040a;
+  --color-navy-900: #050914;
+  --color-navy-800: #0a1128;
+  --color-navy-700: #121d3a;
   
   --color-cyan-300: #67e8f9;
   --color-cyan-400: #22d3ee;
@@ -11,7 +12,7 @@
 }
 
 :root {
-  --background: var(--color-navy-900);
+  --background: var(--color-navy-950);
   --foreground: #f8fafc;
 }
 
@@ -22,10 +23,97 @@ html {
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Disable text selection */
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Allow text selection inside form inputs if they are ever re-enabled */
+input, textarea, select {
+  user-select: auto;
+  -webkit-user-select: auto;
 }
 
 .clip-slanted {
-  clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+}
+
+.glass-panel {
+  background: rgba(10, 17, 40, 0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.glass-panel-light {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-cyan {
+  background: linear-gradient(135deg, #67e8f9 0%, #06b6d4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Custom scrollbar for an Apple-like feel */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-navy-950);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Timeline specific inner scrollbar */
+.timeline-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.timeline-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.timeline-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(34, 211, 238, 0.3);
+  border-radius: 10px;
+}
+.timeline-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.8);
+}
+
+/* Marquee Animations for Section Separator */
+@keyframes marquee-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+.animate-marquee-left {
+  animation: marquee-left 25s linear infinite;
+}
+.animate-marquee-right {
+  animation: marquee-right 30s linear infinite;
 }
