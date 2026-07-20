@@ -48,9 +48,9 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-mono font-bold mb-8 uppercase tracking-[0.2em] text-xs">Socials</h4>
             <div className="flex flex-col space-y-4 text-sm text-slate-400 font-light">
-              <Magnetic><a href="#" className="hover:text-cyan-400 transition-colors self-start">LinkedIn</a></Magnetic>
-              <Magnetic><a href="#" className="hover:text-cyan-400 transition-colors self-start">Instagram</a></Magnetic>
-              <Magnetic><a href="#" className="hover:text-cyan-400 transition-colors self-start">Facebook</a></Magnetic>
+              <Magnetic><a href="#" className="hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">LinkedIn</a></Magnetic>
+              <Magnetic><a href="#" className="hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">Instagram</a></Magnetic>
+              <Magnetic><a href="#" className="hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">Facebook</a></Magnetic>
             </div>
           </div>
         </div>
