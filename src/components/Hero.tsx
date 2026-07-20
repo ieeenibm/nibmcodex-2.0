@@ -1,11 +1,12 @@
 'use client';
-import { motion, useScroll, useTransform, Variants } from 'framer-motion';
+import { motion, useTransform, Variants } from 'framer-motion';
 import Image from 'next/image';
 import { ChevronDown } from 'lucide-react';
 import Magnetic from './ui/Magnetic';
+import { useLenisScroll } from './SmoothScroll';
 
 export default function Hero() {
-  const { scrollY } = useScroll();
+  const { scrollY } = useLenisScroll();
   const y = useTransform(scrollY, [0, 1000], [0, 300]);
   const opacity = useTransform(scrollY, [0, 500], [1, 0]);
 

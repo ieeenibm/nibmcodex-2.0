@@ -1,13 +1,13 @@
 'use client';
 import { useRef } from 'react';
 import Image from 'next/image';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useTransform } from 'framer-motion';
+import { useScrollProgress } from './SmoothScroll';
 
 export default function VerticalScrollMoment() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
+  const { scrollYProgress } = useScrollProgress(containerRef, {
     offset: ["start end", "end start"]
   });
 

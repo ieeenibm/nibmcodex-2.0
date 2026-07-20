@@ -1,14 +1,13 @@
 'use client';
 import { useRef } from 'react';
-import { motion, useScroll, useSpring } from 'framer-motion';
+import { motion, useSpring } from 'framer-motion';
+import { useScrollProgress } from './SmoothScroll';
 import SpotlightCard from './ui/SpotlightCard';
 
 export default function Timeline() {
   const containerRef = useRef<HTMLElement>(null);
   
-  // Track vertical scroll progress relative to this specific section
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
+  const { scrollYProgress } = useScrollProgress(containerRef, {
     offset: ["start center", "end center"]
   });
 
