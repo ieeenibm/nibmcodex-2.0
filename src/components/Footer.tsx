@@ -15,7 +15,7 @@ export default function Footer() {
               <span className="text-white ml-1 font-light opacity-80">2.0</span>
             </Link>
             <p className="text-slate-500 text-sm font-light leading-relaxed pr-4">
-              The ultimate 48-hour hackathon experience pushing the boundaries of innovation and technology.
+              The ultimate 24-hour hackathon experience pushing the boundaries of innovation and technology.
             </p>
           </div>
           

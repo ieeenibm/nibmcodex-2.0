@@ -32,7 +32,7 @@ export default function SectionSeparator() {
               </span>
               <span className="text-cyan-400 mx-4 text-2xl">✦</span>
               <span className="text-3xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-cyan-500 uppercase tracking-tighter mx-8">
-                48-Hour Sprint
+                24-Hour Sprint
               </span>
               <span className="text-cyan-400 mx-4 text-2xl">✦</span>
             </div>
