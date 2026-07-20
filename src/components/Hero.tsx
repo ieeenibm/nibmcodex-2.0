@@ -36,7 +36,7 @@ export default function Hero() {
       {/* Parallax Background Image */}
       <motion.div style={{ y, scale: 1.05 }} className="absolute inset-0 z-0">
         <Image
-          src="/images/wide-cityscape.png"
+          src="/images/wide-cityscape.webp"
           alt="Tron Cityscape"
           fill
           className="object-cover object-center"

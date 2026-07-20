@@ -19,7 +19,7 @@ export default function VerticalScrollMoment() {
     <section ref={containerRef} className="relative z-10 h-[70vh] w-full overflow-hidden flex items-center justify-center bg-navy-950 border-t border-white/5">
       <motion.div style={{ y, scale }} className="absolute inset-0 z-0">
         <Image
-          src="/images/holodeck.png"
+          src="/images/holodeck.webp"
           alt="Holodeck Core"
           fill
           className="object-cover object-center opacity-90"
