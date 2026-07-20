@@ -47,9 +47,9 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-mono font-bold mb-8 uppercase tracking-[0.2em] text-xs">Socials</h4>
             <div className="flex flex-col space-y-4 text-sm text-slate-400 font-light">
-              <a href="#" className="hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">LinkedIn</a>
-              <a href="#" className="hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">Instagram</a>
-              <a href="#" className="hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">Facebook</a>
+              <a href="#" className="self-start hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">LinkedIn</a>
+              <a href="#" className="self-start hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">Instagram</a>
+              <a href="#" className="self-start hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">Facebook</a>
             </div>
           </div>
         </div>
