@@ -19,7 +19,7 @@ export default function Registration() {
               Registration
             </span>
             <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tighter">Join NIBMCodeX 2.0</h2>
-            <p className="text-slate-400 text-lg font-light">Secure your spot. Limited slots available for the 48-hour sprint.</p>
+            <p className="text-slate-400 text-lg font-light">Secure your spot. Limited slots available for the 24-hour sprint.</p>
           </motion.div>
 
           <motion.form 

@@ -16,7 +16,7 @@ export default function Committee() {
     <section id="committee" className="relative py-32 bg-navy-950 overflow-hidden border-t border-white/5">
       <div className="absolute inset-0 z-0 opacity-20">
         <Image
-          src="/images/holodeck.png"
+          src="/images/holodeck.webp"
           alt="Holodeck Background"
           fill
           className="object-cover object-center"

@@ -15,7 +15,7 @@ export default function About() {
     <section id="about" className="relative py-32 w-full flex items-center min-h-[80vh] overflow-hidden bg-navy-950 border-t border-white/5">
       <div className="absolute inset-0 z-0 opacity-40">
         <Image
-          src="/images/symmetrical-corridor.png"
+          src="/images/symmetrical-corridor.webp"
           alt="Symmetrical Corridor"
           fill
           className="object-cover object-center"
@@ -36,7 +36,7 @@ export default function About() {
             </h2>
             
             <p className="text-lg md:text-xl text-slate-400 mb-16 leading-relaxed font-light tracking-wide">
-              NIBMCodeX 2.0 is more than just a hackathon. It's a 48-hour sprint of pure innovation, 
+              NIBMCodeX 2.0 is more than just a hackathon. It's a 24-hour sprint of pure innovation, 
               collaboration, and technological breakthrough. Join the brightest minds as we build 
               solutions that push the boundaries of what's possible.
             </p>

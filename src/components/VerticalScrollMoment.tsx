@@ -1,13 +1,13 @@
 'use client';
 import { useRef } from 'react';
 import Image from 'next/image';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion, useTransform } from 'framer-motion';
+import { useScrollProgress } from './SmoothScroll';
 
 export default function VerticalScrollMoment() {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
+  const { scrollYProgress } = useScrollProgress(containerRef, {
     offset: ["start end", "end start"]
   });
 
@@ -19,7 +19,7 @@ export default function VerticalScrollMoment() {
     <section ref={containerRef} className="relative z-10 h-[70vh] w-full overflow-hidden flex items-center justify-center bg-navy-950 border-t border-white/5">
       <motion.div style={{ y, scale }} className="absolute inset-0 z-0">
         <Image
-          src="/images/holodeck.png"
+          src="/images/holodeck.webp"
           alt="Holodeck Core"
           fill
           className="object-cover object-center opacity-90"

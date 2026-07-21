@@ -9,11 +9,11 @@ export default function FAQ() {
     { q: 'Who can participate?', a: 'Any university student with a passion for coding can join.' },
     { q: 'Is there a registration fee?', a: 'No, registration is completely free.' },
     { q: 'What is the team size?', a: 'Teams can have 3-5 members.' },
-    { q: 'Will meals be provided?', a: 'Yes, food and beverages will be provided during the 48-hour hackathon.' },
+    { q: 'Will meals be provided?', a: 'Yes, food and beverages will be provided during the 24-hour hackathon.' },
   ];
 
   return (
-    <section className="py-32 bg-navy-950 border-t border-white/5">
+    <section id="faq" className="py-32 bg-navy-950 border-t border-white/5">
       <div className="container mx-auto px-6 md:px-12 max-w-4xl">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

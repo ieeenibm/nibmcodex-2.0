@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Magnetic from './ui/Magnetic';
 
 export default function Footer() {
   return (
@@ -15,7 +14,7 @@ export default function Footer() {
               <span className="text-white ml-1 font-light opacity-80">2.0</span>
             </Link>
             <p className="text-slate-500 text-sm font-light leading-relaxed pr-4">
-              The ultimate 48-hour hackathon experience pushing the boundaries of innovation and technology.
+              The ultimate 24-hour hackathon experience pushing the boundaries of innovation and technology.
             </p>
           </div>
           
@@ -48,9 +47,9 @@ export default function Footer() {
           <div>
             <h4 className="text-white font-mono font-bold mb-8 uppercase tracking-[0.2em] text-xs">Socials</h4>
             <div className="flex flex-col space-y-4 text-sm text-slate-400 font-light">
-              <Magnetic><a href="#" className="hover:text-cyan-400 transition-colors self-start">LinkedIn</a></Magnetic>
-              <Magnetic><a href="#" className="hover:text-cyan-400 transition-colors self-start">Instagram</a></Magnetic>
-              <Magnetic><a href="#" className="hover:text-cyan-400 transition-colors self-start">Facebook</a></Magnetic>
+              <a href="#" className="self-start hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">LinkedIn</a>
+              <a href="#" className="self-start hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">Instagram</a>
+              <a href="#" className="self-start hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">Facebook</a>
             </div>
           </div>
         </div>
