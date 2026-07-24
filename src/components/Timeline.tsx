@@ -75,13 +75,28 @@ export default function Timeline() {
                   transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
                   className={`w-full md:w-[45%] pl-16 md:pl-0 ${idx % 2 === 0 ? 'md:text-left' : 'md:text-right'}`}
                 >
-                  <SpotlightCard className="glass-panel-light p-8 clip-slanted group hover:border-cyan-400/30 transition-all duration-500 shadow-xl">
-                    <div className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-3 flex items-center gap-2 md:inline-flex">
-                       <span className="w-2 h-2 rounded-sm bg-cyan-400/50 inline-block group-hover:bg-cyan-400 transition-colors"></span>
-                       {step.date}
+                  <SpotlightCard className="glass-panel-light p-8 clip-slanted group hover:border-cyan-400/30 transition-all duration-500 shadow-xl overflow-hidden relative">
+                    {/* Ripple effect overlay */}
+                    <motion.div
+                      initial={{ scale: 0, opacity: 0.5 }}
+                      whileInView={{ scale: 3, opacity: 0 }}
+                      viewport={{ margin: "-100px" }}
+                      transition={{ duration: 1, ease: "easeOut" }}
+                      className="absolute top-1/2 left-1/2 w-48 h-48 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none z-0"
+                      style={{
+                        background: 'radial-gradient(circle, rgba(34,211,238,0.25) 0%, rgba(34,211,238,0.08) 40%, transparent 70%)',
+                        originX: 0.5,
+                        originY: 0.5,
+                      }}
+                    />
+                    <div className="relative z-10">
+                      <div className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-3 flex items-center gap-2 md:inline-flex">
+                         <span className="w-2 h-2 rounded-sm bg-cyan-400/50 inline-block group-hover:bg-cyan-400 transition-colors"></span>
+                         {step.date}
+                      </div>
+                      <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors tracking-tight">{step.title}</h3>
+                      <p className="text-slate-400 font-light leading-relaxed text-sm md:text-base">{step.desc}</p>
                     </div>
-                    <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors tracking-tight">{step.title}</h3>
-                    <p className="text-slate-400 font-light leading-relaxed text-sm md:text-base">{step.desc}</p>
                   </SpotlightCard>
                 </motion.div>
                 
