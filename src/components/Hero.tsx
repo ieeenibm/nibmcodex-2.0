@@ -57,7 +57,7 @@ export default function Hero() {
           October 22-23, 2026 • NIBM
         </motion.div>
         
-        <motion.h1 variants={itemVariants} className="text-6xl md:text-8xl lg:text-[10rem] font-bold tracking-tighter mb-6 text-white leading-none">
+        <motion.h1 variants={itemVariants} className="text-6xl md:text-8xl lg:text-[10rem] font-bold tracking-tighter mb-6 text-white leading-none font-['Times_New_Roman',_Georgia,_serif]">
           NIBM<span className="text-gradient-cyan">CodeX</span> 2.0
         </motion.h1>
         

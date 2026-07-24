@@ -19,12 +19,11 @@ export default function Timeline() {
   });
 
   const steps = [
-    { title: 'Branch Awareness Sessions', date: 'Phase 1', desc: 'Kickstarting the journey across branches.' },
-    { title: 'Galle Matara', date: 'Phase 2', desc: 'Regional awareness and team formations.' },
-    { title: 'Kandy Kurunegala KIC', date: 'Phase 3', desc: 'Expanding the grid to Kandy and Kurunegala.' },
-    { title: 'AI ML Workshop', date: 'Phase 4', desc: 'Hands-on session to level up your machine learning skills.' },
-    { title: 'Summit', date: 'Phase 5', desc: 'The grand gathering of minds.' },
-    { title: 'IEEE Xtreme 20.0', date: 'Phase 6', desc: '24 Hours Coding Challenge. The ultimate test.' },
+    { title: 'Branch Awareness Sessions 1', date: '3rd Aug', desc: 'Galle, Matara' },
+    { title: 'Branch Awareness Sessions 2', date: '7th Aug', desc: 'KIC, Kandy, Kurunegala' },
+    { title: 'AI for Learning Workshop', date: '19th Aug', desc: 'Time not decided' },
+    { title: 'AI Summit', date: '12th Sep', desc: 'Full day event' },
+    { title: 'IEEEXtreme 20.0', date: '22-23 Oct', desc: '24 Hours Coding Challenge' },
   ];
 
   return (
