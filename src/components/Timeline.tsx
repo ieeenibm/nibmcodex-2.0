@@ -60,7 +60,7 @@ export default function Timeline() {
                 <motion.div 
                   initial={{ scale: 0 }}
                   whileInView={{ scale: 1 }}
-                  viewport={{ once: true, margin: "-100px" }}
+                  viewport={{ margin: "-100px" }}
                   transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
                   className="absolute left-[15px] md:left-1/2 w-6 h-6 rounded-full bg-navy-950 border-2 border-cyan-400 -translate-x-1/2 z-10 flex items-center justify-center shadow-[0_0_10px_rgba(34,211,238,0.4)]"
                 >
@@ -71,7 +71,7 @@ export default function Timeline() {
                 <motion.div 
                   initial={{ opacity: 0, x: idx % 2 === 0 ? 50 : -50 }}
                   whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
+                  viewport={{ margin: "-100px" }}
                   transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
                   className={`w-full md:w-[45%] pl-16 md:pl-0 ${idx % 2 === 0 ? 'md:text-left' : 'md:text-right'}`}
                 >
