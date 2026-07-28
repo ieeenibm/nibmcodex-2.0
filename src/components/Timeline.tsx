@@ -46,7 +46,7 @@ export default function Timeline() {
     },
     { 
       title: 'AI for Learning Workshop', 
-      date: <>19<sup className="lowercase">th</sup> of August</>, 
+      date: <>19<sup className="lowercase">th</sup> of August | 10:00 - 13:00</>, 
       desc: (
         <div className="inline-block text-left space-y-2">
           <div className="text-[14px] text-slate-300 font-medium italic -mt-1">
@@ -61,8 +61,18 @@ export default function Timeline() {
         </div>
       ) 
     },
-    { title: 'Code Grid Summit', date: <>12<sup className="lowercase">th</sup> of September</>, desc: 'Starting at 8:30 and end at 16:00' },
-    { title: 'IEEEXtreme 20.0', date: <>31<sup className="lowercase">st</sup> October - 1<sup className="lowercase">st</sup> November</>, desc: '24 hours coding challenge' },
+    { 
+      title: 'Code Grid Summit', 
+      date: <>12<sup className="lowercase">th</sup> of September | 08:30 - 16:00</>, 
+      desc: (
+        <div className="inline-block text-left space-y-2">
+          <div className="text-[14px] text-slate-300 font-medium italic -mt-1">
+            Where academic ends, Industry begins
+          </div>
+        </div>
+      ) 
+    },
+    { title: 'IEEEXtreme 20.0', date: <>31<sup className="lowercase">st</sup> October - 01<sup className="lowercase">st</sup> November</>, desc: '24 hours coding challenge' },
   ];
 
   return (
