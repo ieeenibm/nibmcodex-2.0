@@ -19,11 +19,50 @@ export default function Timeline() {
   });
 
   const steps = [
-    { title: 'Branch Awareness Sessions 1', date: '3rd Aug', desc: 'Galle, Matara' },
-    { title: 'Branch Awareness Sessions 2', date: '7th Aug', desc: 'KIC, Kandy, Kurunegala' },
-    { title: 'AI for Learning Workshop', date: '19th Aug', desc: 'Time not decided' },
-    { title: 'AI Summit', date: '12th Sep', desc: 'Full day event' },
-    { title: 'IEEEXtreme 20.0', date: '22-23 Oct', desc: '24 Hours Coding Challenge' },
+    { 
+      title: 'Branch Awareness Sessions 1', 
+      date: <>3<sup className="lowercase">rd</sup> of August</>, 
+      desc: (
+        <div className="inline-block text-left">
+          <div className="grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-1">
+            <span className="font-medium text-slate-300">Matara</span><span>:</span><span>10:30 - 11:30</span>
+            <span className="font-medium text-slate-300">Galle</span><span>:</span><span>14:30 - 15:30</span>
+          </div>
+        </div>
+      ) 
+    },
+    { 
+      title: 'Branch Awareness Sessions 2', 
+      date: <>7<sup className="lowercase">th</sup> of August</>, 
+      desc: (
+        <div className="inline-block text-left">
+          <div className="grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-1">
+            <span className="font-medium text-slate-300">KIC</span><span>:</span><span>10:30 - 11:30</span>
+            <span className="font-medium text-slate-300">Kandy</span><span>:</span><span>12:00 - 13:00</span>
+            <span className="font-medium text-slate-300">Kurunegala</span><span>:</span><span>14:30 - 15:30</span>
+          </div>
+        </div>
+      ) 
+    },
+    { 
+      title: 'AI for Learning Workshop', 
+      date: <>19<sup className="lowercase">th</sup> of August</>, 
+      desc: (
+        <div className="inline-block text-left space-y-2">
+          <div className="text-[14px] text-slate-300 font-medium italic -mt-1">
+            Enterprise, AI and Robotics Learning Outcomes
+          </div>
+          <div>
+            <div className="text-[13px] text-slate-400">
+              By <a href="https://www.linkedin.com/in/mark-elshaw-5a645814/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer">Dr. Mark Elshaw</a>
+            </div>
+            <div className="text-[13px] text-slate-400">Senior Lecturer in AI, Coventry University, UK</div>
+          </div>
+        </div>
+      ) 
+    },
+    { title: 'Code Grid Summit', date: <>12<sup className="lowercase">th</sup> of September</>, desc: 'Starting at 8:30 and end at 16:00' },
+    { title: 'IEEEXtreme 20.0', date: <>31<sup className="lowercase">st</sup> October - 1<sup className="lowercase">st</sup> November</>, desc: '24 hours coding challenge' },
   ];
 
   return (
@@ -90,7 +129,7 @@ export default function Timeline() {
                       }}
                     />
                     <div className="relative z-10">
-                      <div className="text-cyan-400 font-mono text-xs uppercase tracking-widest mb-3 flex items-center gap-2 md:inline-flex">
+                      <div className="text-cyan-400 font-mono text-xs tracking-widest mb-3 flex items-center gap-2 md:inline-flex">
                          <span className="w-2 h-2 rounded-sm bg-cyan-400/50 inline-block group-hover:bg-cyan-400 transition-colors"></span>
                          {step.date}
                       </div>
