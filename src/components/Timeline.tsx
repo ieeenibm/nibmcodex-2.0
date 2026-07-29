@@ -144,7 +144,7 @@ export default function Timeline() {
                          {step.date}
                       </div>
                       <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors tracking-tight">{step.title}</h3>
-                      <p className="text-slate-400 font-light leading-relaxed text-sm md:text-base">{step.desc}</p>
+                      <div className="text-slate-400 font-light leading-relaxed text-sm md:text-base">{step.desc}</div>
                     </div>
                   </SpotlightCard>
                 </motion.div>
