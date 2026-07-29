@@ -1,38 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NIBMCodeX 2.0 🚀
 
-## Getting Started
+> The ultimate hackathon experience
 
-First, run the development server:
+Welcome to the official repository for **NIBMCodeX 2.0**. This project is a modern, high-performance web application built to deliver a premium user experience with smooth animations, dynamic design, and optimal performance.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Next.js App Router**: Utilizing the latest React features and optimized routing.
+- **Tailwind CSS v4**: Utility-first styling for rapid and responsive design.
+- **Framer Motion**: Smooth, spring-based animations and transitions.
+- **Lenis Smooth Scroll**: Premium scrolling experience integrated across the app.
+- **Immersive UI Components**: Custom components including Preloader, Noise Overlays, and Click Sparks to elevate the visual aesthetics.
+- **Google Analytics Integrated**: Built-in usage tracking using `next/script`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Framework**: [Next.js](https://nextjs.org/)
+- **UI Library**: [React](https://react.dev/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Animations**: [Framer Motion](https://www.framer.com/motion/)
+- **Icons**: [Lucide React](https://lucide.dev/)
 
-## Learn More
+## 🚀 Getting Started
 
-To learn more about Next.js, take a look at the following resources:
+### Prerequisites
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Make sure you have Node.js installed (v18.17 or higher recommended).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Installation
 
-## Deploy on Vercel
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/nibmcodex-2.0.git
+   cd nibmcodex-2.0
+   ```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   # or
+   pnpm install
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3. Start the development server:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   # or
+   pnpm dev
+   ```
 
-<!-- Merged to main via fast-forward - post-merge verification commit -->
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## 📂 Project Structure
+
+- `src/app`: Contains the Next.js App Router pages and global layouts.
+- `src/components`: Reusable UI components (SmoothScroll, Preloader, NoiseOverlay, etc.).
+- `public`: Static assets like images and fonts.
+
+## 📄 License
+
+This project is licensed under the MIT License.
