@@ -6,10 +6,32 @@ export default function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
 
   const faqs = [
-    { q: 'Who can participate?', a: 'Any university student with a passion for coding can join.' },
-    { q: 'Is there a registration fee?', a: 'No, registration is completely free.' },
-    { q: 'What is the team size?', a: 'Teams can have 3-5 members.' },
-    { q: 'Will meals be provided?', a: 'Yes, food and beverages will be provided during the 24-hour hackathon.' },
+    { 
+      q: 'What is NIBM CodeX 2.0?', 
+      a: (
+        <>
+          NIBMCodeX 2.0 is a comprehensive tech initiative and event series organized by the IEEE Student Branch of NIBM. Rather than just a single hackathon, it is a multi-phase journey designed to build your skills from the ground up. The series features:
+          <ul className="list-disc pl-5 mt-2 space-y-1">
+            <li>Awareness Sessions across NIBM branches</li>
+            <li>AI for Learning Workshop</li>
+            <li>Code Grid Summit</li>
+            <li>The ultimate finale: competing in the global 24-hour IEEEXtreme 20.0 coding marathon.</li>
+          </ul>
+        </>
+      )
+    },
+    { 
+      q: 'What are the benefits of participating?', 
+      a: 'Beyond the thrill of the challenge, participants gain hands-on problem-solving experience, boost their portfolios, and network with industry professionals through the Code Grid Summit and workshops. Top performers in the final marathon stand to win exclusive prizes, trophies, and event goodies.' 
+    },
+    { 
+      q: 'Will certificates be provided?', 
+      a: 'Yes. Attendees who actively participate in the series and complete the 24-hour marathon will receive a certificate of participation and exclusive swags.' 
+    },
+    { 
+      q: 'Are food and accommodations provided?', 
+      a: 'Yes! For the final 24-hour overnight IEEEXtreme 20.0 marathon, the NIBM Computing Society and our corporate sponsors will fully provide meals, snacks, refreshments, and dedicated resting zones to keep you energized.' 
+    },
   ];
 
   return (
@@ -22,7 +44,7 @@ export default function FAQ() {
           className="text-center mb-20"
         >
           <span className="inline-block px-4 py-1 mb-6 border border-white/10 text-cyan-400 text-xs font-mono uppercase tracking-[0.2em] rounded-full">
-            Questions
+            Frequently Asked Questions
           </span>
           <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter">FAQ</h2>
         </motion.div>
