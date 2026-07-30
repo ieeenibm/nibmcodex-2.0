@@ -6,7 +6,7 @@ import Magnetic from './ui/Magnetic';
 import { useLenisScroll } from './SmoothScroll';
 
 export default function Hero() {
-  const { scrollY } = useLenisScroll();
+  const { scrollY, scrollTo } = useLenisScroll();
   const y = useTransform(scrollY, [0, 1000], [0, 300]);
   const opacity = useTransform(scrollY, [0, 500], [1, 0]);
 
