@@ -8,7 +8,7 @@ import { useLenisScroll } from './SmoothScroll';
 
 export default function Header() {
   const pathname = usePathname();
-  const { scrollY } = useLenisScroll();
+  const { scrollY, scrollTo } = useLenisScroll();
   const [scrolled, setScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -17,6 +17,15 @@ export default function Header() {
   });
 
   const isHome = pathname === '/';
+
+  /** Handle hash-link clicks with Lenis smooth scroll */
+  const handleNavClick = (e: React.MouseEvent, href: string) => {
+    if (href.startsWith('#')) {
+      e.preventDefault();
+      scrollTo(href, { offset: -80, duration: 1.2 });
+      setIsOpen(false);
+    }
+  };
 
   const navLinks = [
     { name: 'About', href: isHome ? '#about' : '/#about' },
@@ -46,6 +55,7 @@ export default function Header() {
             <Link 
               key={link.name} 
               href={link.href} 
+              onClick={(e) => handleNavClick(e, link.href)}
               className="text-xs uppercase tracking-[0.15em] text-slate-400 hover:text-cyan-300 transition-colors relative group"
             >
               {link.name}
@@ -74,8 +84,11 @@ export default function Header() {
                 <Link 
                   key={link.name} 
                   href={link.href} 
+                  onClick={(e) => {
+                    handleNavClick(e, link.href);
+                    setIsOpen(false);
+                  }}
                   className="text-sm uppercase tracking-[0.2em] text-slate-300 hover:text-cyan-300 transition-colors"
-                  onClick={() => setIsOpen(false)}
                 >
                   {link.name}
                 </Link>

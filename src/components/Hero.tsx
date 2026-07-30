@@ -5,6 +5,15 @@ import { ChevronDown } from 'lucide-react';
 import Magnetic from './ui/Magnetic';
 import { useLenisScroll } from './SmoothScroll';
 
+const scrollToSection = (e: React.MouseEvent) => {
+  const target = (e.currentTarget as HTMLAnchorElement).getAttribute('href');
+  if (target?.startsWith('#')) {
+    e.preventDefault();
+    /* Lenis scrollTo will be called via the nav handler */
+    document.querySelector(target)?.scrollIntoView({ behavior: 'smooth' });
+  }
+};
+
 export default function Hero() {
   const { scrollY } = useLenisScroll();
   const y = useTransform(scrollY, [0, 1000], [0, 300]);
@@ -67,7 +76,7 @@ export default function Hero() {
 
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-6 items-center">
           <Magnetic>
-            <a href="#about" className="group relative inline-flex items-center justify-center px-10 py-5 bg-cyan-500 text-navy-950 font-bold uppercase tracking-widest clip-slanted overflow-hidden transition-transform active:scale-95">
+            <a href="#about" onClick={scrollToSection} className="group relative inline-flex items-center justify-center px-10 py-5 bg-cyan-500 text-navy-950 font-bold uppercase tracking-widest clip-slanted overflow-hidden transition-transform active:scale-95">
               <span className="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-black"></span>
               <span className="relative z-10">Learn More</span>
               <div className="absolute inset-0 h-full w-full bg-white/20 group-hover:translate-x-full transition-transform duration-500 ease-out -translate-x-full skew-x-12"></div>
