@@ -197,7 +197,7 @@ export default function Committee() {
                     src={member.image}
                     alt={member.name}
                     fill
-                    className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                    className="object-cover object-[center_25%] transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/10 to-transparent"></div>
                 </div>
@@ -251,7 +251,7 @@ export default function Committee() {
                 src={proctor.image}
                 alt={proctor.name}
                 fill
-                className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                className="object-cover object-[center_30%] transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/10 to-transparent"></div>
             </div>
@@ -319,7 +319,7 @@ export default function Committee() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-6xl mx-auto">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-6xl mx-auto justify-items-center">
                 {teamsData[activeTeam].members.map((member, idx) => (
                   <motion.div
                     key={idx}
@@ -333,7 +333,7 @@ export default function Committee() {
                           src={`/images/nibmcodex-1.0/${member.img}`}
                           alt={`${member.first} ${member.last}`}
                           fill
-                          className="object-cover object-center transition-transform duration-500 group-hover:scale-110"
+                          className="object-cover object-[center_20%] transition-transform duration-500 group-hover:scale-110"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-navy-950/10 to-transparent"></div>
                       </div>
