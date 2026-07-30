@@ -7,7 +7,7 @@ const TARGET = new Date(Date.UTC(2026, 9, 31, 0, 0, 0));
 
 export default function CountdownSection() {
   return (
-    <section id="countdown" className="relative py-28 md:py-36 w-full flex items-center min-h-[70vh] overflow-hidden bg-navy-950 border-t border-white/5">
+    <section id="about" className="relative py-28 md:py-36 w-full flex items-center min-h-[70vh] overflow-hidden bg-navy-950 border-t border-white/5">
       {/* Ambient glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50%] h-1/2 bg-cyan-400/5 blur-[120px] rounded-full pointer-events-none z-0" />
 
