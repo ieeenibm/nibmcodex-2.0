@@ -37,7 +37,7 @@ function FlipDigit({ digit, idx }: { digit: string; idx: number }) {
 
             {/* ── Top half: shows UPPER portion of digit ── */}
             <div className="absolute top-0 left-0 right-0 h-1/2 flex items-start justify-center overflow-hidden bg-[#0f1d2e] shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
-              <span className="text-3xl xs:text-4xl sm:text-5xl md:text-7xl font-bold text-white font-['Courier_New',monospace] leading-none tracking-tight -mt-[0.1em]">
+              <span className="text-5xl sm:text-6xl md:text-7xl font-bold text-white font-['Courier_New',monospace] leading-none tracking-tight -mt-[0.12em]">
                 {digit}
               </span>
             </div>
@@ -52,7 +52,7 @@ function FlipDigit({ digit, idx }: { digit: string; idx: number }) {
 
             {/* ── Bottom half: shows LOWER portion of digit ── */}
             <div className="absolute bottom-0 left-0 right-0 h-1/2 flex items-end justify-center overflow-hidden bg-[#0b1727] shadow-[inset_0_-2px_4px_rgba(0,0,0,0.4)]">
-              <span className="text-3xl xs:text-4xl sm:text-5xl md:text-7xl font-bold text-white font-['Courier_New',monospace] leading-none tracking-tight -mb-[0.1em]">
+              <span className="text-5xl sm:text-6xl md:text-7xl font-bold text-white font-['Courier_New',monospace] leading-none tracking-tight -mb-[0.12em]">
                 {digit}
               </span>
             </div>
