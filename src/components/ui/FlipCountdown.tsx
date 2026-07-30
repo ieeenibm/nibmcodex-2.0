@@ -35,24 +35,24 @@ function FlipDigit({ digit, idx }: { digit: string; idx: number }) {
           {/* Card body — solid dark, sharp corners, physical depth */}
           <div className="w-full h-full bg-[#0d1b2a] border border-white/[0.06] shadow-[0_4px_16px_rgba(0,0,0,0.7),0_1px_0_rgba(255,255,255,0.03)_inset] overflow-hidden relative">
 
-            {/* Top half */}
-            <div className="absolute top-0 left-0 right-0 h-1/2 flex items-end justify-center bg-[#0f1d2e] shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
-              <span className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-bold text-white font-['Courier_New',monospace] leading-none tracking-tight -mb-px">
+            {/* ── Top half: shows UPPER portion of digit ── */}
+            <div className="absolute top-0 left-0 right-0 h-1/2 flex items-start justify-center overflow-hidden bg-[#0f1d2e] shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]">
+              <span className="text-3xl xs:text-4xl sm:text-5xl md:text-7xl font-bold text-white font-['Courier_New',monospace] leading-none tracking-tight -mt-[0.1em]">
                 {digit}
               </span>
             </div>
 
-            {/* Divider — clean dark line with subtle light bleed */}
-            <div className="absolute top-1/2 left-0 right-0 z-10 h-px bg-black/80" />
-            <div className="absolute top-1/2 left-[10%] right-[10%] z-10 h-px bg-white/[0.04]" />
+            {/* ── Divider ── */}
+            <div className="absolute top-1/2 left-0 right-0 z-10 h-px bg-black/90" />
+            <div className="absolute top-1/2 left-[10%] right-[10%] z-10 h-px bg-white/[0.06]" />
 
             {/* Centre screw-holes */}
-            <div className="absolute top-1/2 left-1.5 w-[5px] h-[5px] rounded-full bg-black/60 border border-white/[0.03] -translate-y-1/2" />
-            <div className="absolute top-1/2 right-1.5 w-[5px] h-[5px] rounded-full bg-black/60 border border-white/[0.03] -translate-y-1/2" />
+            <div className="absolute top-1/2 left-1.5 w-[5px] h-[5px] rounded-full bg-black/70 border border-white/[0.03] -translate-y-1/2" />
+            <div className="absolute top-1/2 right-1.5 w-[5px] h-[5px] rounded-full bg-black/70 border border-white/[0.03] -translate-y-1/2" />
 
-            {/* Bottom half */}
-            <div className="absolute bottom-0 left-0 right-0 h-1/2 flex items-start justify-center bg-[#0b1727] shadow-[inset_0_-2px_4px_rgba(0,0,0,0.4)]">
-              <span className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-bold text-white font-['Courier_New',monospace] leading-none tracking-tight -mt-px">
+            {/* ── Bottom half: shows LOWER portion of digit ── */}
+            <div className="absolute bottom-0 left-0 right-0 h-1/2 flex items-end justify-center overflow-hidden bg-[#0b1727] shadow-[inset_0_-2px_4px_rgba(0,0,0,0.4)]">
+              <span className="text-3xl xs:text-4xl sm:text-5xl md:text-7xl font-bold text-white font-['Courier_New',monospace] leading-none tracking-tight -mb-[0.1em]">
                 {digit}
               </span>
             </div>
