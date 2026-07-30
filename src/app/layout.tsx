@@ -3,6 +3,7 @@ import { Space_Mono, Inter } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import SmoothScroll from '@/components/SmoothScroll';
+import PageTransition from '@/components/PageTransition';
 import NoiseOverlay from '@/components/ui/NoiseOverlay';
 import Preloader from '@/components/Preloader';
 import ClickSpark from '@/components/ui/ClickSpark';
@@ -38,7 +39,9 @@ export default function RootLayout({
         <Preloader />
         <NoiseOverlay />
         <ClickSpark />
-        <SmoothScroll>{children}</SmoothScroll>
+        <SmoothScroll>
+          <PageTransition>{children}</PageTransition>
+        </SmoothScroll>
       </body>
     </html>
   );
