@@ -1,11 +1,13 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValueEvent } from 'framer-motion';
 import { useLenisScroll } from './SmoothScroll';
 
 export default function Header() {
+  const pathname = usePathname();
   const { scrollY } = useLenisScroll();
   const [scrolled, setScrolled] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -14,10 +16,13 @@ export default function Header() {
     setScrolled(latest > 50);
   });
 
+  const isHome = pathname === '/';
+
   const navLinks = [
-    { name: 'About', href: '#about' },
-    { name: 'Timeline', href: '#timeline' },
-    { name: 'FAQ', href: '#faq' },
+    { name: 'About', href: isHome ? '#about' : '/#about' },
+    { name: 'Timeline', href: isHome ? '#timeline' : '/#timeline' },
+    { name: 'FAQ', href: isHome ? '#faq' : '/#faq' },
+    { name: '1.0 Gallery', href: '/nibmcodex-1.0' },
   ];
 
   return (

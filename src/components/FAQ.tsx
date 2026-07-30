@@ -7,7 +7,7 @@ export default function FAQ() {
 
   const faqs = [
     { 
-      q: 'What is NIBM CodeX 2.0?', 
+      q: 'What is NIBMCodeX 2.0?', 
       a: (
         <>
           NIBMCodeX 2.0 is a comprehensive tech initiative and event series organized by the IEEE Student Branch of NIBM. Rather than just a single hackathon, it is a multi-phase journey designed to build your skills from the ground up. The series features:
