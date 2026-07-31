@@ -6,10 +6,11 @@ import { User } from 'lucide-react';
 import { FaLinkedin } from 'react-icons/fa';
 import SpotlightCard from './ui/SpotlightCard';
 
+import committeeData from '@/data/committee.json';
+
 interface Member {
   name: string;
   role: string;
-  position?: string;
   image?: string;
   linkedin?: string;
   highlight?: boolean;
@@ -20,33 +21,9 @@ interface Team {
   members: Member[];
 }
 
-function buildTeam(): Member[] {
-  return [
-    { name: 'John Doe', role: 'Lead', linkedin: '#', highlight: true },
-    { name: 'Jane Doe', role: 'Co-Lead', linkedin: '#', highlight: true },
-    ...Array.from({ length: 8 }, (_, i) => ({ name: `Team Member ${i + 1}`, role: 'Member', linkedin: '#' }) as Member),
-  ];
-}
-
-const leadership: Member[] = [
-  { name: 'John Doe', role: 'Counselor', linkedin: '#' },
-  { name: 'Jane Doe', role: 'Ambassador', linkedin: '#' },
-];
-
-const execBoard: Member[] = [
-  { name: 'John Doe', role: 'Chairperson', linkedin: '#' },
-  { name: 'Jane Doe', role: 'Vice Chair', linkedin: '#' },
-  { name: 'John Doe', role: 'Secretary', linkedin: '#' },
-  { name: 'Jane Doe', role: 'Treasurer', linkedin: '#' },
-  { name: 'John Doe', role: 'Webmaster', linkedin: '#' },
-];
-
-const teams: Team[] = [
-  { name: 'Program & Proctor Team', members: buildTeam() },
-  { name: 'Delegates Handling & Guest Relations Team', members: buildTeam() },
-  { name: 'Finance & Logistics Team', members: buildTeam() },
-  { name: 'Digital Systems & Marketing Team', members: buildTeam() },
-];
+const leadership: Member[] = committeeData.leadership;
+const execBoard: Member[] = committeeData.execBoard;
+const teams: Team[] = committeeData.teams;
 
 function MemberCard({ member, idx }: { member: Member; idx: number }) {
   return (
@@ -98,14 +75,6 @@ function MemberCard({ member, idx }: { member: Member; idx: number }) {
         <p className={`text-[10px] font-mono uppercase tracking-widest ${member.highlight ? 'text-cyan-400' : 'text-slate-400'}`}>
           {member.role}
         </p>
-        
-        {member.position ? (
-          <p className="text-[10px] text-slate-500 mt-2">
-            {member.position}
-          </p>
-        ) : (
-          <div className="mt-2" />
-        )}
       </SpotlightCard>
     </motion.div>
   );
