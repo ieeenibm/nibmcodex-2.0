@@ -1,6 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
-import FlipCountdown from './ui/FlipCountdown';
+import CountdownTimer from './ui/CountdownTimer';
 
 /* ── countdown target: Oct 31, 2026 00:00 ──────────────── */
 const TARGET = new Date(Date.UTC(2026, 9, 31, 0, 0, 0));
@@ -34,14 +34,14 @@ export default function CountdownSection() {
           </p>
         </motion.div>
 
-        {/* Flip Countdown Timer */}
+        {/* Countdown Timer */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          <FlipCountdown targetDate={TARGET} />
+          <CountdownTimer targetDate={TARGET} />
         </motion.div>
 
         {/* Event date context */}
