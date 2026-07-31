@@ -5,7 +5,7 @@ import SectionSeparator from '@/components/SectionSeparator';
 import Timeline from '@/components/Timeline';
 import VerticalScrollMoment from '@/components/VerticalScrollMoment';
 // import About from '@/components/About';
-// import Committee from '@/components/Committee';
+import Committee from '@/components/Committee';
 // import Sponsors from '@/components/Sponsors';
 import FAQ from '@/components/FAQ';
 // import Registration from '@/components/Registration';
@@ -21,7 +21,7 @@ export default function Home() {
       <Timeline />
       <VerticalScrollMoment />
       {/* <About /> */}
-      {/* <Committee /> */}
+      <Committee />
       {/* <Sponsors /> */}
       <FAQ />
       {/* <Registration /> */}
