@@ -1,6 +1,7 @@
 'use client';
+import { useState } from 'react';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { User } from 'lucide-react';
 import SpotlightCard from './ui/SpotlightCard';
 
@@ -70,6 +71,8 @@ function MemberCard({ member, idx }: { member: Member; idx: number }) {
 }
 
 export default function Committee() {
+  const [activeTeam, setActiveTeam] = useState(0);
+
   return (
     <section id="committee" className="relative py-32 bg-navy-950 overflow-hidden border-t border-white/5">
       <div className="absolute inset-0 z-0 opacity-20">
@@ -118,18 +121,46 @@ export default function Committee() {
         </div>
 
         {/* OC Teams */}
-        {teams.map((team) => (
-          <div key={team.name} className="mb-20 last:mb-0">
-            <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-10">
-              {team.name}
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-6xl mx-auto">
-              {team.members.map((member, idx) => (
-                <MemberCard key={idx} member={member} idx={idx} />
-              ))}
-            </div>
+        <div>
+          <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-10">
+            OC Teams
+          </h3>
+
+          {/* Team Tabs */}
+          <div className="flex flex-wrap justify-center gap-2 mb-12">
+            {teams.map((team, idx) => (
+              <button
+                key={team.name}
+                onClick={() => setActiveTeam(idx)}
+                className={`px-4 py-2 text-xs font-mono uppercase tracking-wider clip-slanted transition-all duration-300 ${
+                  activeTeam === idx
+                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
+                    : 'text-slate-400 border border-white/5 hover:border-white/20 hover:text-slate-300'
+                }`}
+              >
+                {team.name}
+                <span className="ml-1.5 opacity-50">({team.members.length})</span>
+              </button>
+            ))}
           </div>
-        ))}
+
+          {/* Active Team Members Grid */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTeam}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-6xl mx-auto">
+                {teams[activeTeam].members.map((member, idx) => (
+                  <MemberCard key={idx} member={member} idx={idx} />
+                ))}
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </section>
   );
