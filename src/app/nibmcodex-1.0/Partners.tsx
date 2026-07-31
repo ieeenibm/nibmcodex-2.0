@@ -8,11 +8,6 @@ const partnerGroups = [
     label: 'Organized By',
     partners: [
       { name: 'IEEE Student Branch of NIBM', image: '/images/nibmcodex-1.0/sponsor-ieee.png' },
-    ],
-  },
-  {
-    label: 'Organizing Partners',
-    partners: [
       { name: 'NIBM City University', image: '/images/nibmcodex-1.0/sponsor-city.png' },
       { name: 'NIBM Computer Society', image: '/images/nibmcodex-1.0/sponsor-cs.png' },
     ],
@@ -30,12 +25,6 @@ const partnerGroups = [
       { name: 'PickMe', image: '/images/nibmcodex-1.0/sponsor-pickme.png' },
       { name: 'Dilexus', image: '/images/nibmcodex-1.0/sponsor-dilexus.png' },
       { name: 'Toursurv', image: '/images/nibmcodex-1.0/sponsor-toursurv.png' },
-    ],
-  },
-  {
-    label: 'Media & Community Partners',
-    partners: [
-      { name: 'HackSL', image: '/images/nibmcodex-1.0/sponsor-hacksl.png' },
       { name: 'NIBM Gavel Club', image: '/images/nibmcodex-1.0/sponsor-gavel.png' },
       { name: 'Maliban Kiri', image: '/images/nibmcodex-1.0/sponsor-maliban.png' },
       { name: 'Lemino Bliss', image: '/images/nibmcodex-1.0/sponsor-lemino.png' },
@@ -88,14 +77,14 @@ export default function Partners() {
                     transition={{ delay: gIdx * 0.1 + pIdx * 0.05 }}
                     className="w-[180px]"
                   >
-                    <SpotlightCard className="glass-panel-light p-6 clip-slanted flex items-center justify-center h-24 group">
+                    <SpotlightCard className="bg-white/95 p-6 clip-slanted flex items-center justify-center h-24 group">
                       <div className="relative w-full h-full flex items-center justify-center">
                         <Image
                           src={partner.image}
                           alt={partner.name}
                           width={120}
                           height={60}
-                          className="object-contain opacity-60 group-hover:opacity-100 transition-opacity duration-300 grayscale group-hover:grayscale-0"
+                          className="object-contain transition-transform duration-300 group-hover:scale-105"
                         />
                       </div>
                     </SpotlightCard>
