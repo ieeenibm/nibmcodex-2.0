@@ -50,12 +50,6 @@ export default function Footer() {
                   <li className="hover:text-cyan-400 transition-colors cursor-pointer w-max">
                     <a href="mailto:Ieee.sb@nibm.lk">Ieee.sb@nibm.lk</a>
                   </li>
-                  <li className="hover:text-cyan-400 transition-colors cursor-pointer w-max">
-                    <a href="mailto:sankhajay.work@gmail.com">sankhajay.work@gmail.com</a>
-                  </li>
-                  <li className="hover:text-cyan-400 transition-colors cursor-pointer w-max">
-                    <a href="mailto:nibmcodex@gmail.com">nibmcodex@gmail.com</a>
-                  </li>
                 </ul>
               </div>
               
