@@ -18,7 +18,7 @@ export default function Footer() {
   return (
     <footer className="bg-[#02040a] pt-24 pb-12 border-t border-white/5 relative overflow-hidden">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
-      
+
       <div className="container mx-auto px-6 md:px-12 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-7 gap-12 lg:gap-16 mb-20">
           <div className="md:col-span-2 lg:pr-8">
@@ -31,7 +31,7 @@ export default function Footer() {
               The ultimate 24-hour hackathon experience pushing the boundaries of innovation and technology.
             </p>
           </div>
-          
+
           <div>
             <h4 className="text-white font-mono font-bold mb-8 uppercase tracking-[0.2em] text-xs">Quick Links</h4>
             <ul className="space-y-4 text-sm text-slate-400 font-light">
@@ -48,15 +48,15 @@ export default function Footer() {
                 <h4 className="text-white font-mono font-bold mb-8 uppercase tracking-[0.2em] text-xs">Email</h4>
                 <ul className="space-y-4">
                   <li className="hover:text-cyan-400 transition-colors cursor-pointer w-max">
-                    <a href="mailto:Ieee.sb@nibm.lk">Ieee.sb@nibm.lk</a>
+                    <a href="mailto:Ieee.sb@nibm.lk">ieee.sb@nibm.lk</a>
                   </li>
                 </ul>
               </div>
-              
+
               <div>
                 <h4 className="text-white font-mono font-bold mb-8 uppercase tracking-[0.2em] text-xs">Phone</h4>
                 <div className="hover:text-cyan-400 transition-colors cursor-pointer w-max">
-                  <a href="tel:+94705989666">+94 70 5989 666</a>
+                  <a href="tel:+94778872879">+94 77 887 2879</a>
                 </div>
               </div>
 
