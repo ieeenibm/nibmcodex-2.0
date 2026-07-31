@@ -3,10 +3,16 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User } from 'lucide-react';
+import { FaLinkedin } from 'react-icons/fa';
 import SpotlightCard from './ui/SpotlightCard';
 
+import committeeData from '@/data/committee.json';
+
 interface Member {
+  name: string;
   role: string;
+  image?: string;
+  linkedin?: string;
   highlight?: boolean;
 }
 
@@ -15,33 +21,9 @@ interface Team {
   members: Member[];
 }
 
-function buildTeam(): Member[] {
-  return [
-    { role: 'Lead', highlight: true },
-    { role: 'Co-Lead', highlight: true },
-    ...Array.from({ length: 8 }, () => ({ role: 'Member' }) as Member),
-  ];
-}
-
-const leadership: Member[] = [
-  { role: 'Counselor' },
-  { role: 'Ambassador' },
-];
-
-const execBoard: Member[] = [
-  { role: 'Chairperson' },
-  { role: 'Vice Chair' },
-  { role: 'Secretary' },
-  { role: 'Treasurer' },
-  { role: 'Webmaster' },
-];
-
-const teams: Team[] = [
-  { name: 'Program & Proctor Team', members: buildTeam() },
-  { name: 'Delegates Handling & Guest Relations Team', members: buildTeam() },
-  { name: 'Finance & Logistics Team', members: buildTeam() },
-  { name: 'Digital Systems & Marketing Team', members: buildTeam() },
-];
+const leadership: Member[] = committeeData.leadership;
+const execBoard: Member[] = committeeData.execBoard;
+const teams: Team[] = committeeData.teams;
 
 function MemberCard({ member, idx }: { member: Member; idx: number }) {
   return (
@@ -50,19 +32,47 @@ function MemberCard({ member, idx }: { member: Member; idx: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: (idx % 5) * 0.05 }}
+      className="h-full"
     >
       <SpotlightCard
-        className={`p-6 flex flex-col items-center text-center group ${
+        className={`h-full p-6 flex flex-col items-center text-center group ${
           member.highlight ? 'glass-panel border-cyan-400/30' : 'glass-panel'
         }`}
         spotlightColor={
           member.highlight ? 'rgba(34, 211, 238, 0.2)' : 'rgba(255, 255, 255, 0.08)'
         }
       >
-        <div className="w-20 h-20 rounded-full mb-4 flex items-center justify-center bg-navy-950 border border-white/10 text-slate-500 group-hover:text-cyan-400 group-hover:border-cyan-400/40 transition-colors duration-300">
-          <User size={32} strokeWidth={1.5} />
+        <div className="relative mb-5 mt-2">
+          <div className="relative w-28 h-28 rounded-full flex items-center justify-center bg-navy-900 border-2 border-white/5 text-slate-500 overflow-hidden group-hover:border-cyan-400/40 group-hover:ring-4 group-hover:ring-cyan-400/10 transition-all duration-500">
+            {member.image ? (
+              <Image
+                src={member.image}
+                alt={member.name}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+            ) : (
+              <User size={36} strokeWidth={1.5} className="group-hover:text-cyan-400 transition-colors duration-300" />
+            )}
+          </div>
+          
+          {member.linkedin && (
+            <a
+              href={member.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="absolute bottom-0 right-0 translate-x-1 translate-y-1 p-2 rounded-full bg-navy-950 border border-white/10 text-slate-400 hover:text-cyan-400 hover:border-cyan-400/50 hover:bg-cyan-950/50 transition-all duration-300 z-10 shadow-xl"
+              aria-label={`LinkedIn of ${member.name}`}
+            >
+              <FaLinkedin size={16} />
+            </a>
+          )}
         </div>
-        <p className={`text-xs font-mono uppercase tracking-widest ${member.highlight ? 'text-cyan-400' : 'text-slate-400'}`}>
+        
+        <h4 className="text-sm font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors">
+          {member.name}
+        </h4>
+        <p className={`text-[10px] font-mono uppercase tracking-widest ${member.highlight ? 'text-cyan-400' : 'text-slate-400'}`}>
           {member.role}
         </p>
       </SpotlightCard>
