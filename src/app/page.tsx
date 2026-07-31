@@ -19,9 +19,9 @@ export default function Home() {
       <CountdownSection />
       <SectionSeparator />
       <Timeline />
+      <Committee />
       <VerticalScrollMoment />
       {/* <About /> */}
-      <Committee />
       {/* <Sponsors /> */}
       <FAQ />
       {/* <Registration /> */}
