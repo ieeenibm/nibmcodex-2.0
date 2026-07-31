@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import SpotlightCard from '@/components/ui/SpotlightCard';
 
 const stats = [
-  { value: '150+', label: 'Participants' },
+  { value: '140+', label: 'Participants' },
   { value: '40+', label: 'Teams Competed' },
   { value: '10+', label: 'Industry Partners' },
 ];
