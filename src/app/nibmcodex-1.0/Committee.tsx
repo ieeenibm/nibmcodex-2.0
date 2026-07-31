@@ -357,16 +357,15 @@ export default function Committee() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-6xl mx-auto">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-6xl mx-auto justify-items-center">
                 {teamsData[activeTeam].members.map((member, idx) => (
                   <motion.div
                     key={idx}
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: idx * 0.03 }}
-                    className="w-full"
                   >
-                    <SpotlightCard className="group glass-panel-light clip-slanted overflow-hidden h-full w-full">
+                    <SpotlightCard className="group glass-panel-light clip-slanted overflow-hidden h-full">
                       <div className="relative h-28 sm:h-32 overflow-hidden">
                         <Image
                           src={`/images/nibmcodex-1.0/${member.img}`}
