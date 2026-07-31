@@ -7,27 +7,27 @@ const partnerGroups = [
   {
     label: 'Organized By',
     partners: [
-      { name: 'IEEE Student Branch of NIBM', image: '/images/nibmcodex-1.0/sponsor-ieee.png' },
-      { name: 'NIBM City University', image: '/images/nibmcodex-1.0/sponsor-city.png' },
-      { name: 'NIBM Computer Society', image: '/images/nibmcodex-1.0/sponsor-cs.png' },
+      { name: 'IEEE Student Branch of NIBM', image: '/images/nibmcodex-1.0/sponsor-ieeesb.png' },
+      { name: 'NIBM City University', image: '/images/nibmcodex-1.0/sponsor-nibm1.png' },
+      { name: 'NIBM Computer Society', image: '/images/nibmcodex-1.0/sponsor-nibmcs.png' },
     ],
   },
   {
     label: 'National Partners',
     partners: [
-      { name: 'ICTA', image: '/images/nibmcodex-1.0/sponsor-icta.png' },
+      { name: 'ICTA', image: '/images/nibmcodex-1.0/sponsor-icta1.png' },
     ],
   },
   {
     label: 'Collaborative Partners',
     partners: [
-      { name: 'Dialog', image: '/images/nibmcodex-1.0/sponsor-dialog.png' },
-      { name: 'PickMe', image: '/images/nibmcodex-1.0/sponsor-pickme.png' },
-      { name: 'Dilexus', image: '/images/nibmcodex-1.0/sponsor-dilexus.png' },
-      { name: 'Toursurv', image: '/images/nibmcodex-1.0/sponsor-toursurv.png' },
-      { name: 'NIBM Gavel Club', image: '/images/nibmcodex-1.0/sponsor-gavel.png' },
-      { name: 'Maliban Kiri', image: '/images/nibmcodex-1.0/sponsor-maliban.png' },
-      { name: 'Lemino Bliss', image: '/images/nibmcodex-1.0/sponsor-lemino.png' },
+      { name: 'Dialog', image: '/images/nibmcodex-1.0/sponsor-dialog1.png' },
+      { name: 'PickMe', image: '/images/nibmcodex-1.0/sponsor-pickme1.png' },
+      { name: 'Dilexus', image: '/images/nibmcodex-1.0/sponsor-dilexus1.png' },
+      { name: 'Toursurv', image: '/images/nibmcodex-1.0/sponsor-toursurv1.png' },
+      { name: 'NIBM Gavel Club', image: '/images/nibmcodex-1.0/sponsor-gavel1.png' },
+      { name: 'Maliban Kiri', image: '/images/nibmcodex-1.0/sponsor-maliban1.png' },
+      { name: 'Lemino Bliss', image: '/images/nibmcodex-1.0/sponsor-lemino1.png' },
     ],
   },
 ];
