@@ -50,23 +50,11 @@ export default function Footer() {
                   <li className="hover:text-cyan-400 transition-colors cursor-pointer w-max">
                     <a href="mailto:Ieee.sb@nibm.lk">ieee.sb@nibm.lk</a>
                   </li>
-                  <li className="hover:text-cyan-400 transition-colors cursor-pointer w-max">
-                    <a href="mailto:sankhajay.work@gmail.com">pradeeshakantha@gmail.com</a>
-                  </li>
-                  <li className="hover:text-cyan-400 transition-colors cursor-pointer w-max">
-                    <a href="mailto:nibmcodex@gmail.com">chandisarandeni@gmail.com</a>
-                  </li>
-                  <li className="hover:text-cyan-400 transition-colors cursor-pointer w-max">
-                    <a href="mailto:nibmcodex@gmail.com">nibmcodex@gmail.com</a>
-                  </li>
                 </ul>
               </div>
 
               <div>
                 <h4 className="text-white font-mono font-bold mb-8 uppercase tracking-[0.2em] text-xs">Phone</h4>
-                <div className="hover:text-cyan-400 transition-colors cursor-pointer w-max mb-4">
-                  <a href="tel:+94778872879">+94 77 887 2879</a>
-                </div>
                 <div className="hover:text-cyan-400 transition-colors cursor-pointer w-max">
                   <a href="tel:+94778872879">+94 77 887 2879</a>
                 </div>
