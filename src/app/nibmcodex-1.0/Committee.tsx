@@ -5,13 +5,7 @@ import Image from 'next/image';
 import { ExternalLink } from 'lucide-react';
 import SpotlightCard from '@/components/ui/SpotlightCard';
 
-const committee = [
-  {
-    name: 'Thusathmi Sapumanage',
-    role: 'Secretary — Executive Committee',
-    image: '/images/nibmcodex-1.0/h3.jpg',
-    linkedin: 'https://www.linkedin.com/in/thusathmi-sapumanage',
-  },
+const execBoard = [
   {
     name: 'Pradeesha Hettiarachchi',
     role: 'Chairperson — Executive Committee',
@@ -25,12 +19,19 @@ const committee = [
     linkedin: 'https://www.linkedin.com/in/pabodha-ihalagama',
   },
   {
-    name: 'Thenuja Dulwana',
-    role: 'Student Branch Ambassador',
-    image: '/images/nibmcodex-1.0/h1.jpg',
-    linkedin: 'https://www.linkedin.com/in/thenujadulwana',
+    name: 'Thusathmi Sapumanage',
+    role: 'Secretary — Executive Committee',
+    image: '/images/nibmcodex-1.0/h3.jpg',
+    linkedin: 'https://www.linkedin.com/in/thusathmi-sapumanage',
   },
 ];
+
+const ambassador = {
+  name: 'Thenuja Dulwana',
+  role: 'Student Branch Ambassador',
+  image: '/images/nibmcodex-1.0/h1.jpg',
+  linkedin: 'https://www.linkedin.com/in/thenujadulwana',
+};
 
 const proctor = {
   name: 'Mr. Niranga Dharmaratna',
@@ -182,8 +183,45 @@ export default function Committee() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto mb-20">
-          {committee.map((member, idx) => (
+        {/* Student Branch Ambassador */}
+        <div className="max-w-sm mx-auto mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-50px' }}
+          >
+            <SpotlightCard className="group h-full glass-panel-light clip-slanted overflow-hidden">
+              <div className="relative h-64 overflow-hidden">
+                <Image
+                  src={ambassador.image}
+                  alt={ambassador.name}
+                  fill
+                  className="object-cover object-[center_25%] transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/10 to-transparent"></div>
+              </div>
+              <div className="p-5">
+                <h3 className="text-base font-bold text-white mb-1 tracking-tight group-hover:text-cyan-300 transition-colors">
+                  {ambassador.name}
+                </h3>
+                <p className="text-xs text-slate-400 font-light mb-3">{ambassador.role}</p>
+                <a
+                  href={ambassador.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-cyan-400 text-xs font-mono uppercase tracking-wider hover:text-cyan-300 transition-colors"
+                >
+                  <ExternalLink size={14} strokeWidth={1.5} />
+                  LinkedIn
+                </a>
+              </div>
+            </SpotlightCard>
+          </motion.div>
+        </div>
+
+        {/* Executive Committee */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto mb-20">
+          {execBoard.map((member, idx) => (
             <motion.div
               key={idx}
               initial={{ opacity: 0, y: 30 }}
@@ -361,26 +399,6 @@ export default function Committee() {
               </div>
             </motion.div>
           </AnimatePresence>
-
-          {/* Team Leads Legend */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="mt-10 text-center"
-          >
-            <div className="inline-flex items-center gap-6 text-[10px] text-slate-500 font-mono uppercase tracking-wider">
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-yellow-400/60"></span> Team Lead
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-cyan-400/60"></span> Co-Lead
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-white/20"></span> Member
-              </span>
-            </div>
-          </motion.div>
         </div>
       </div>
     </section>
