@@ -1,0 +1,311 @@
+{
+  "leadership": [
+    {
+      "name": "Ms. Chandula Rajapaksa",
+      "role": "Counselor",
+      "image": "/images/committee/CHANDULA_RAJAPAKSA.jpg",
+      "linkedin": "https://www.linkedin.com/in/chandula-rajapaksa-3710ab97/"
+    },
+    {
+      "name": "Shaveen Waduge",
+      "role": "Ambassador",
+      "image": "/images/committee/SHAVEEN_WADUGE.jpg",
+      "linkedin": "https://www.linkedin.com/in/shaveen-galappaththi-0254b0354/"
+    }
+  ],
+  "execBoard": [
+    {
+      "name": "Chandisa Randeni",
+      "role": "Chairperson",
+      "image": "/images/committee/CHANDISA_RANDENI.jpg",
+      "linkedin": "https://www.linkedin.com/in/chandisarandeni/"
+    },
+    {
+      "name": "Pasindu Rathnayaka",
+      "role": "Vice Chair",
+      "image": "/images/committee/PASINDU_RATHNAYAKA_V2.png",
+      "linkedin": "https://www.linkedin.com/in/pasindu-l-rathnayaka/"
+    },
+    {
+      "name": "Renuratcha Mohanaraj",
+      "role": "Secretary",
+      "image": "/images/committee/RENURATCHA_MOHANARAJ .png",
+      "linkedin": "https://www.linkedin.com/in/renuratcha-mohanaraj/"
+    },
+    {
+      "name": "Dimuthu Jayasinghe",
+      "role": "Treasurer",
+      "image": "/images/committee/DIMUTHU_JAYASINGHE.jpg",
+      "linkedin": "https://www.linkedin.com/in/dimuthuj94/"
+    },
+    {
+      "name": "Supun Hewagamage",
+      "role": "Webmaster",
+      "image": "/images/committee/SUPUN_HEWAGAMAGE.jpg",
+      "linkedin": "https://www.linkedin.com/in/supunhewagamage/"
+    }
+  ],
+  "teams": [
+    {
+      "name": "Program & Proctor Team",
+      "members": [
+        {
+          "name": "Dinol Silva",
+          "role": "Lead",
+          "image": "/images/committee/DINOL_SILVA.jpeg",
+          "linkedin": "https://www.linkedin.com/in/dinol-silva-8918a4423/",
+          "highlight": true
+        },
+        {
+          "name": "Saviru Indeepa",
+          "role": "Co-Lead",
+          "image": "/images/committee/SAVIRU_INDEEPA.jpg",
+          "linkedin": "https://www.linkedin.com/in/saviru-indeepa-99a807242",
+          "highlight": true
+        },
+        {
+          "name": "Dulan Dhanush",
+          "role": "Member",
+          "image": "/images/committee/DULAN_DHANUSH.jpg",
+          "linkedin": "https://www.linkedin.com/in/dulan-dhanush-b76a44300/"
+        },
+        {
+          "name": "Udana Wickramasuriya",
+          "role": "Member",
+          "image": "/images/committee/UDANA_WICKRAMASURIYA.jpg",
+          "linkedin": "https://www.linkedin.com/in/udana-wickramasuriya-612676344/"
+        },
+        {
+          "name": "Jessica Nawarathna",
+          "role": "Member",
+          "image": "/images/committee/JESSICA_NAWARATHNA.jpg",
+          "linkedin": "https://www.linkedin.com/in/jessica-nawarathna-97bb9b375/"
+        },
+        {
+          "name": "Anjana Alwis",
+          "role": "Member",
+          "image": "/images/committee/ANJANA_ALWIS.jpg",
+          "linkedin": "https://www.linkedin.com/in/anjanaalwis/"
+        },
+        {
+          "name": "Nelusha Hettiarachchi",
+          "role": "Member",
+          "image": "/images/committee/NELUSHA_HETTIARACHCHI.jpeg",
+          "linkedin": "https://www.linkedin.com/in/nelusha-sajaya-hettiarachchi-a3ab361a5/"
+        },
+        {
+          "name": "Harshitha Thineth",
+          "role": "Member",
+          "image": "/images/committee/HARSHITHA_THINETH.jpg",
+          "linkedin": "https://www.linkedin.com/in/harshitha-thineth-senadheera-85bab933b/"
+        },
+        {
+          "name": "Sudil Lakindu",
+          "role": "Member",
+          "image": "/images/committee/SUDIL_LAKINDU.jpg",
+          "linkedin": "https://www.linkedin.com/in/sudillakindu/"
+        },
+        {
+          "name": "Eashika Ashubod",
+          "role": "Member",
+          "image": "/images/committee/EASHIKA_ASHUBOD.png",
+          "linkedin": "https://www.linkedin.com/in/eashika-ashubod-7227322bb/"
+        }
+      ]
+    },
+    {
+      "name": "Delegates Handling & Guest Relations Team",
+      "members": [
+        {
+          "name": "Nabila Fahim",
+          "role": "Lead",
+          "image": "/images/committee/NABILA_FAHIM.png",
+          "linkedin": "https://www.linkedin.com/in/nabila-fahim/",
+          "highlight": true
+        },
+        {
+          "name": "Kevindra Baylon",
+          "role": "Co-Lead",
+          "image": "/images/committee/KEVINDRA_BEYLON.jpeg",
+          "linkedin": "https://www.linkedin.com/in/kevindra-amesha-baylon/",
+          "highlight": true
+        },
+        {
+          "name": "Danushka Madushan",
+          "role": "Member",
+          "image": "/images/committee/DANUSHKA_MADUSHAN.jpg",
+          "linkedin": "https://www.linkedin.com/in/danushka-madushan/"
+        },
+        {
+          "name": "Kalpa Sri",
+          "role": "Member",
+          "image": "/images/committee/KALPA_SRI.jpg",
+          "linkedin": "https://www.linkedin.com/in/mdnkalpasri/"
+        },
+        {
+          "name": "Danushyan Elangovan",
+          "role": "Member",
+          "image": "/images/committee/DANUSHYAN_ELANGOVAN.jpg",
+          "linkedin": "https://www.linkedin.com/in/danushyan-elangovan-b402aa2ba/"
+        },
+        {
+          "name": "Ruvini Molligoda",
+          "role": "Member",
+          "image": "/images/committee/RUVINI_MOLLIGODA.jpg",
+          "linkedin": "https://www.linkedin.com/in/ruvini-molligoda-078b22380/"
+        },
+        {
+          "name": "Ashinsana Dewsarani",
+          "role": "Member",
+          "image": "/images/committee/ASHINSANA_DEWSARANI.jpg",
+          "linkedin": "https://www.linkedin.com/in/ashinsana-dewsarani-8224753b7/"
+        },
+        {
+          "name": "Thamasha Nethmini",
+          "role": "Member",
+          "image": "/images/committee/THAMASHA_NETHMINI.jpg",
+          "linkedin": "https://www.linkedin.com/in/thamasha-samaranayake-268a42302/"
+        },
+        {
+          "name": "Vishwa Roshel",
+          "role": "Member",
+          "image": "/images/committee/VISHWA_ROSHEL.png",
+          "linkedin": "https://www.linkedin.com/in/vishwa-roshel-288015320/"
+        },
+        {
+          "name": "Tharindu Jananjaya",
+          "role": "Member",
+          "image": "/images/committee/THARINDU_JANANJAYA.jpeg",
+          "linkedin": "https://www.linkedin.com/in/tharindujb/"
+        }
+      ]
+    },
+    {
+      "name": "Finance & Logistics Team",
+      "members": [
+        {
+          "name": "Devindu Charles",
+          "role": "Lead",
+          "image": "/images/committee/DEVINDU_CHARLES.png",
+          "linkedin": "https://www.linkedin.com/in/devindu-charles/",
+          "highlight": true
+        },
+        {
+          "name": "Sivakumar Sheshanth",
+          "role": "Member",
+          "image": "/images/committee/SIVAKUMAR_SHESHANTH .jpg",
+          "linkedin": "https://www.linkedin.com/in/sivakumar-sheshanth/"
+        },
+        {
+          "name": "Aaqil Amanulla",
+          "role": "Member",
+          "image": "/images/committee/AAQIL_AMANULLA.jpg",
+          "linkedin": "https://www.linkedin.com/in/aaqil-amanulla-18861a369/"
+        },
+        {
+          "name": "Chanura Madushan",
+          "role": "Member",
+          "image": "",
+          "linkedin": "#"
+        },
+        {
+          "name": "Achira Pamuditha",
+          "role": "Member",
+          "image": "/images/committee/ACHIRA_PAMUDITHA.jpg",
+          "linkedin": "https://www.linkedin.com/in/achira-pamuditha-4065663a3/"
+        },
+        {
+          "name": "Sethumi Senethma",
+          "role": "Member",
+          "image": "/images/committee/SETHUMI_SENETHMA.jpg",
+          "linkedin": "#"
+        },
+        {
+          "name": "Suvandi Ranasinghe",
+          "role": "Member",
+          "image": "/images/committee/SUVANDI_RANASINGHE.jpg",
+          "linkedin": "https://www.linkedin.com/in/suvandi-ranasinghe-450901378/"
+        },
+        {
+          "name": "Dileeshapa Dananjaya",
+          "role": "Member",
+          "image": "/images/committee/DILEESHAPA_DANANJAYA.jpg",
+          "linkedin": "https://www.linkedin.com/in/dileeshapa-dananjaya-869747363/"
+        },
+        {
+          "name": "Maleesha Hashan Piyathissa",
+          "role": "Member",
+          "image": "/images/committee/MALEESHA_HASHAN_PIYATHISSA.jpg",
+          "linkedin": "https://www.linkedin.com/in/maleesha-piyathissa-1210733b0/"
+        }
+      ]
+    },
+    {
+      "name": "Digital Systems & Marketing Team",
+      "members": [
+        {
+          "name": "Timesh Dillan",
+          "role": "Lead",
+          "image": "/images/committee/TIMESH_DILLAN.jpg",
+          "linkedin": "https://www.linkedin.com/in/timesh-dillon/",
+          "highlight": true
+        },
+        {
+          "name": "Amhar Muneeb",
+          "role": "Co-Lead",
+          "image": "/images/committee/AMHAR_MUNEEB.png",
+          "linkedin": "https://www.linkedin.com/in/amharmuneeb/",
+          "highlight": true
+        },
+        {
+          "name": "Danithu Panthila",
+          "role": "Member",
+          "image": "/images/committee/DANITHU_PANTHILA.jpg",
+          "linkedin": "https://www.linkedin.com/in/danithu-panthila-a93b76424/"
+        },
+        {
+          "name": "Mayantha Udayanga",
+          "role": "Member",
+          "image": "/images/committee/MAYANTHA_UDAYANGA.jpg",
+          "linkedin": "https://www.linkedin.com/in/mayanthaudayanga/"
+        },
+        {
+          "name": "Shashini Nathasha",
+          "role": "Member",
+          "image": "/images/committee/SHASHINI_NATHASHA.jpg",
+          "linkedin": "https://www.linkedin.com/in/shashini-nathasha-96345a334/"
+        },
+        {
+          "name": "Mohammed Nazeef",
+          "role": "Member",
+          "image": "/images/committee/MOHAMMED_NAZEEF.png",
+          "linkedin": "https://www.linkedin.com/in/nazeef-rizna-073565310/"
+        },
+        {
+          "name": "Gavesh Saparamadu",
+          "role": "Member",
+          "image": "/images/committee/GAVESH_SAPARAMADU.jpg",
+          "linkedin": "https://www.linkedin.com/in/gaveshhh/"
+        },
+        {
+          "name": "AMA.Zimthi",
+          "role": "Member",
+          "image": "",
+          "linkedin": "#"
+        },
+        {
+          "name": "Nipuna Dilshan",
+          "role": "Member",
+          "image": "/images/committee/NIPUN_DILSHAN.jpeg",
+          "linkedin": "https://www.linkedin.com/in/nipuna-d-gunarathna/"
+        },
+        {
+          "name": "Oshan Ayod De Silva",
+          "role": "Member",
+          "image": "/images/committee/OSHAN_AYOD_DE_SILVA.jpg",
+          "linkedin": "https://www.linkedin.com/in/oshan-ayod/"
+        }
+      ]
+    }
+  ]
+}

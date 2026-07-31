@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useContext, useEffect, useRef } from 'react';
+import { createContext, useContext, useEffect, useRef, useCallback } from 'react';
 import { useMotionValue, MotionValue, useTransform } from 'framer-motion';
 import Lenis from '@studio-freight/lenis';
 
@@ -7,6 +7,11 @@ import Lenis from '@studio-freight/lenis';
 interface ScrollCtx {
   scrollY: MotionValue<number>;
   viewportHeight: MotionValue<number>;
+  /** Smooth-scroll to a target (selector string, element, or number) */
+  scrollTo: (
+    target: string | HTMLElement | number,
+    options?: { offset?: number; duration?: number; immediate?: boolean; lock?: boolean }
+  ) => void;
 }
 
 const ScrollContext = createContext<ScrollCtx | null>(null);
@@ -67,6 +72,16 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
   const scrollY = useMotionValue(0);
   const viewportHeight = useMotionValue(0);
   const rafId = useRef<number>(0);
+  const lenisRef = useRef<Lenis | null>(null);
+
+  const scrollTo = useCallback<ScrollCtx['scrollTo']>(
+    (target, options) => {
+      if (lenisRef.current) {
+        lenisRef.current.scrollTo(target, options);
+      }
+    },
+    []
+  );
 
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
@@ -84,6 +99,8 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
       wheelMultiplier: isWindows ? 0.5 : 1,
       touchMultiplier: isWindows ? 1 : 2,
     });
+
+    lenisRef.current = lenis;
 
     lenis.on('scroll', (e: { scroll: number }) => {
       scrollY.set(e.scroll);
@@ -103,6 +120,7 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
 
     return () => {
       cancelAnimationFrame(rafId.current);
+      lenisRef.current = null;
       lenis.destroy();
       window.removeEventListener('resize', onResize);
     };
@@ -110,7 +128,7 @@ export default function SmoothScroll({ children }: { children: React.ReactNode }
   /* eslint-enable react-hooks/exhaustive-deps */
 
   return (
-    <ScrollContext.Provider value={{ scrollY, viewportHeight }}>
+    <ScrollContext.Provider value={{ scrollY, viewportHeight, scrollTo }}>
       {children}
     </ScrollContext.Provider>
   );

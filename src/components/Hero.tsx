@@ -6,7 +6,7 @@ import Magnetic from './ui/Magnetic';
 import { useLenisScroll } from './SmoothScroll';
 
 export default function Hero() {
-  const { scrollY } = useLenisScroll();
+  const { scrollY, scrollTo } = useLenisScroll();
   const y = useTransform(scrollY, [0, 1000], [0, 300]);
   const opacity = useTransform(scrollY, [0, 500], [1, 0]);
 
@@ -66,11 +66,10 @@ export default function Hero() {
         </motion.p>
 
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-6 items-center">
+          <LearnMoreButton scrollTo={scrollTo} />
           <Magnetic>
-            <a href="#about" className="group relative inline-flex items-center justify-center px-10 py-5 bg-cyan-500 text-navy-950 font-bold uppercase tracking-widest clip-slanted overflow-hidden transition-transform active:scale-95">
-              <span className="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-black"></span>
-              <span className="relative z-10">Learn More</span>
-              <div className="absolute inset-0 h-full w-full bg-white/20 group-hover:translate-x-full transition-transform duration-500 ease-out -translate-x-full skew-x-12"></div>
+            <a href="/nibmcodex-1.0" className="group relative inline-flex items-center justify-center px-10 py-5 border border-cyan-400/30 text-cyan-300 font-bold uppercase tracking-widest clip-slanted overflow-hidden transition-all hover:border-cyan-400/60 hover:bg-cyan-400/5 active:scale-95">
+              <span className="relative z-10">View 1.0 Gallery</span>
             </a>
           </Magnetic>
         </motion.div>
@@ -90,5 +89,30 @@ export default function Hero() {
         </motion.div>
       </motion.div>
     </section>
+  );
+}
+
+type ScrollToFn = (
+  target: string | HTMLElement | number,
+  options?: { offset?: number; duration?: number; immediate?: boolean; lock?: boolean }
+) => void;
+
+/** Separate small component so it can also access the Lenis context */
+function LearnMoreButton({ scrollTo }: { scrollTo: ScrollToFn }) {
+  return (
+    <Magnetic>
+      <a
+        href="#about"
+        onClick={(e) => {
+          e.preventDefault();
+          scrollTo('#about', { offset: -80, duration: 1.2 });
+        }}
+        className="group relative inline-flex items-center justify-center px-10 py-5 bg-cyan-500 text-navy-950 font-bold uppercase tracking-widest clip-slanted overflow-hidden transition-transform active:scale-95"
+      >
+        <span className="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-black"></span>
+        <span className="relative z-10">Learn More</span>
+        <div className="absolute inset-0 h-full w-full bg-white/20 group-hover:translate-x-full transition-transform duration-500 ease-out -translate-x-full skew-x-12"></div>
+      </a>
+    </Magnetic>
   );
 }
