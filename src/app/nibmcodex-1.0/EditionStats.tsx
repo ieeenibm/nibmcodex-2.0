@@ -3,12 +3,9 @@ import { motion } from 'framer-motion';
 import SpotlightCard from '@/components/ui/SpotlightCard';
 
 const stats = [
-  { value: '24', label: 'Hours of Coding' },
   { value: '150+', label: 'Participants' },
   { value: '40+', label: 'Teams Competed' },
   { value: '10+', label: 'Industry Partners' },
-  { value: 'Rs 75K+', label: 'Prize Pool' },
-  { value: '1', label: 'Champion Crowned' },
 ];
 
 export default function EditionStats() {
@@ -34,7 +31,7 @@ export default function EditionStats() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-3 gap-6 max-w-3xl mx-auto">
           {stats.map((stat, idx) => (
             <motion.div
               key={idx}
