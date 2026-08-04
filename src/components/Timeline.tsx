@@ -97,8 +97,10 @@ export default function Timeline() {
           
           {/* Animated Active Line */}
           <motion.div 
-            style={{ scaleY, originY: 0 }} 
-            className="absolute left-[27px] md:left-1/2 top-0 bottom-0 w-[2px] bg-cyan-400 -translate-x-1/2 z-0 shadow-[0_0_15px_rgba(34,211,238,0.5)]"
+            style={{ scaleY, originY: 0 }}
+            initial={{ x: "-50%" }}
+            animate={{ x: "-50%" }}
+            className="absolute left-[27px] md:left-1/2 top-0 bottom-0 w-[2px] bg-cyan-400 z-0 shadow-[0_0_15px_rgba(34,211,238,0.5)]"
           ></motion.div>
           
           <div className="space-y-16">
@@ -107,11 +109,11 @@ export default function Timeline() {
                 
                 {/* Marker */}
                 <motion.div 
-                  initial={{ scale: 0 }}
-                  whileInView={{ scale: 1 }}
+                  initial={{ scale: 0, x: "-50%", y: "-50%" }}
+                  whileInView={{ scale: 1, x: "-50%", y: "-50%" }}
                   viewport={{ margin: "-100px" }}
                   transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
-                  className="absolute left-[15px] md:left-1/2 w-6 h-6 rounded-full bg-navy-950 border-2 border-cyan-400 -translate-x-1/2 z-10 flex items-center justify-center shadow-[0_0_10px_rgba(34,211,238,0.4)]"
+                  className="absolute left-[27px] top-1/2 md:left-1/2 w-6 h-6 rounded-full bg-navy-950 border-2 border-cyan-400 z-10 flex items-center justify-center shadow-[0_0_10px_rgba(34,211,238,0.4)]"
                 >
                   <div className="w-1.5 h-1.5 rounded-full bg-cyan-400"></div>
                 </motion.div>
@@ -127,11 +129,11 @@ export default function Timeline() {
                   <SpotlightCard className="glass-panel-light p-8 clip-slanted group hover:border-cyan-400/30 transition-all duration-500 shadow-xl overflow-hidden relative">
                     {/* Ripple effect overlay */}
                     <motion.div
-                      initial={{ scale: 0, opacity: 0.5 }}
-                      whileInView={{ scale: 3, opacity: 0 }}
+                      initial={{ scale: 0, opacity: 0.5, x: "-50%", y: "-50%" }}
+                      whileInView={{ scale: 3, opacity: 0, x: "-50%", y: "-50%" }}
                       viewport={{ margin: "-100px" }}
                       transition={{ duration: 1, ease: "easeOut" }}
-                      className="absolute top-1/2 left-1/2 w-48 h-48 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none z-0"
+                      className="absolute top-1/2 left-1/2 w-48 h-48 rounded-full pointer-events-none z-0"
                       style={{
                         background: 'radial-gradient(circle, rgba(34,211,238,0.25) 0%, rgba(34,211,238,0.08) 40%, transparent 70%)',
                         originX: 0.5,
