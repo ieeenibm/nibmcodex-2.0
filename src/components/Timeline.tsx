@@ -1,11 +1,18 @@
 'use client';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useSpring } from 'framer-motion';
 import { useScrollProgress } from './SmoothScroll';
 import SpotlightCard from './ui/SpotlightCard';
 
 export default function Timeline() {
   const containerRef = useRef<HTMLElement>(null);
+  const [now, setNow] = useState<Date | null>(null);
+
+  useEffect(() => {
+    setNow(new Date());
+    const interval = setInterval(() => setNow(new Date()), 60000); // update every minute
+    return () => clearInterval(interval);
+  }, []);
   
   const { scrollYProgress } = useScrollProgress(containerRef, {
     offset: ["start center", "end center"]
@@ -18,10 +25,12 @@ export default function Timeline() {
     restDelta: 0.001
   });
 
-  const steps = [
+  const rawSteps = [
     { 
       title: 'Branch Awareness Sessions 1', 
       date: <>3<sup className="lowercase">rd</sup> of August</>, 
+      startISO: '2026-08-03T10:30:00+05:30',
+      endISO: '2026-08-03T15:30:00+05:30',
       desc: (
         <div className="inline-block text-left">
           <div className="grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-1">
@@ -34,6 +43,8 @@ export default function Timeline() {
     { 
       title: 'Branch Awareness Sessions 2', 
       date: <>7<sup className="lowercase">th</sup> of August</>, 
+      startISO: '2026-08-07T10:30:00+05:30',
+      endISO: '2026-08-07T15:30:00+05:30',
       desc: (
         <div className="inline-block text-left">
           <div className="grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-1">
@@ -47,6 +58,8 @@ export default function Timeline() {
     { 
       title: 'AI for Learning Workshop', 
       date: <>19<sup className="lowercase">th</sup> of August | 10:00 - 13:00</>, 
+      startISO: '2026-08-19T10:00:00+05:30',
+      endISO: '2026-08-19T13:00:00+05:30',
       desc: (
         <div className="inline-block text-left space-y-2">
           <div className="text-[14px] text-slate-300 font-medium italic -mt-1">
@@ -64,6 +77,8 @@ export default function Timeline() {
     { 
       title: 'Code Grid Summit', 
       date: <>12<sup className="lowercase">th</sup> of September | 08:30 - 16:00</>, 
+      startISO: '2026-09-12T08:30:00+05:30',
+      endISO: '2026-09-12T16:00:00+05:30',
       desc: (
         <div className="inline-block text-left space-y-2">
           <div className="text-[14px] text-slate-300 font-medium italic -mt-1">
@@ -72,8 +87,35 @@ export default function Timeline() {
         </div>
       ) 
     },
-    { title: 'IEEEXtreme 20.0', date: <>31<sup className="lowercase">st</sup> October - 01<sup className="lowercase">st</sup> November</>, desc: '24 hours coding challenge' },
+    { 
+      title: 'IEEEXtreme 20.0', 
+      date: <>31<sup className="lowercase">st</sup> October - 01<sup className="lowercase">st</sup> November</>, 
+      startISO: '2026-10-31T00:00:00+05:30',
+      endISO: '2026-11-01T23:59:59+05:30',
+      desc: '24 hours coding challenge' 
+    },
   ];
+
+  // Process states
+  const steps = rawSteps.map(step => {
+    let status = 'upcoming';
+    if (now) {
+      const start = new Date(step.startISO).getTime();
+      const end = new Date(step.endISO).getTime();
+      const current = now.getTime();
+      
+      if (current > end) status = 'completed';
+      else if (current >= start && current <= end) status = 'active';
+    }
+    return { ...step, status };
+  });
+
+  // Highlight the immediate next event if nothing is currently active
+  const hasActive = steps.some(s => s.status === 'active');
+  const firstUpcomingIdx = steps.findIndex(s => s.status === 'upcoming');
+  if (!hasActive && firstUpcomingIdx !== -1) {
+    steps[firstUpcomingIdx].status = 'next';
+  }
 
   return (
     <section id="timeline" ref={containerRef} className="py-32 bg-navy-950 relative border-t border-white/5">
@@ -104,57 +146,98 @@ export default function Timeline() {
           ></motion.div>
           
           <div className="space-y-16">
-            {steps.map((step, idx) => (
-              <div key={idx} className={`relative flex items-center md:justify-between flex-col md:flex-row ${idx % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
-                
-                {/* Marker */}
-                <motion.div 
-                  initial={{ scale: 0, x: "-50%", y: "-50%" }}
-                  whileInView={{ scale: 1, x: "-50%", y: "-50%" }}
-                  viewport={{ margin: "-100px" }}
-                  transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
-                  className="absolute left-[27px] top-1/2 md:left-1/2 w-6 h-6 rounded-full bg-navy-950 border-2 border-cyan-400 z-10 flex items-center justify-center shadow-[0_0_10px_rgba(34,211,238,0.4)]"
-                >
-                  <div className="w-1.5 h-1.5 rounded-full bg-cyan-400"></div>
-                </motion.div>
+            {steps.map((step, idx) => {
+              const isCompleted = step.status === 'completed';
+              const isActive = step.status === 'active' || step.status === 'next';
 
-                {/* Content Card */}
-                <motion.div 
-                  initial={{ opacity: 0, x: idx % 2 === 0 ? 50 : -50 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ margin: "-100px" }}
-                  transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
-                  className={`w-full md:w-[45%] pl-16 md:pl-0 ${idx % 2 === 0 ? 'md:text-left' : 'md:text-right'}`}
-                >
-                  <SpotlightCard className="glass-panel-light p-8 clip-slanted group hover:border-cyan-400/30 transition-all duration-500 shadow-xl overflow-hidden relative">
-                    {/* Ripple effect overlay */}
-                    <motion.div
-                      initial={{ scale: 0, opacity: 0.5, x: "-50%", y: "-50%" }}
-                      whileInView={{ scale: 3, opacity: 0, x: "-50%", y: "-50%" }}
-                      viewport={{ margin: "-100px" }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                      className="absolute top-1/2 left-1/2 w-48 h-48 rounded-full pointer-events-none z-0"
-                      style={{
-                        background: 'radial-gradient(circle, rgba(34,211,238,0.25) 0%, rgba(34,211,238,0.08) 40%, transparent 70%)',
-                        originX: 0.5,
-                        originY: 0.5,
-                      }}
-                    />
-                    <div className="relative z-10">
-                      <div className="text-cyan-400 font-mono text-xs tracking-widest mb-3 flex items-center gap-2 md:inline-flex">
-                         <span className="w-2 h-2 rounded-sm bg-cyan-400/50 inline-block group-hover:bg-cyan-400 transition-colors"></span>
-                         {step.date}
+              return (
+                <div key={idx} className={`relative flex items-center md:justify-between flex-col md:flex-row ${idx % 2 === 0 ? 'md:flex-row-reverse' : ''}`}>
+                  
+                  {/* Marker */}
+                  <motion.div 
+                    initial={{ scale: 0, x: "-50%", y: "-50%" }}
+                    whileInView={{ scale: 1, x: "-50%", y: "-50%" }}
+                    viewport={{ margin: "-100px" }}
+                    transition={{ type: "spring", stiffness: 300, damping: 20, delay: 0.2 }}
+                    className={`absolute left-[27px] top-1/2 md:left-1/2 w-6 h-6 rounded-full border-2 z-10 flex items-center justify-center transition-colors duration-700
+                      ${isCompleted ? 'bg-navy-950 border-slate-700' : 'bg-navy-950 border-cyan-400'}
+                      ${isActive ? 'shadow-[0_0_15px_rgba(34,211,238,0.8)] border-cyan-300' : 'shadow-[0_0_10px_rgba(34,211,238,0.4)]'}
+                    `}
+                  >
+                    <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-700
+                      ${isCompleted ? 'bg-slate-700' : 'bg-cyan-400'}
+                      ${isActive ? 'animate-pulse bg-cyan-300 shadow-[0_0_8px_rgba(34,211,238,1)]' : ''}
+                    `}></div>
+                    
+                    {/* Ripple for active item */}
+                    {isActive && (
+                       <span className="absolute inset-0 rounded-full animate-ping bg-cyan-400/40"></span>
+                    )}
+                  </motion.div>
+
+                  {/* Content Card */}
+                  <motion.div 
+                    initial={{ opacity: 0, x: idx % 2 === 0 ? 50 : -50 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ margin: "-100px" }}
+                    transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
+                    className={`w-full md:w-[45%] pl-16 md:pl-0 ${idx % 2 === 0 ? 'md:text-left' : 'md:text-right'}`}
+                  >
+                    <SpotlightCard className={`glass-panel-light p-8 clip-slanted overflow-hidden relative transition-all duration-700 shadow-xl
+                      ${isCompleted ? 'opacity-50 grayscale hover:opacity-60' : 'group hover:border-cyan-400/30'}
+                      ${isActive ? 'border-cyan-400/40 ring-1 ring-cyan-400/10' : ''}
+                    `}>
+                      {/* Ripple effect overlay */}
+                      {!isCompleted && (
+                        <motion.div
+                          initial={{ scale: 0, opacity: 0.5, x: "-50%", y: "-50%" }}
+                          whileInView={{ scale: 3, opacity: 0, x: "-50%", y: "-50%" }}
+                          viewport={{ margin: "-100px" }}
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          className="absolute top-1/2 left-1/2 w-48 h-48 rounded-full pointer-events-none z-0"
+                          style={{
+                            background: 'radial-gradient(circle, rgba(34,211,238,0.25) 0%, rgba(34,211,238,0.08) 40%, transparent 70%)',
+                            originX: 0.5,
+                            originY: 0.5,
+                          }}
+                        />
+                      )}
+                      
+                      <div className="relative z-10">
+                        <div className={`font-mono text-xs tracking-widest mb-3 flex items-center gap-2 md:inline-flex flex-wrap
+                          ${isCompleted ? 'text-slate-500' : 'text-cyan-400'}
+                        `}>
+                           {!isCompleted && (
+                             <span className="w-2 h-2 rounded-sm bg-cyan-400/50 inline-block group-hover:bg-cyan-400 transition-colors"></span>
+                           )}
+                           {step.date}
+                           
+                           {/* Status Badge */}
+                           {step.status === 'completed' && (
+                             <span className="px-2 py-0.5 rounded border border-slate-700 bg-slate-800/50 text-[10px] ml-2 text-slate-400">COMPLETED</span>
+                           )}
+                           {step.status === 'active' && (
+                             <span className="px-2 py-0.5 rounded border border-cyan-400/50 bg-cyan-500/20 text-[10px] ml-2 text-cyan-300 animate-pulse shadow-[0_0_10px_rgba(34,211,238,0.3)]">ONGOING</span>
+                           )}
+                           {step.status === 'next' && (
+                             <span className="px-2 py-0.5 rounded border border-cyan-400/50 bg-cyan-500/10 text-[10px] ml-2 text-cyan-300 shadow-[0_0_5px_rgba(34,211,238,0.2)]">NEXT UP</span>
+                           )}
+                        </div>
+                        <h3 className={`text-2xl font-bold mb-2 transition-colors tracking-tight
+                          ${isCompleted ? 'text-slate-300' : 'text-white group-hover:text-cyan-300'}
+                        `}>{step.title}</h3>
+                        <div className={`font-light leading-relaxed text-sm md:text-base
+                          ${isCompleted ? 'text-slate-500' : 'text-slate-400'}
+                        `}>{step.desc}</div>
                       </div>
-                      <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors tracking-tight">{step.title}</h3>
-                      <div className="text-slate-400 font-light leading-relaxed text-sm md:text-base">{step.desc}</div>
-                    </div>
-                  </SpotlightCard>
-                </motion.div>
-                
-                {/* Empty space for alternating layout */}
-                <div className="hidden md:block md:w-[45%]"></div>
-              </div>
-            ))}
+                    </SpotlightCard>
+                  </motion.div>
+                  
+                  {/* Empty space for alternating layout */}
+                  <div className="hidden md:block md:w-[45%]"></div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
