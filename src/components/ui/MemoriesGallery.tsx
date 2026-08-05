@@ -117,11 +117,16 @@ export default function MemoriesGallery({ images, eventTitle }: MemoriesGalleryP
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${eventTitle} memories`}
             className="fixed inset-0 z-[9999] bg-navy-950/95 backdrop-blur-xl flex items-center justify-center"
             onClick={closeLightbox}
           >
             {/* Close button */}
             <button
+              type="button"
+              aria-label="Close lightbox"
               onClick={closeLightbox}
               className="absolute top-6 right-6 w-10 h-10 rounded-full glass-panel-light flex items-center justify-center text-white/70 hover:text-white hover:border-cyan-400/40 transition-all z-10 cursor-pointer"
             >
@@ -137,6 +142,8 @@ export default function MemoriesGallery({ images, eventTitle }: MemoriesGalleryP
 
             {/* Prev button */}
             <button
+              type="button"
+              aria-label="Previous image"
               onClick={(e) => { e.stopPropagation(); goPrev(); }}
               className="absolute left-4 md:left-8 w-10 h-10 rounded-full glass-panel-light flex items-center justify-center text-white/70 hover:text-white hover:border-cyan-400/40 transition-all z-10 cursor-pointer"
             >
@@ -169,6 +176,8 @@ export default function MemoriesGallery({ images, eventTitle }: MemoriesGalleryP
 
             {/* Next button */}
             <button
+              type="button"
+              aria-label="Next image"
               onClick={(e) => { e.stopPropagation(); goNext(); }}
               className="absolute right-4 md:right-8 w-10 h-10 rounded-full glass-panel-light flex items-center justify-center text-white/70 hover:text-white hover:border-cyan-400/40 transition-all z-10 cursor-pointer"
             >

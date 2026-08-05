@@ -10,9 +10,12 @@ export default function Timeline() {
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
-    setTimeout(() => setNow(new Date()), 0); // delay slightly to avoid synchronous setState in effect
+    const timeout = setTimeout(() => setNow(new Date()), 0); // delay slightly to avoid synchronous setState in effect
     const interval = setInterval(() => setNow(new Date()), 60000); // update every minute
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(timeout);
+      clearInterval(interval);
+    };
   }, []);
   
   const { scrollYProgress } = useScrollProgress(containerRef, {
