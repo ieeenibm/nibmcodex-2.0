@@ -46,11 +46,11 @@ export default function SectionSeparator() {
               <span className="text-lg md:text-2xl font-mono text-slate-400 uppercase tracking-widest mx-8">
                 Push Boundaries
               </span>
-              <span className="text-slate-600 mx-4">///</span>
+              <span className="text-slate-600 mx-4">{"///"}</span>
               <span className="text-lg md:text-2xl font-mono text-slate-400 uppercase tracking-widest mx-8">
                 Innovate & Conquer
               </span>
-              <span className="text-slate-600 mx-4">///</span>
+              <span className="text-slate-600 mx-4">{"///"}</span>
             </div>
           ))}
         </div>

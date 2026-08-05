@@ -49,6 +49,7 @@ function MemberCard({ member, idx }: { member: Member; idx: number }) {
                 src={member.image}
                 alt={member.name}
                 fill
+                sizes="112px"
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
               />
             ) : (
@@ -90,6 +91,7 @@ export default function Committee() {
           src="/images/holodeck.webp"
           alt="Holodeck Background"
           fill
+          sizes="100vw"
           className="object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-navy-950 via-navy-950/80 to-navy-950"></div>

@@ -10,7 +10,7 @@ export default function Timeline() {
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
-    setNow(new Date());
+    setTimeout(() => setNow(new Date()), 0); // delay slightly to avoid synchronous setState in effect
     const interval = setInterval(() => setNow(new Date()), 60000); // update every minute
     return () => clearInterval(interval);
   }, []);
