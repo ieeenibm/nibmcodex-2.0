@@ -3,6 +3,7 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, useSpring } from 'framer-motion';
 import { useScrollProgress } from './SmoothScroll';
 import SpotlightCard from './ui/SpotlightCard';
+import MemoriesGallery from './ui/MemoriesGallery';
 
 export default function Timeline() {
   const containerRef = useRef<HTMLElement>(null);
@@ -31,6 +32,7 @@ export default function Timeline() {
       date: <>3<sup className="lowercase">rd</sup> of August</>, 
       startISO: '2026-08-03T10:30:00+05:30',
       endISO: '2026-08-03T15:30:00+05:30',
+      memories: Array.from({ length: 8 }, (_, i) => `/images/memories/awareness-sessions-1/${i + 1}.webp`),
       desc: (
         <div className="inline-block text-left">
           <div className="grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-1">
@@ -184,7 +186,7 @@ export default function Timeline() {
                     className={`w-full md:w-[45%] pl-16 md:pl-0 ${idx % 2 === 0 ? 'md:text-left' : 'md:text-right'}`}
                   >
                     <SpotlightCard className={`glass-panel-light p-8 clip-slanted overflow-hidden relative transition-all duration-700 shadow-xl
-                      ${isCompleted ? 'opacity-50 grayscale hover:opacity-60' : 'group hover:border-cyan-400/30'}
+                      ${isCompleted ? (step.memories && step.memories.length > 0 ? 'opacity-80 hover:opacity-100' : 'opacity-50 grayscale hover:opacity-60') : 'group hover:border-cyan-400/30'}
                       ${isActive ? 'border-cyan-400/40 ring-1 ring-cyan-400/10' : ''}
                     `}>
                       {/* Ripple effect overlay */}
@@ -229,6 +231,11 @@ export default function Timeline() {
                         <div className={`font-light leading-relaxed text-sm md:text-base
                           ${isCompleted ? 'text-slate-500' : 'text-slate-400'}
                         `}>{step.desc}</div>
+
+                        {/* Memories Gallery for completed events */}
+                        {isCompleted && step.memories && step.memories.length > 0 && (
+                          <MemoriesGallery images={step.memories} eventTitle={step.title} />
+                        )}
                       </div>
                     </SpotlightCard>
                   </motion.div>
