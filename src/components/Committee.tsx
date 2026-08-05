@@ -42,8 +42,8 @@ function MemberCard({ member, idx }: { member: Member; idx: number }) {
           member.highlight ? 'rgba(34, 211, 238, 0.2)' : 'rgba(255, 255, 255, 0.08)'
         }
       >
-        <div className="relative mb-5 mt-2">
-          <div className="relative w-28 h-28 rounded-full flex items-center justify-center bg-navy-900 border-2 border-white/5 text-slate-500 overflow-hidden group-hover:border-cyan-400/40 group-hover:ring-4 group-hover:ring-cyan-400/10 transition-all duration-500">
+        <div className="relative mb-5 mt-2 w-28 h-28 mx-auto">
+          <div className="relative w-full h-full rounded-full flex items-center justify-center bg-navy-900 border-2 border-white/5 text-slate-500 overflow-hidden group-hover:border-cyan-400/40 group-hover:ring-4 group-hover:ring-cyan-400/10 transition-all duration-500">
             {member.image ? (
               <Image
                 src={member.image}

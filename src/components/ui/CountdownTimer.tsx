@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 
+import { motion, AnimatePresence } from 'framer-motion';
+
 /* ── helpers ─────────────────────────────────────────── */
 function pad(n: number): string {
   return String(Math.max(0, n)).padStart(2, '0');
@@ -22,10 +24,23 @@ function calcTimeLeft(target: Date) {
 function Unit({ value, label }: { value: string; label: string }) {
   return (
     <div className="flex flex-col items-center gap-2 sm:gap-3">
-      <div className="glass-panel-light rounded-lg min-w-[56px] px-2 py-3 sm:min-w-[76px] sm:px-4 sm:py-4 md:min-w-[92px]">
-        <span className="font-mono text-2xl sm:text-4xl md:text-5xl font-bold text-cyan-400 tabular-nums leading-none tracking-tight">
-          {value}
+      <div className="glass-panel-light rounded-lg min-w-[56px] px-2 py-3 sm:min-w-[76px] sm:px-4 sm:py-4 md:min-w-[92px] relative flex justify-center items-center overflow-hidden">
+        {/* Invisible span to keep the container size consistent */}
+        <span className="invisible font-mono text-2xl sm:text-4xl md:text-5xl font-bold tabular-nums leading-none tracking-tight">
+          00
         </span>
+        <AnimatePresence mode="popLayout">
+          <motion.span
+            key={value}
+            initial={{ y: -30, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 30, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="absolute font-mono text-2xl sm:text-4xl md:text-5xl font-bold text-cyan-400 tabular-nums leading-none tracking-tight"
+          >
+            {value}
+          </motion.span>
+        </AnimatePresence>
       </div>
       <span className="text-[9px] sm:text-[11px] font-mono uppercase tracking-[0.25em] text-slate-500/80">
         {label}
