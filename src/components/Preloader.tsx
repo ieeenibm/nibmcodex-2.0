@@ -25,7 +25,7 @@ export default function Preloader() {
       });
     }, 450);
     return () => clearInterval(interval);
-  }, []);
+  }, [texts.length]);
 
   return (
     <AnimatePresence>

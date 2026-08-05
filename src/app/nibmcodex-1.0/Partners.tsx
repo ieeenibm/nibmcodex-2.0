@@ -84,7 +84,7 @@ export default function Partners() {
                           alt={partner.name}
                           width={120}
                           height={60}
-                          className="object-contain transition-transform duration-300 group-hover:scale-105"
+                          className="w-auto h-auto max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
                         />
                       </div>
                     </SpotlightCard>

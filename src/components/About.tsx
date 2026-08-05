@@ -36,9 +36,9 @@ export default function About() {
             </h2>
             
             <p className="text-lg md:text-xl text-slate-400 mb-16 leading-relaxed font-light tracking-wide">
-              NIBMCodeX 2.0 is more than just a hackathon. It's a 24-hour sprint of pure innovation, 
+              NIBMCodeX 2.0 is more than just a hackathon. It&apos;s a 24-hour sprint of pure innovation, 
               collaboration, and technological breakthrough. Join the brightest minds as we build 
-              solutions that push the boundaries of what's possible.
+              solutions that push the boundaries of what&apos;s possible.
             </p>
           </motion.div>
 

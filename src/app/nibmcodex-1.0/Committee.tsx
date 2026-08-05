@@ -196,6 +196,7 @@ export default function Committee() {
                   src={ambassador.image}
                   alt={ambassador.name}
                   fill
+                  sizes="(max-width: 768px) 100vw, 384px"
                   className="object-cover object-[center_25%] transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/10 to-transparent"></div>
@@ -235,6 +236,7 @@ export default function Committee() {
                     src={member.image}
                     alt={member.name}
                     fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover object-[center_25%] transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/10 to-transparent"></div>
@@ -289,6 +291,7 @@ export default function Committee() {
                 src={proctor.image}
                 alt={proctor.name}
                 fill
+                sizes="(max-width: 768px) 100vw, 384px"
                 className="object-cover object-[center_30%] transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/10 to-transparent"></div>
@@ -371,6 +374,7 @@ export default function Committee() {
                           src={`/images/nibmcodex-1.0/${member.img}`}
                           alt={`${member.first} ${member.last}`}
                           fill
+                          sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
                           className="object-cover object-[center_20%] transition-transform duration-500 group-hover:scale-110"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-navy-950/10 to-transparent"></div>

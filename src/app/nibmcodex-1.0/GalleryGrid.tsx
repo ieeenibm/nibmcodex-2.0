@@ -141,6 +141,7 @@ export default function GalleryGrid() {
                     src={`/images/nibmcodex-1.0/${event.images[0]}`}
                     alt={event.title}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/10 to-transparent"></div>
