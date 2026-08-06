@@ -1,5 +1,6 @@
 'use client';
 import { useState, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 
@@ -110,84 +111,87 @@ export default function MemoriesGallery({ images, eventTitle }: MemoriesGalleryP
       </AnimatePresence>
 
       {/* Lightbox */}
-      <AnimatePresence>
-        {lightboxIndex !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            role="dialog"
-            aria-modal="true"
-            aria-label={`${eventTitle} memories`}
-            className="fixed inset-0 z-[9999] bg-navy-950/95 backdrop-blur-xl flex items-center justify-center"
-            onClick={closeLightbox}
-          >
-            {/* Close button */}
-            <button
-              type="button"
-              aria-label="Close lightbox"
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {lightboxIndex !== null && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              role="dialog"
+              aria-modal="true"
+              aria-label={`${eventTitle} memories`}
+              className="fixed inset-0 z-[9999] bg-navy-950/95 backdrop-blur-xl flex items-center justify-center"
               onClick={closeLightbox}
-              className="absolute top-6 right-6 w-10 h-10 rounded-full glass-panel-light flex items-center justify-center text-white/70 hover:text-white hover:border-cyan-400/40 transition-all z-10 cursor-pointer"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
-            {/* Counter */}
-            <div className="absolute top-6 left-6 text-xs font-mono text-slate-500 tracking-wider">
-              {lightboxIndex + 1} / {images.length}
-            </div>
-
-            {/* Prev button */}
-            <button
-              type="button"
-              aria-label="Previous image"
-              onClick={(e) => { e.stopPropagation(); goPrev(); }}
-              className="absolute left-4 md:left-8 w-10 h-10 rounded-full glass-panel-light flex items-center justify-center text-white/70 hover:text-white hover:border-cyan-400/40 transition-all z-10 cursor-pointer"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-
-            {/* Image */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={lightboxIndex}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-                className="relative max-w-[90vw] max-h-[85vh] w-auto h-auto"
-                onClick={(e) => e.stopPropagation()}
+              {/* Close button */}
+              <button
+                type="button"
+                aria-label="Close lightbox"
+                onClick={closeLightbox}
+                className="absolute top-6 right-6 w-10 h-10 rounded-full glass-panel-light flex items-center justify-center text-white/70 hover:text-white hover:border-cyan-400/40 transition-all z-10 cursor-pointer"
               >
-                <Image
-                  src={images[lightboxIndex]}
-                  alt={`${eventTitle} memory ${lightboxIndex + 1}`}
-                  width={1024}
-                  height={768}
-                  className="object-contain max-h-[85vh] w-auto rounded-lg shadow-2xl"
-                  priority
-                />
-              </motion.div>
-            </AnimatePresence>
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
 
-            {/* Next button */}
-            <button
-              type="button"
-              aria-label="Next image"
-              onClick={(e) => { e.stopPropagation(); goNext(); }}
-              className="absolute right-4 md:right-8 w-10 h-10 rounded-full glass-panel-light flex items-center justify-center text-white/70 hover:text-white hover:border-cyan-400/40 transition-all z-10 cursor-pointer"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+              {/* Counter */}
+              <div className="absolute top-6 left-6 text-xs font-mono text-slate-500 tracking-wider">
+                {lightboxIndex + 1} / {images.length}
+              </div>
+
+              {/* Prev button */}
+              <button
+                type="button"
+                aria-label="Previous image"
+                onClick={(e) => { e.stopPropagation(); goPrev(); }}
+                className="absolute left-4 md:left-8 w-10 h-10 rounded-full glass-panel-light flex items-center justify-center text-white/70 hover:text-white hover:border-cyan-400/40 transition-all z-10 cursor-pointer"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+
+              {/* Image */}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={lightboxIndex}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="relative max-w-[90vw] max-h-[85vh] w-auto h-auto"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Image
+                    src={images[lightboxIndex]}
+                    alt={`${eventTitle} memory ${lightboxIndex + 1}`}
+                    width={1024}
+                    height={768}
+                    className="object-contain max-h-[85vh] w-auto rounded-lg shadow-2xl"
+                    priority
+                  />
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Next button */}
+              <button
+                type="button"
+                aria-label="Next image"
+                onClick={(e) => { e.stopPropagation(); goNext(); }}
+                className="absolute right-4 md:right-8 w-10 h-10 rounded-full glass-panel-light flex items-center justify-center text-white/70 hover:text-white hover:border-cyan-400/40 transition-all z-10 cursor-pointer"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }

@@ -103,8 +103,9 @@ export default function Timeline() {
 
   // Process states
   const steps = rawSteps.map(step => {
-    let status = (step as any).status || 'upcoming';
-    if (now && !(step as any).status) {
+    type StepWithStatus = typeof step & { status?: string };
+    let status = (step as StepWithStatus).status || 'upcoming';
+    if (now && !(step as StepWithStatus).status) {
       const start = new Date(step.startISO as string).getTime();
       const end = new Date(step.endISO as string).getTime();
       const current = now.getTime();
