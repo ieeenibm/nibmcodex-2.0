@@ -4,11 +4,13 @@ import { useRef, useState } from 'react';
 export default function SpotlightCard({ 
   children, 
   className = "",
-  spotlightColor = "rgba(103, 232, 249, 0.12)"
+  spotlightColor = "rgba(103, 232, 249, 0.12)",
+  onClick
 }: { 
   children: React.ReactNode, 
   className?: string,
-  spotlightColor?: string 
+  spotlightColor?: string,
+  onClick?: (e: React.MouseEvent<HTMLDivElement>) => void
 }) {
   const divRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -26,6 +28,7 @@ export default function SpotlightCard({
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setOpacity(1)}
       onMouseLeave={() => setOpacity(0)}
+      onClick={onClick}
       className={`relative overflow-hidden ${className}`}
     >
       <div
