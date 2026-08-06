@@ -1,13 +1,15 @@
 'use client';
 import { useRef, useState, useEffect } from 'react';
-import { motion, useSpring } from 'framer-motion';
+import { motion, useSpring, AnimatePresence } from 'framer-motion';
 import { useScrollProgress } from './SmoothScroll';
 import SpotlightCard from './ui/SpotlightCard';
 import MemoriesGallery from './ui/MemoriesGallery';
+import Image from 'next/image';
 
 export default function Timeline() {
   const containerRef = useRef<HTMLElement>(null);
   const [now, setNow] = useState<Date | null>(null);
+  const [hoveredPreview, setHoveredPreview] = useState<{ src: string, idx: number } | null>(null);
 
   useEffect(() => {
     const timeout = setTimeout(() => setNow(new Date()), 0); // delay slightly to avoid synchronous setState in effect
@@ -240,14 +242,37 @@ export default function Timeline() {
 
                         {/* Memories Gallery for completed events */}
                         {isCompleted && step.memories && step.memories.length > 0 && (
-                          <MemoriesGallery images={step.memories} eventTitle={step.title} />
+                          <MemoriesGallery 
+                            images={step.memories} 
+                            eventTitle={step.title} 
+                            onHoverImage={(src) => setHoveredPreview(src ? { src, idx } : null)}
+                          />
                         )}
                       </div>
                     </SpotlightCard>
                   </motion.div>
                   
                   {/* Empty space for alternating layout */}
-                  <div className="hidden md:block md:w-[45%]"></div>
+                  <div className="hidden md:block md:w-[45%]">
+                    <AnimatePresence>
+                      {hoveredPreview && hoveredPreview.idx === idx && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.95, x: idx % 2 === 0 ? -20 : 20 }}
+                          animate={{ opacity: 1, scale: 1, x: 0 }}
+                          exit={{ opacity: 0, scale: 0.95, x: idx % 2 === 0 ? -20 : 20 }}
+                          transition={{ duration: 0.3 }}
+                          className={`absolute top-0 bottom-0 w-[45%] hidden md:flex items-center justify-center z-50 ${idx % 2 === 0 ? 'left-0' : 'right-0'}`}
+                        >
+                          <div className="relative w-full h-full rounded-2xl overflow-hidden glass-panel-light shadow-[0_0_30px_rgba(34,211,238,0.15)] p-2">
+                            <div className="relative w-full h-full rounded-xl overflow-hidden bg-navy-950/50">
+                               <Image src={hoveredPreview.src} fill className="object-cover" alt="Memory preview" />
+                               <div className="absolute inset-0 border border-cyan-400/20 rounded-xl" />
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </div>
               );
             })}

@@ -7,9 +7,10 @@ import Image from 'next/image';
 interface MemoriesGalleryProps {
   images: string[];
   eventTitle: string;
+  onHoverImage?: (src: string | null) => void;
 }
 
-export default function MemoriesGallery({ images, eventTitle }: MemoriesGalleryProps) {
+export default function MemoriesGallery({ images, eventTitle, onHoverImage }: MemoriesGalleryProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -93,6 +94,8 @@ export default function MemoriesGallery({ images, eventTitle }: MemoriesGalleryP
                   transition={{ delay: idx * 0.05 }}
                   className="relative aspect-[4/3] rounded-lg overflow-hidden cursor-pointer group/img"
                   onClick={() => openLightbox(idx)}
+                  onMouseEnter={() => onHoverImage?.(src)}
+                  onMouseLeave={() => onHoverImage?.(null)}
                 >
                   <Image
                     src={src}
