@@ -8,10 +8,11 @@ interface MemoriesGalleryProps {
   images: string[];
   eventTitle: string;
   onHoverImage?: (src: string | null) => void;
+  isOpen: boolean;
+  onToggle: () => void;
 }
 
-export default function MemoriesGallery({ images, eventTitle, onHoverImage }: MemoriesGalleryProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export default function MemoriesGallery({ images, eventTitle, onHoverImage, isOpen, onToggle }: MemoriesGalleryProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const openLightbox = useCallback((idx: number) => {
@@ -52,7 +53,7 @@ export default function MemoriesGallery({ images, eventTitle, onHoverImage }: Me
     <>
       {/* Toggle Button */}
       <motion.button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={onToggle}
         className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 text-[11px] font-mono uppercase tracking-wider hover:bg-cyan-500/20 hover:border-cyan-400/50 transition-all duration-300 cursor-pointer"
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}

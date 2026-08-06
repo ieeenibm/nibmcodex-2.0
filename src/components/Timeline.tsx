@@ -10,6 +10,7 @@ export default function Timeline() {
   const containerRef = useRef<HTMLElement>(null);
   const [now, setNow] = useState<Date | null>(null);
   const [hoveredPreview, setHoveredPreview] = useState<{ src: string, idx: number } | null>(null);
+  const [openGalleryIdx, setOpenGalleryIdx] = useState<number | null>(null);
 
   useEffect(() => {
     const timeout = setTimeout(() => setNow(new Date()), 0); // delay slightly to avoid synchronous setState in effect
@@ -125,7 +126,7 @@ export default function Timeline() {
   }
 
   return (
-    <section id="timeline" ref={containerRef} className="py-32 bg-navy-950 relative border-t border-white/5">
+    <section id="timeline" ref={containerRef} onClick={() => setOpenGalleryIdx(null)} className="py-32 bg-navy-950 relative border-t border-white/5">
       <div className="container mx-auto px-6 md:px-12">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -190,7 +191,9 @@ export default function Timeline() {
                     transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
                     className={`w-full md:w-[45%] pl-16 md:pl-0 ${idx % 2 === 0 ? 'md:text-left' : 'md:text-right'}`}
                   >
-                    <SpotlightCard className={`glass-panel-light p-8 clip-slanted overflow-hidden relative transition-all duration-700 shadow-xl
+                    <SpotlightCard 
+                      onClick={(e) => e.stopPropagation()}
+                      className={`glass-panel-light p-8 clip-slanted overflow-hidden relative transition-all duration-700 shadow-xl
                       ${isCompleted ? (step.memories && step.memories.length > 0 ? 'opacity-80 hover:opacity-100' : 'opacity-50 grayscale hover:opacity-60') : (step.status === 'postponed' ? 'group hover:border-amber-400/30' : 'group hover:border-cyan-400/30')}
                       ${isActive ? 'border-cyan-400/40 ring-1 ring-cyan-400/10' : ''}
                     `}>
@@ -246,6 +249,8 @@ export default function Timeline() {
                             images={step.memories} 
                             eventTitle={step.title} 
                             onHoverImage={(src) => setHoveredPreview(src ? { src, idx } : null)}
+                            isOpen={openGalleryIdx === idx}
+                            onToggle={() => setOpenGalleryIdx(prev => prev === idx ? null : idx)}
                           />
                         )}
                       </div>
