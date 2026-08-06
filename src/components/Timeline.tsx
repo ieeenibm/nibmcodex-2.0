@@ -47,8 +47,9 @@ export default function Timeline() {
     },
     { 
       title: 'Branch Awareness Sessions 2', 
-      date: <>TBA (Postponed)</>, 
-      status: 'postponed',
+      date: <>10<sup className="lowercase">th</sup> of August</>, 
+      startISO: '2026-08-10T10:30:00+05:30',
+      endISO: '2026-08-10T15:30:00+05:30',
       desc: (
         <div className="inline-block text-left">
           <div className="grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-1">
