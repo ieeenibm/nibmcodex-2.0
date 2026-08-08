@@ -151,22 +151,22 @@ export default function Partners() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: idx * 0.1 }}
-              className="glass-panel-light p-5 md:p-8 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-full max-w-[280px] sm:w-[260px] flex-1"
+              className="glass-panel-light p-4 md:p-6 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-full max-w-[280px] sm:w-[260px] flex-1"
             >
-              <p className="text-[10px] md:text-xs text-cyan-400/80 font-mono uppercase tracking-wider mb-5">
+              <p className="text-[10px] md:text-xs text-cyan-400/80 font-mono uppercase tracking-wider mb-4">
                 {partner.role}
               </p>
-              <div className={`relative w-full aspect-[4/3] mb-6 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${partner.bgClass}`}>
+              <div className={`relative w-full aspect-[16/9] mb-4 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${partner.bgClass}`}>
                 <Image
                   src={partner.image}
                   alt={partner.name}
                   width={240}
-                  height={180}
+                  height={135}
                   className="object-contain max-h-[85%] max-w-[85%]"
                 />
               </div>
               <div className="flex flex-col flex-grow justify-start w-full h-full">
-                <h3 className="text-sm md:text-base lg:text-lg font-bold text-white mb-2 leading-tight group-hover:text-cyan-300 transition-colors">
+                <h3 className="text-sm md:text-base lg:text-lg font-bold text-white mb-0 leading-tight group-hover:text-cyan-300 transition-colors">
                   {partner.name}
                 </h3>
               </div>
