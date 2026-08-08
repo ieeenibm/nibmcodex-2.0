@@ -6,6 +6,7 @@ import Timeline from '@/components/Timeline';
 import VerticalScrollMoment from '@/components/VerticalScrollMoment';
 // import About from '@/components/About';
 import Committee from '@/components/Committee';
+import Partners from '@/components/Partners';
 // import Sponsors from '@/components/Sponsors';
 import FAQ from '@/components/FAQ';
 // import Registration from '@/components/Registration';
@@ -20,6 +21,7 @@ export default function Home() {
       <SectionSeparator />
       <Timeline />
       <Committee />
+      <Partners />
       <VerticalScrollMoment />
       {/* <About /> */}
       {/* <Sponsors /> */}
