@@ -10,9 +10,10 @@ interface MemoriesGalleryProps {
   onHoverImage?: (src: string | null) => void;
   isOpen: boolean;
   onToggle: () => void;
+  highlightButton?: boolean;
 }
 
-export default function MemoriesGallery({ images, eventTitle, onHoverImage, isOpen, onToggle }: MemoriesGalleryProps) {
+export default function MemoriesGallery({ images, eventTitle, onHoverImage, isOpen, onToggle, highlightButton }: MemoriesGalleryProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const openLightbox = useCallback((idx: number) => {
@@ -54,7 +55,7 @@ export default function MemoriesGallery({ images, eventTitle, onHoverImage, isOp
       {/* Toggle Button */}
       <motion.button
         onClick={onToggle}
-        className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 text-[11px] font-mono uppercase tracking-wider hover:bg-cyan-500/20 hover:border-cyan-400/50 transition-all duration-300 cursor-pointer"
+        className={`mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 text-[11px] font-mono uppercase tracking-wider hover:bg-cyan-500/20 hover:border-cyan-400/50 transition-all duration-300 cursor-pointer ${highlightButton && !isOpen ? 'animate-[pulse_2s_ease-in-out_infinite] shadow-[0_0_15px_rgba(34,211,238,0.2)]' : ''}`}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
