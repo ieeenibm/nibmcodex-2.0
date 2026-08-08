@@ -47,7 +47,7 @@ const partners = [
     name: 'AZEA Creation',
     role: 'Official Visual Content Partner',
     image: '/images/partners/azeacreation-logo.jpg',
-    bgClass: 'bg-black',
+    bgClass: 'bg-black border border-white/20',
   },
   {
     name: 'HackSL',
