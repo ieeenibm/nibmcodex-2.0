@@ -8,8 +8,17 @@ export default function PostponeNotice() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setMounted(true), 0);
-    return () => clearTimeout(timer);
+    const STORAGE_KEY = 'nibmcodex_notice_visits';
+    const count = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
+
+    if (count === 0 || count >= 5) {
+      setIsOpen(true);
+      localStorage.setItem(STORAGE_KEY, '1');
+    } else {
+      localStorage.setItem(STORAGE_KEY, String(count + 1));
+    }
+
+    setMounted(true);
   }, []);
 
   if (!mounted) return null;
