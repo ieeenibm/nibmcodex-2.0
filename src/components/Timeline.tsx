@@ -251,6 +251,7 @@ export default function Timeline() {
                             onHoverImage={(src) => setHoveredPreview(src ? { src, idx } : null)}
                             isOpen={openGalleryIdx === idx}
                             onToggle={() => setOpenGalleryIdx(prev => prev === idx ? null : idx)}
+                            highlightButton={idx === 0}
                           />
                         )}
                       </div>

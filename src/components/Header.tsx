@@ -27,6 +27,14 @@ export default function Header() {
     }
   };
 
+  const handleLogoClick = (e: React.MouseEvent) => {
+    if (isHome) {
+      e.preventDefault();
+      scrollTo(0, { duration: 1.2 });
+      setIsOpen(false);
+    }
+  };
+
   const navLinks = [
     { name: 'Timeline', href: isHome ? '#timeline' : '/#timeline' },
     { name: 'Our Partners', href: isHome ? '#partners' : '/#partners' },
@@ -44,7 +52,7 @@ export default function Header() {
       }`}
     >
       <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
-        <Link href="/" className="text-2xl font-bold tracking-tighter">
+        <Link href="/" onClick={handleLogoClick} className="text-2xl font-bold tracking-tighter cursor-pointer">
           <span className="text-white">NIBM</span>
           <span className="text-cyan-400">CodeX</span>
           <span className="text-white ml-1 font-light opacity-80">2.0</span>
