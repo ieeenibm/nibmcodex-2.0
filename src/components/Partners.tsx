@@ -119,9 +119,6 @@ export default function Partners() {
             viewport={{ once: true, margin: "-50px" }}
             className="glass-panel-light px-5 py-4 md:px-6 md:py-5 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-[200px] md:w-[280px]"
           >
-            <p className="text-[10px] md:text-xs text-cyan-400/80 font-mono uppercase tracking-wider mb-3 underline underline-offset-4 decoration-cyan-400/40">
-              {nationalPartner.role}
-            </p>
             <div className={`relative w-full aspect-[16/9] md:aspect-[21/9] mb-3 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${nationalPartner.bgClass}`}>
               <Image
                 src={nationalPartner.image}
@@ -153,9 +150,14 @@ export default function Partners() {
               transition={{ delay: idx * 0.1 }}
               className="glass-panel-light px-5 py-4 md:px-6 md:py-5 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-full max-w-[280px] sm:w-[260px] flex-1"
             >
-              <p className="text-[10px] md:text-xs text-cyan-400/80 font-mono uppercase tracking-wider mb-3 underline underline-offset-4 decoration-cyan-400/40">
-                {partner.role}
-              </p>
+              <div className="w-full flex flex-col items-center mb-4">
+                <div className="h-8 md:h-10 flex items-center justify-center w-full px-2">
+                  <p className="text-[10px] md:text-xs text-cyan-400/80 font-mono uppercase tracking-wider text-center leading-snug">
+                    {partner.role}
+                  </p>
+                </div>
+                <div className="w-16 h-px bg-cyan-500/40 mt-2" />
+              </div>
               <div className={`relative w-full aspect-[4/3] mb-3 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${partner.bgClass}`}>
                 <Image
                   src={partner.image}
