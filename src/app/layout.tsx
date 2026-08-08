@@ -37,6 +37,13 @@ export default function RootLayout({
             gtag('config', 'G-GP5FN2R0VN');
           `}
         </Script>
+        <Script id="disable-context-menu" strategy="afterInteractive">
+          {`
+            document.addEventListener('contextmenu', function(e) {
+              e.preventDefault();
+            });
+          `}
+        </Script>
         <Preloader />
         <NoiseOverlay />
         <ClickSpark />
