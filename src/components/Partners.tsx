@@ -88,9 +88,9 @@ export default function Partners() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: idx * 0.1 }}
-              className="glass-panel-light p-5 md:p-8 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-full max-w-[280px] sm:w-[260px] flex-1"
+              className="glass-panel-light px-5 py-4 md:px-6 md:py-5 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-full max-w-[280px] sm:w-[260px] flex-1"
             >
-              <div className={`relative w-full aspect-[4/3] mb-6 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${partner.bgClass}`}>
+              <div className={`relative w-full aspect-[4/3] mb-3 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${partner.bgClass}`}>
                 <Image
                   src={partner.image}
                   alt={partner.name}
@@ -99,8 +99,8 @@ export default function Partners() {
                   className="object-contain max-h-[85%] max-w-[85%]"
                 />
               </div>
-              <div className="flex flex-col flex-grow justify-start w-full">
-                <h3 className="text-sm md:text-base lg:text-lg font-bold text-white mb-1 leading-tight group-hover:text-cyan-300 transition-colors">
+              <div className="flex flex-col w-full justify-center flex-grow">
+                <h3 className="text-sm md:text-base lg:text-lg font-bold text-white mb-0 leading-tight group-hover:text-cyan-300 transition-colors">
                   {partner.name}
                 </h3>
               </div>
@@ -117,12 +117,12 @@ export default function Partners() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-50px" }}
-            className="glass-panel-light p-4 md:p-6 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-[200px] md:w-[280px]"
+            className="glass-panel-light px-5 py-4 md:px-6 md:py-5 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-[200px] md:w-[280px]"
           >
-            <p className="text-[10px] md:text-xs text-cyan-400/80 font-mono uppercase tracking-wider mb-4">
+            <p className="text-[10px] md:text-xs text-cyan-400/80 font-mono uppercase tracking-wider mb-3">
               {nationalPartner.role}
             </p>
-            <div className={`relative w-full aspect-[16/9] md:aspect-[21/9] mb-6 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${nationalPartner.bgClass}`}>
+            <div className={`relative w-full aspect-[16/9] md:aspect-[21/9] mb-3 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${nationalPartner.bgClass}`}>
               <Image
                 src={nationalPartner.image}
                 alt={nationalPartner.name}
@@ -131,8 +131,8 @@ export default function Partners() {
                 className="object-contain max-h-[80%] max-w-[80%]"
               />
             </div>
-            <div className="flex flex-col w-full">
-              <h3 className="text-lg md:text-xl font-bold text-white mb-2 leading-tight group-hover:text-cyan-300 transition-colors">
+            <div className="flex flex-col w-full justify-center flex-grow">
+              <h3 className="text-lg md:text-xl font-bold text-white mb-0 leading-tight group-hover:text-cyan-300 transition-colors">
                 {nationalPartner.name}
               </h3>
             </div>
@@ -151,21 +151,21 @@ export default function Partners() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: idx * 0.1 }}
-              className="glass-panel-light p-4 md:p-6 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-full max-w-[280px] sm:w-[260px] flex-1"
+              className="glass-panel-light px-5 py-4 md:px-6 md:py-5 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-full max-w-[280px] sm:w-[260px] flex-1"
             >
-              <p className="text-[10px] md:text-xs text-cyan-400/80 font-mono uppercase tracking-wider mb-4">
+              <p className="text-[10px] md:text-xs text-cyan-400/80 font-mono uppercase tracking-wider mb-3">
                 {partner.role}
               </p>
-              <div className={`relative w-full aspect-[16/9] mb-4 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${partner.bgClass}`}>
+              <div className={`relative w-full aspect-[4/3] mb-3 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${partner.bgClass}`}>
                 <Image
                   src={partner.image}
                   alt={partner.name}
                   width={240}
-                  height={135}
+                  height={180}
                   className="object-contain max-h-[85%] max-w-[85%]"
                 />
               </div>
-              <div className="flex flex-col flex-grow justify-start w-full h-full">
+              <div className="flex flex-col w-full justify-center flex-grow">
                 <h3 className="text-sm md:text-base lg:text-lg font-bold text-white mb-0 leading-tight group-hover:text-cyan-300 transition-colors">
                   {partner.name}
                 </h3>
