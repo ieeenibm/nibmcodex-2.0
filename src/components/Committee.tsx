@@ -50,7 +50,8 @@ function MemberCard({ member, idx }: { member: Member; idx: number }) {
                 alt={member.name}
                 fill
                 sizes="112px"
-                className="object-cover transition-transform duration-500 group-hover:scale-110"
+                draggable={false}
+                className="object-cover transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none"
               />
             ) : (
               <User size={36} strokeWidth={1.5} className="group-hover:text-cyan-400 transition-colors duration-300" />
