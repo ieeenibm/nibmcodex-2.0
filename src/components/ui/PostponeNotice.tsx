@@ -41,20 +41,22 @@ export default function PostponeNotice() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="mb-4 w-80 sm:w-[22rem] rounded-xl border border-cyan-400/30 bg-navy-900/95 backdrop-blur-xl shadow-[0_0_30px_rgba(34,211,238,0.15)] origin-bottom-right overflow-hidden"
+            className="mb-4 w-80 sm:w-[22rem] origin-bottom-right group flex flex-col drop-shadow-2xl"
           >
-            {/* Workshop Image */}
-            <div className="relative w-full aspect-[4/5] overflow-hidden">
-              <Image
-                src="/images/partners/ai-workshop.png"
-                alt="AI for Learning Workshop"
-                fill
-                className="object-cover"
-              />
+            {/* Workshop Image Container */}
+            <div className="grid transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] grid-rows-[0fr] group-hover:grid-rows-[1fr] w-full rounded-t-xl overflow-hidden opacity-0 group-hover:opacity-100 relative z-0">
+              <div className="min-h-0 relative w-full aspect-[4/5] overflow-hidden translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]">
+                <Image
+                  src="/images/partners/ai-workshop.png"
+                  alt="AI for Learning Workshop"
+                  fill
+                  className="object-cover"
+                />
+              </div>
             </div>
 
             {/* Content */}
-            <div className="p-5">
+            <div className="relative z-10 p-5 rounded-xl group-hover:rounded-t-none border border-cyan-400/30 bg-navy-900/95 backdrop-blur-xl shadow-[0_0_30px_rgba(34,211,238,0.15)] transition-all duration-500 border-t-cyan-400/30 group-hover:border-t-transparent">
               <div className="flex justify-between items-start mb-3">
                 <h4 className="text-cyan-400 font-bold flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
