@@ -59,7 +59,7 @@ const partners = [
 
 export default function Partners() {
   return (
-    <section className="py-24 bg-navy-950 relative border-t border-white/5 z-20">
+    <section id="partners" className="py-24 bg-navy-950 relative border-t border-white/5 z-20">
       <div className="container mx-auto px-6 md:px-12 relative z-10">
         
         {/* Header matching Committee.tsx */}
@@ -108,32 +108,34 @@ export default function Partners() {
           ))}
         </div>
 
-        {/* National Partner */}
-        <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-10">
-          Official National Partner
-        </h3>
-        <div className="flex justify-center mb-20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-50px" }}
-            className="glass-panel-light px-5 py-4 md:px-6 md:py-5 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-[200px] md:w-[280px]"
-          >
-            <div className={`relative w-full aspect-[16/9] md:aspect-[21/9] mb-3 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${nationalPartner.bgClass}`}>
-              <Image
-                src={nationalPartner.image}
-                alt={nationalPartner.name}
-                width={400}
-                height={200}
-                className="object-contain max-h-[80%] max-w-[80%]"
-              />
-            </div>
-            <div className="flex flex-col w-full justify-center flex-grow">
-              <h3 className="text-lg md:text-xl font-bold text-white mb-0 leading-tight group-hover:text-cyan-300 transition-colors">
-                {nationalPartner.name}
-              </h3>
-            </div>
-          </motion.div>
+        {/* National Partner - Temporarily Hidden */}
+        <div className="hidden">
+          <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-10">
+            Official National Partner
+          </h3>
+          <div className="flex justify-center mb-20">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              className="glass-panel-light px-5 py-4 md:px-6 md:py-5 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-[200px] md:w-[280px]"
+            >
+              <div className={`relative w-full aspect-[16/9] md:aspect-[21/9] mb-3 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${nationalPartner.bgClass}`}>
+                <Image
+                  src={nationalPartner.image}
+                  alt={nationalPartner.name}
+                  width={400}
+                  height={200}
+                  className="object-contain max-h-[80%] max-w-[80%]"
+                />
+              </div>
+              <div className="flex flex-col w-full justify-center flex-grow">
+                <h3 className="text-lg md:text-xl font-bold text-white mb-0 leading-tight group-hover:text-cyan-300 transition-colors">
+                  {nationalPartner.name}
+                </h3>
+              </div>
+            </motion.div>
+          </div>
         </div>
 
         {/* Partners */}
