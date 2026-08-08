@@ -90,7 +90,8 @@ export default function Partners() {
                   alt={partner.name}
                   width={240}
                   height={180}
-                  className="object-contain max-h-[85%] max-w-[85%]"
+                  draggable={false}
+                  className="object-contain max-h-[85%] max-w-[85%] select-none pointer-events-none"
                 />
               </div>
               <div className="flex flex-col w-full justify-center flex-grow">
@@ -120,7 +121,8 @@ export default function Partners() {
                   alt={nationalPartner.name}
                   width={400}
                   height={200}
-                  className="object-contain max-h-[80%] max-w-[80%]"
+                  draggable={false}
+                  className="object-contain max-h-[80%] max-w-[80%] select-none pointer-events-none"
                 />
               </div>
               <div className="flex flex-col w-full justify-center flex-grow">
@@ -160,7 +162,8 @@ export default function Partners() {
                   alt={partner.name}
                   width={240}
                   height={180}
-                  className="object-contain max-h-[85%] max-w-[85%]"
+                  draggable={false}
+                  className="object-contain max-h-[85%] max-w-[85%] select-none pointer-events-none"
                 />
               </div>
               <div className="flex flex-col w-full justify-center flex-grow">
