@@ -28,8 +28,8 @@ export default function Header() {
   };
 
   const navLinks = [
-    { name: 'Our Partners', href: isHome ? '#partners' : '/#partners' },
     { name: 'Timeline', href: isHome ? '#timeline' : '/#timeline' },
+    { name: 'Our Partners', href: isHome ? '#partners' : '/#partners' },
     { name: 'FAQ', href: isHome ? '#faq' : '/#faq' },
     { name: '1.0 Gallery', href: '/nibmcodex-1.0' },
   ];

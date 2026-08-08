@@ -14,12 +14,6 @@ const organizers = [
     role: 'Organizer',
     image: '/images/nibmcodex-1.0/sponsor-nibm1.png',
     bgClass: 'bg-white',
-  },
-  {
-    name: 'NIBM Computing Society',
-    role: 'Organizer',
-    image: '/images/nibmcodex-1.0/sponsor-nibmcs.png',
-    bgClass: 'bg-white',
   }
 ];
 
