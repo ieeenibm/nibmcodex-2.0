@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User } from 'lucide-react';
@@ -83,6 +83,32 @@ function MemberCard({ member, idx }: { member: Member; idx: number }) {
 
 export default function Committee() {
   const [activeTeam, setActiveTeam] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const startAutoSwitch = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setActiveTeam((prev) => (prev + 1) % teams.length);
+    }, 3000);
+  }, []);
+
+  useEffect(() => {
+    startAutoSwitch();
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    };
+  }, [startAutoSwitch]);
+
+  const handleManualClick = (idx: number) => {
+    setActiveTeam(idx);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    pauseTimeoutRef.current = setTimeout(() => {
+      startAutoSwitch();
+    }, 5000);
+  };
 
   return (
     <section id="committee" className="relative py-32 bg-navy-950 overflow-hidden border-t border-white/5">
@@ -143,7 +169,7 @@ export default function Committee() {
             {teams.map((team, idx) => (
               <button
                 key={team.name}
-                onClick={() => setActiveTeam(idx)}
+                onClick={() => handleManualClick(idx)}
                 className={`px-4 py-2 text-xs font-mono uppercase tracking-wider clip-slanted transition-all duration-300 ${
                   activeTeam === idx
                     ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
