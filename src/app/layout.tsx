@@ -13,8 +13,35 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const spaceMono = Space_Mono({ subsets: ['latin'], weight: ['400', '700'], variable: '--font-mono' });
 
 export const metadata: Metadata = {
-  title: 'NIBMCodeX 2.0',
-  description: 'The ultimate hackathon experience',
+  title: {
+    default: 'NIBMCodeX 2.0 | The Ultimate Hackathon Experience',
+    template: '%s | NIBMCodeX 2.0',
+  },
+  description: 'Join NIBMCodeX 2.0, the premier hackathon experience at NIBM. Showcase your skills, innovate, and compete with the best.',
+  keywords: ['Hackathon', 'NIBM', 'NIBMCodeX', 'Coding Competition', 'Sri Lanka', 'Tech Event', 'Software Engineering', 'IT', 'Innovation'],
+  authors: [{ name: 'NIBM' }],
+  metadataBase: new URL('https://nibmcodex.nibmieee.org'),
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://nibmcodex.nibmieee.org',
+    title: 'NIBMCodeX 2.0 | The Ultimate Hackathon Experience',
+    description: 'Join NIBMCodeX 2.0, the premier hackathon experience at NIBM. Showcase your skills, innovate, and compete with the best.',
+    images: [
+      {
+        url: '/images/wide-cityscape.webp',
+        width: 1200,
+        height: 630,
+        alt: 'NIBMCodeX 2.0 Hackathon',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'NIBMCodeX 2.0 | The Ultimate Hackathon Experience',
+    description: 'Join NIBMCodeX 2.0, the premier hackathon experience at NIBM. Showcase your skills, innovate, and compete with the best.',
+    images: ['/images/wide-cityscape.webp'],
+  },
 };
 
 export default function RootLayout({
