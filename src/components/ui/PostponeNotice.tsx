@@ -50,6 +50,7 @@ export default function PostponeNotice() {
                   src="/images/partners/ai-workshop.png"
                   alt="AI for Learning Workshop"
                   fill
+                  sizes="(max-width: 640px) 320px, 352px"
                   className="object-cover"
                 />
               </div>
