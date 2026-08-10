@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ExternalLink } from 'lucide-react';
@@ -159,6 +159,32 @@ const teamsData: Team[] = [
 
 export default function Committee() {
   const [activeTeam, setActiveTeam] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const startAutoSwitch = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setActiveTeam((prev) => (prev + 1) % teamsData.length);
+    }, 3000);
+  }, []);
+
+  useEffect(() => {
+    startAutoSwitch();
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    };
+  }, [startAutoSwitch]);
+
+  const handleManualClick = (idx: number) => {
+    setActiveTeam(idx);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    pauseTimeoutRef.current = setTimeout(() => {
+      startAutoSwitch();
+    }, 5000);
+  };
 
   return (
     <section className="py-32 bg-navy-950 border-t border-white/5 relative overflow-hidden">
@@ -338,7 +364,7 @@ export default function Committee() {
             {teamsData.map((team, idx) => (
               <button
                 key={idx}
-                onClick={() => setActiveTeam(idx)}
+                onClick={() => handleManualClick(idx)}
                 className={`px-4 py-2 text-xs font-mono uppercase tracking-wider clip-slanted transition-all duration-300 ${
                   activeTeam === idx
                     ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
