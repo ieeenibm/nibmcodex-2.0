@@ -87,7 +87,7 @@ export default function EventSeries() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
                 transition={{ delay: idx * 0.12, type: 'spring', stiffness: 80, damping: 20 }}
-                className={`relative rounded-2xl border ${event.borderColor} glass-panel-light overflow-hidden flex flex-col group`}
+                className={`relative clip-slanted border ${event.borderColor} glass-panel-light overflow-hidden flex flex-col group`}
                 style={{ boxShadow: `0 0 40px ${event.glowColor}` }}
               >
                 {/* Top accent gradient */}
