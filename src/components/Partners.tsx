@@ -48,6 +48,7 @@ const partnersRow1 = [
     role: 'Event content production partner',
     image: '/images/partners/eventframe.jpg',
     bgClass: 'bg-[#842223]',
+    imgClass: 'object-cover w-full h-full',
   },
 ];
 
@@ -172,7 +173,7 @@ export default function Partners() {
                   width={240}
                   height={180}
                   draggable={false}
-                  className="object-contain max-h-[85%] max-w-[85%] select-none pointer-events-none"
+                  className={`${partner.imgClass || 'object-contain max-h-[85%] max-w-[85%]'} select-none pointer-events-none`}
                 />
               </div>
               <div className="flex flex-col w-full justify-center flex-grow">
@@ -208,7 +209,7 @@ export default function Partners() {
                   width={240}
                   height={180}
                   draggable={false}
-                  className="object-contain max-h-[85%] max-w-[85%] select-none pointer-events-none"
+                  className={`${partner.imgClass || 'object-contain max-h-[85%] max-w-[85%]'} select-none pointer-events-none`}
                 />
               </div>
               <div className="flex flex-col w-full justify-center flex-grow">
