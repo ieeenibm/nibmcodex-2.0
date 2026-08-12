@@ -1,61 +1,39 @@
 'use client';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, MapPin, Users, Zap, BookOpen, Mic } from 'lucide-react';
+import { Calendar, Clock, MapPin } from 'lucide-react';
 
 const events = [
   {
     number: '01',
-    badge: 'AI for Learning',
     title: 'AI for Learning Workshop',
-    date: '19th of August 2026',
-    duration: '3 Hours',
-    format: 'Academic Session',
-    icon: BookOpen,
     accentColor: 'from-violet-500/20 to-purple-500/10',
     borderColor: 'border-violet-400/20',
-    badgeColor: 'text-violet-300 border-violet-400/30',
     glowColor: 'rgba(167, 139, 250, 0.15)',
     description:
       'A focused three-hour AI/ML session bridging the gap between academic theory and real-world application. Featuring academic exposure from a Coventry University lecturer, this workshop arms students with clarity on how AI is reshaping what junior technology work actually looks like.',
     highlights: [
       { icon: Calendar, text: '19 August 2026' },
       { icon: Clock, text: '3-Hour Session' },
-      { icon: Users, text: 'NIBM Students' },
     ],
-    tag: 'Kick-off Event',
   },
   {
     number: '02',
-    badge: 'Code Grid Summit',
     title: 'Code Grid Summit 2026',
-    date: '12th of September 2026',
-    duration: 'Full Day',
-    format: 'Technology Summit',
-    icon: Mic,
     accentColor: 'from-cyan-500/20 to-sky-500/10',
     borderColor: 'border-cyan-400/20',
-    badgeColor: 'text-cyan-300 border-cyan-400/30',
     glowColor: 'rgba(34, 211, 238, 0.15)',
     description:
       'A full-day flagship technology summit confronting the gap between what campus teaches and what industry actually expects. Emerging technologies, working industry practitioners and honest conversations about AI, career readiness, and the future of tech work — all in one room.',
     highlights: [
       { icon: Calendar, text: '12 September 2026' },
       { icon: Clock, text: 'Full Day' },
-      { icon: Mic, text: 'Industry Speakers' },
     ],
-    tag: 'Flagship Summit',
   },
   {
     number: '03',
-    badge: 'IEEEXtreme 20.0',
     title: '24hr IEEEXtreme 20.0',
-    date: '31st of October 2026',
-    duration: '24 Hours',
-    format: 'Hackathon',
-    icon: Zap,
     accentColor: 'from-emerald-500/20 to-teal-500/10',
     borderColor: 'border-emerald-400/20',
-    badgeColor: 'text-emerald-300 border-emerald-400/30',
     glowColor: 'rgba(52, 211, 153, 0.15)',
     description:
       'The culmination of the NIBMCodeX journey — a 24-hour physical event for registered NIBM teams competing in the official IEEEXtreme 20.0 competition. Real teamwork, debugging under pressure, and endurance. Built by doing, not through lectures alone.',
@@ -64,7 +42,6 @@ const events = [
       { icon: Clock, text: '24 Hours' },
       { icon: MapPin, text: 'NIBM Campus' },
     ],
-    tag: 'The Finale',
   },
 ];
 
@@ -103,7 +80,6 @@ export default function EventSeries() {
         {/* Event Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {events.map((event, idx) => {
-            const Icon = event.icon;
             return (
               <motion.div
                 key={event.number}
@@ -121,23 +97,10 @@ export default function EventSeries() {
                 <div className={`absolute -top-10 -right-10 w-40 h-40 rounded-full bg-gradient-to-br ${event.accentColor} blur-3xl opacity-60 group-hover:opacity-100 transition-opacity duration-700`} />
 
                 <div className="relative z-10 p-7 flex flex-col h-full">
-                  {/* Number + Tag row */}
-                  <div className="flex items-center justify-between mb-5">
+                  {/* Number row */}
+                  <div className="flex items-center mb-5">
                     <span className="text-5xl font-bold text-white/5 font-mono leading-none select-none">
                       {event.number}
-                    </span>
-                    <span className={`px-3 py-1 text-[10px] font-mono uppercase tracking-widest border rounded-full ${event.badgeColor} glass-panel-light`}>
-                      {event.tag}
-                    </span>
-                  </div>
-
-                  {/* Icon + Badge */}
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={`p-2.5 rounded-xl bg-gradient-to-br ${event.accentColor} border ${event.borderColor}`}>
-                      <Icon size={20} className={event.badgeColor.split(' ')[0]} strokeWidth={1.5} />
-                    </div>
-                    <span className={`text-xs font-mono uppercase tracking-wider ${event.badgeColor.split(' ')[0]}`}>
-                      {event.badge}
                     </span>
                   </div>
 
