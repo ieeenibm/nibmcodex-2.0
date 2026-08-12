@@ -116,7 +116,7 @@ export default function CountdownSection() {
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          {mounted && <CountdownTimer targetDate={active.date} />}
+          {mounted && <CountdownTimer targetDate={active.date} colorClass={active.accentClass} />}
         </motion.div>
 
         {/* Divider */}
