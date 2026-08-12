@@ -18,7 +18,7 @@ const events: GalleryEvent[] = [
   {
     id: 'kurunegala',
     title: 'Kurunegala Branch Awareness Session',
-    date: 'Sep 18, 2025 — 9:30 AM',
+    date: 'Sep 18, 2025 - 9:30 AM',
     folder: 'kurunegala',
     count: 10,
     images: Array.from({ length: 10 }, (_, i) => `gallery/kurunegala/${String(i + 1).padStart(2, '0')}.JPG`),
@@ -26,7 +26,7 @@ const events: GalleryEvent[] = [
   {
     id: 'kandy',
     title: 'Kandy Branch Awareness Session',
-    date: 'Sep 18, 2025 — 2:30 PM',
+    date: 'Sep 18, 2025 - 2:30 PM',
     folder: 'kandy',
     count: 10,
     images: Array.from({ length: 10 }, (_, i) => `gallery/kandy/${String(i + 1).padStart(2, '0')}.jpg`),
@@ -34,7 +34,7 @@ const events: GalleryEvent[] = [
   {
     id: 'matara',
     title: 'Matara Branch Awareness Session',
-    date: 'Sep 23, 2025 — 9:30 AM',
+    date: 'Sep 23, 2025 - 9:30 AM',
     folder: 'matara',
     count: 10,
     images: [1, 2, 3, 4, 5, 7, 8, 9, 10, 11].map((i) => `gallery/matara/${String(i).padStart(2, '0')}.jpg`),
@@ -42,7 +42,7 @@ const events: GalleryEvent[] = [
   {
     id: 'galle',
     title: 'Galle Branch Awareness Session',
-    date: 'Sep 23, 2025 — 1:30 PM',
+    date: 'Sep 23, 2025 - 1:30 PM',
     folder: 'galle',
     count: 10,
     images: [1, 2, 3, 4, 6, 7, 8, 9, 11, 12].map((i) => `gallery/galle/${String(i).padStart(2, '0')}.jpg`),
@@ -50,7 +50,7 @@ const events: GalleryEvent[] = [
   {
     id: 'online',
     title: 'Online Awareness Session',
-    date: 'Oct 3, 2025 — 7:30 PM',
+    date: 'Oct 3, 2025 - 7:30 PM',
     folder: 'online',
     count: 3,
     images: ['gallery/online/01.jpg', 'gallery/online/02.jpg', 'gallery/online/03.png'],
@@ -58,7 +58,7 @@ const events: GalleryEvent[] = [
   {
     id: 'icta1',
     title: 'ICTA Workshop 01',
-    date: 'Oct 8, 2025 — 9:00 AM',
+    date: 'Oct 8, 2025 - 9:00 AM',
     folder: 'icta1',
     count: 10,
     images: Array.from({ length: 10 }, (_, i) => `gallery/icta1/${String(i + 1).padStart(2, '0')}.jpg`),
@@ -66,7 +66,7 @@ const events: GalleryEvent[] = [
   {
     id: 'icta2',
     title: 'ICTA Workshop 02',
-    date: 'Oct 15, 2025 — 9:00 AM',
+    date: 'Oct 15, 2025 - 9:00 AM',
     folder: 'icta2',
     count: 10,
     images: Array.from({ length: 10 }, (_, i) => `gallery/icta2/${String(i + 1).padStart(2, '0')}.jpg`),
@@ -74,7 +74,7 @@ const events: GalleryEvent[] = [
   {
     id: 'final',
     title: 'Final Hackathon',
-    date: 'Oct 25, 2025 — NIBM Colombo Campus',
+    date: 'Oct 25, 2025 - NIBM Colombo Campus',
     folder: 'final',
     count: 4,
     images: Array.from({ length: 4 }, (_, i) => `gallery/final/${String(i + 1).padStart(2, '0')}.jpg`),

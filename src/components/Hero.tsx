@@ -62,7 +62,7 @@ export default function Hero() {
         </motion.h1>
         
         <motion.p variants={itemVariants} className="text-lg md:text-2xl text-slate-300 max-w-2xl mx-auto mb-12 font-light tracking-wide">
-          Connect the Grid. Decode the Future. — from the AI Workshop to the Summit, to a 24-hour IEEEXtreme finale.
+          Connect the Grid. Decode the Future. - from the AI Workshop to the Summit, to a 24-hour IEEEXtreme finale.
         </motion.p>
 
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-6 items-center">

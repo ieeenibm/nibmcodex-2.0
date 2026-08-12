@@ -128,7 +128,7 @@ export default function WhatWeProvided() {
             What You <span className="text-gradient-cyan">Gained</span>
           </h2>
           <p className="text-slate-400 mt-4 font-light tracking-wide max-w-lg mx-auto">
-            Joining IEEEXtreme 19.0 was more than competing — an opportunity to grow, connect, and showcase talent.
+            Joining IEEEXtreme 19.0 was more than competing - an opportunity to grow, connect, and showcase talent.
           </p>
         </motion.div>
 

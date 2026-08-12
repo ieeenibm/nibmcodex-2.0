@@ -10,7 +10,7 @@ const events = [
     borderColor: 'border-cyan-400/20',
     glowColor: 'rgba(34, 211, 238, 0.15)',
     description:
-      'A focused three-hour AI/ML session bridging the gap between academic theory and real-world application. Featuring academic exposure from a Coventry University lecturer, this workshop arms students with clarity on how AI is reshaping what junior technology work actually looks like.',
+      'A focused three-hour AI/ML session bridging the gap between academic theory and real-world application. Led by a Coventry University lecturer, this workshop gives students clarity on how AI is reshaping the tech industry.',
     highlights: [
       { icon: Calendar, text: '19 August 2026' },
       { icon: Clock, text: '3-Hour Session' },
@@ -23,7 +23,7 @@ const events = [
     borderColor: 'border-violet-400/20',
     glowColor: 'rgba(167, 139, 250, 0.15)',
     description:
-      'A full-day flagship technology summit confronting the gap between what campus teaches and what industry actually expects. Emerging technologies, working industry practitioners and honest conversations about AI, career readiness, and the future of tech work — all in one room.',
+      'Our flagship full-day technology summit confronting the gap between campus education and industry expectations. Join working practitioners for honest conversations about emerging technologies, career readiness, and the future of tech work.',
     highlights: [
       { icon: Calendar, text: '12 September 2026' },
       { icon: Clock, text: 'Full Day' },
@@ -36,7 +36,7 @@ const events = [
     borderColor: 'border-emerald-400/20',
     glowColor: 'rgba(52, 211, 153, 0.15)',
     description:
-      'The culmination of the NIBMCodeX journey — a 24-hour physical event for registered NIBM teams competing in the official IEEEXtreme 20.0 competition. Real teamwork, debugging under pressure, and endurance. Built by doing, not through lectures alone.',
+      'The culmination of the NIBMCodeX journey: a 24-hour physical coding challenge for registered NIBM teams competing in the official IEEEXtreme 20.0 competition. Experience real teamwork, debugging under pressure, and endurance.',
     highlights: [
       { icon: Calendar, text: '31 October 2026' },
       { icon: Clock, text: '24 Hours' },
@@ -65,7 +65,7 @@ export default function EventSeries() {
             The NIBMCodeX <span className="text-gradient-cyan">Series</span>
           </h2>
           <p className="text-slate-400 mt-4 font-light tracking-wide max-w-2xl mx-auto">
-            Three distinct events. One connected journey — from workshop to summit to a 24-hour competitive finale aligned with IEEEXtreme 20.0.
+            Three distinct events. One connected journey - from workshop to summit to a 24-hour competitive finale aligned with IEEEXtreme 20.0.
           </p>
         </motion.div>
 

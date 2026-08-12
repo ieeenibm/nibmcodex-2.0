@@ -22,7 +22,7 @@ export default function PostponeNotice() {
     return computeInitialOpen();
   });
 
-  // Guard against SSR — only render after hydration
+  // Guard against SSR - only render after hydration
   const [mounted, setMounted] = useState(false);
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true); }, []);
