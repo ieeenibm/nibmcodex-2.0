@@ -36,6 +36,7 @@ export default function Header() {
   };
 
   const navLinks = [
+    { name: 'Events', href: isHome ? '#events' : '/#events' },
     { name: 'Timeline', href: isHome ? '#timeline' : '/#timeline' },
     { name: 'Our Partners', href: isHome ? '#partners' : '/#partners' },
     { name: 'FAQ', href: isHome ? '#faq' : '/#faq' },

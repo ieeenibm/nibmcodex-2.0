@@ -21,7 +21,7 @@ function calcTimeLeft(target: Date) {
 }
 
 /* ── unit: value box + label ─────────────────────────── */
-function Unit({ value, label }: { value: string; label: string }) {
+function Unit({ value, label, colorClass = 'text-cyan-400' }: { value: string; label: string; colorClass?: string }) {
   return (
     <div className="flex flex-col items-center gap-2 sm:gap-3">
       <div className="glass-panel-light rounded-lg min-w-[56px] px-2 py-3 sm:min-w-[76px] sm:px-4 sm:py-4 md:min-w-[92px] relative flex justify-center items-center overflow-hidden">
@@ -36,7 +36,7 @@ function Unit({ value, label }: { value: string; label: string }) {
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 30, opacity: 0 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="absolute font-mono text-2xl sm:text-4xl md:text-5xl font-bold text-cyan-400 tabular-nums leading-none tracking-tight"
+            className={`absolute font-mono text-2xl sm:text-4xl md:text-5xl font-bold ${colorClass} tabular-nums leading-none tracking-tight`}
           >
             {value}
           </motion.span>
@@ -59,7 +59,7 @@ function Separator() {
 }
 
 /* ── main countdown ───────────────────────────────────── */
-export default function CountdownTimer({ targetDate }: { targetDate: Date }) {
+export default function CountdownTimer({ targetDate, colorClass }: { targetDate: Date; colorClass?: string }) {
   const [mounted, setMounted] = useState(false);
   const [time, setTime] = useState(() => calcTimeLeft(targetDate));
 
@@ -80,13 +80,13 @@ export default function CountdownTimer({ targetDate }: { targetDate: Date }) {
 
   return (
     <div className="flex items-center justify-center gap-2 sm:gap-3 md:gap-4">
-      <Unit value={time.days} label="Days" />
+      <Unit value={time.days} label="Days" colorClass={colorClass} />
       <Separator />
-      <Unit value={time.hours} label="Hours" />
+      <Unit value={time.hours} label="Hours" colorClass={colorClass} />
       <Separator />
-      <Unit value={time.minutes} label="Mins" />
+      <Unit value={time.minutes} label="Mins" colorClass={colorClass} />
       <Separator />
-      <Unit value={time.seconds} label="Secs" />
+      <Unit value={time.seconds} label="Secs" colorClass={colorClass} />
     </div>
   );
 }
