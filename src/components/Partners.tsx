@@ -53,7 +53,7 @@ const partners = [
     name: 'EventFrame Productions',
     role: 'Event content production partner',
     image: '/images/partners/eventframe.jpg',
-    bgClass: 'bg-[#7c2424]',
+    bgClass: 'bg-[#842223]',
   },
 ];
 
