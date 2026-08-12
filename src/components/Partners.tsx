@@ -49,6 +49,12 @@ const partners = [
     image: '/images/partners/hacksl-logo.jpg',
     bgClass: 'bg-white',
   },
+  {
+    name: 'EventFrame Productions',
+    role: 'Event content production partner',
+    image: '/images/partners/eventframe.svg',
+    bgClass: 'bg-maroon-900/20 p-2', // giving it a slight dark tint or just bg-navy-900
+  },
 ];
 
 export default function Partners() {
