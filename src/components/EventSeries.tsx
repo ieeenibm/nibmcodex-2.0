@@ -6,9 +6,9 @@ const events = [
   {
     number: '01',
     title: 'AI for Learning Workshop',
-    accentColor: 'from-violet-500/20 to-purple-500/10',
-    borderColor: 'border-violet-400/20',
-    glowColor: 'rgba(167, 139, 250, 0.15)',
+    accentColor: 'from-cyan-500/20 to-sky-500/10',
+    borderColor: 'border-cyan-400/20',
+    glowColor: 'rgba(34, 211, 238, 0.15)',
     description:
       'A focused three-hour AI/ML session bridging the gap between academic theory and real-world application. Featuring academic exposure from a Coventry University lecturer, this workshop arms students with clarity on how AI is reshaping what junior technology work actually looks like.',
     highlights: [
@@ -19,9 +19,9 @@ const events = [
   {
     number: '02',
     title: 'Code Grid Summit 2026',
-    accentColor: 'from-cyan-500/20 to-sky-500/10',
-    borderColor: 'border-cyan-400/20',
-    glowColor: 'rgba(34, 211, 238, 0.15)',
+    accentColor: 'from-violet-500/20 to-purple-500/10',
+    borderColor: 'border-violet-400/20',
+    glowColor: 'rgba(167, 139, 250, 0.15)',
     description:
       'A full-day flagship technology summit confronting the gap between what campus teaches and what industry actually expects. Emerging technologies, working industry practitioners and honest conversations about AI, career readiness, and the future of tech work — all in one room.',
     highlights: [
