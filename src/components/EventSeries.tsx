@@ -48,14 +48,6 @@ const events = [
 export default function EventSeries() {
   return (
     <section id="events" className="relative py-28 bg-navy-950 border-t border-white/5 overflow-hidden">
-      {/* Subtle background grid */}
-      <div className="absolute inset-0 z-0 opacity-[0.03]"
-        style={{
-          backgroundImage: 'linear-gradient(rgba(34,211,238,1) 1px, transparent 1px), linear-gradient(90deg, rgba(34,211,238,1) 1px, transparent 1px)',
-          backgroundSize: '60px 60px',
-        }}
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-navy-950 via-transparent to-navy-950 z-0" />
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
 
