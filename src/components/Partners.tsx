@@ -43,6 +43,12 @@ const partnersRow1 = [
     image: '/images/partners/azeacreation-logo.jpg',
     bgClass: 'bg-black border-[1.5px] border-white',
   },
+  {
+    name: 'EventFrame Productions',
+    role: 'Event content production partner',
+    image: '/images/partners/eventframe.jpg',
+    bgClass: 'bg-[#842223]',
+  },
 ];
 
 const partnersRow2 = [
@@ -51,12 +57,6 @@ const partnersRow2 = [
     role: 'Official Digital Media Partner',
     image: '/images/partners/hacksl-logo.jpg',
     bgClass: 'bg-white',
-  },
-  {
-    name: 'EventFrame Productions',
-    role: 'Event content production partner',
-    image: '/images/partners/eventframe.jpg',
-    bgClass: 'bg-[#842223]',
   },
 ];
 
