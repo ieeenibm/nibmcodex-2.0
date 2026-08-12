@@ -111,6 +111,18 @@ export default function Committee() {
     }, 5000);
   };
 
+  const handleHoverStart = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+  }, []);
+
+  const handleHoverEnd = useCallback(() => {
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    pauseTimeoutRef.current = setTimeout(() => {
+      startAutoSwitch();
+    }, 1500);
+  }, [startAutoSwitch]);
+
   return (
     <section id="committee" className="relative py-32 bg-navy-950 overflow-hidden border-t border-white/5">
       <div className="absolute inset-0 z-0 opacity-20">
@@ -191,6 +203,8 @@ export default function Committee() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
+              onMouseEnter={handleHoverStart}
+              onMouseLeave={handleHoverEnd}
             >
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-6xl mx-auto">
                 {teams[activeTeam].members.map((member, idx) => (

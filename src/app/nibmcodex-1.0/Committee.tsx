@@ -1,5 +1,5 @@
 'use client';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ExternalLink } from 'lucide-react';
@@ -185,6 +185,17 @@ export default function Committee() {
       startAutoSwitch();
     }, 5000);
   };
+  const handleHoverStart = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+  }, []);
+
+  const handleHoverEnd = useCallback(() => {
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    pauseTimeoutRef.current = setTimeout(() => {
+      startAutoSwitch();
+    }, 1500);
+  }, [startAutoSwitch]);
 
   return (
     <section className="py-32 bg-navy-950 border-t border-white/5 relative overflow-hidden">
@@ -385,6 +396,8 @@ export default function Committee() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
+              onMouseEnter={handleHoverStart}
+              onMouseLeave={handleHoverEnd}
             >
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-6xl mx-auto justify-items-center">
                 {teamsData[activeTeam].members.map((member, idx) => (
