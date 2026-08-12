@@ -52,8 +52,8 @@ const partners = [
   {
     name: 'EventFrame Productions',
     role: 'Event content production partner',
-    image: '/images/partners/eventframe.jpeg',
-    bgClass: 'bg-black/40', // A neutral dark background to match the maroon
+    image: '/images/partners/eventframe.jpg',
+    bgClass: 'bg-[#7c2424]',
   },
 ];
 
