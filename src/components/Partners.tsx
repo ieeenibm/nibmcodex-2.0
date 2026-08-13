@@ -2,7 +2,15 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
-const organizers = [
+type PartnerData = {
+  name: string;
+  role: string;
+  image: string;
+  bgClass: string;
+  imgClass?: string;
+};
+
+const organizers: PartnerData[] = [
   {
     name: 'IEEE Student Branch of NIBM',
     role: 'Organizer',
@@ -17,14 +25,14 @@ const organizers = [
   }
 ];
 
-const nationalPartner = {
+const nationalPartner: PartnerData = {
   name: 'Ministry of Digital Economy',
   role: 'Official National Partner',
   image: '/images/partners/mode-logo.png',
   bgClass: 'bg-white',
 };
 
-const partnersRow1 = [
+const partnersRow1: PartnerData[] = [
   {
     name: 'Lanka School on Internet Governance',
     role: 'Official Strategic Partner',
@@ -52,7 +60,7 @@ const partnersRow1 = [
   },
 ];
 
-const partnersRow2 = [
+const partnersRow2: PartnerData[] = [
   {
     name: 'HackSL',
     role: 'Official Digital Media Partner',
