@@ -48,7 +48,7 @@ const partnersRow1 = [
     role: 'Event content production partner',
     image: '/images/partners/eventframe.jpg',
     bgClass: 'bg-[#842223]',
-    imgClass: 'object-cover w-full h-full',
+    imgClass: 'object-contain max-h-[75%] max-w-[75%]',
   },
 ];
 
