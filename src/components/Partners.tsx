@@ -148,77 +148,42 @@ export default function Partners() {
         <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-10">
           Official Partners
         </h3>
-        <div className="flex flex-wrap justify-center gap-6 md:gap-8 max-w-5xl mx-auto items-stretch">
-          {partnersRow1.map((partner, idx) => (
-            <motion.div
-              key={partner.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: idx * 0.1 }}
-              className="glass-panel-light px-5 py-4 md:px-6 md:py-5 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-full max-w-[280px] sm:w-[260px] flex-1"
-            >
-              <div className="w-full flex flex-col items-center mb-4">
-                <div className="h-8 md:h-10 flex items-center justify-center w-full px-2">
-                  <p className="text-[10px] md:text-xs text-cyan-400/80 font-mono uppercase tracking-wider text-center leading-snug">
-                    {partner.role}
-                  </p>
+        
+        {/* Marquee Wrapper */}
+        <div className="relative w-full overflow-hidden py-4 -mx-6 px-6 md:-mx-12 md:px-12 [mask-image:linear-gradient(to_right,transparent,black_5%,black_95%,transparent)]">
+          <div className="flex w-max animate-marquee-left hover:[animation-play-state:paused] items-stretch gap-6 md:gap-8">
+            {/* Double the array for infinite scroll effect */}
+            {[...partnersRow1, ...partnersRow2, ...partnersRow1, ...partnersRow2].map((partner, idx) => (
+              <div
+                key={`${partner.name}-${idx}`}
+                className="glass-panel-light px-5 py-4 md:px-6 md:py-5 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-[260px] md:w-[280px] shrink-0"
+              >
+                <div className="w-full flex flex-col items-center mb-4">
+                  <div className="h-8 md:h-10 flex items-center justify-center w-full px-2">
+                    <p className="text-[10px] md:text-xs text-cyan-400/80 font-mono uppercase tracking-wider text-center leading-snug">
+                      {partner.role}
+                    </p>
+                  </div>
+                  <div className="w-16 h-px bg-cyan-500/40 mt-2" />
                 </div>
-                <div className="w-16 h-px bg-cyan-500/40 mt-2" />
-              </div>
-              <div className={`relative w-full aspect-[4/3] mb-3 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${partner.bgClass}`}>
-                <Image
-                  src={partner.image}
-                  alt={partner.name}
-                  width={240}
-                  height={180}
-                  draggable={false}
-                  className={`${partner.imgClass || 'object-contain max-h-[85%] max-w-[85%]'} select-none pointer-events-none`}
-                />
-              </div>
-              <div className="flex flex-col w-full justify-center flex-grow">
-                <h3 className="text-sm md:text-base lg:text-lg font-bold text-white mb-0 leading-tight group-hover:text-cyan-300 transition-colors">
-                  {partner.name}
-                </h3>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-        <div className="flex flex-wrap justify-center gap-6 md:gap-8 max-w-5xl mx-auto items-stretch mt-6 md:mt-8">
-          {partnersRow2.map((partner, idx) => (
-            <motion.div
-              key={partner.name}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ delay: idx * 0.1 }}
-              className="glass-panel-light px-5 py-4 md:px-6 md:py-5 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-full max-w-[280px] sm:w-[260px]"
-            >
-              <div className="w-full flex flex-col items-center mb-4">
-                <div className="h-8 md:h-10 flex items-center justify-center w-full px-2">
-                  <p className="text-[10px] md:text-xs text-cyan-400/80 font-mono uppercase tracking-wider text-center leading-snug">
-                    {partner.role}
-                  </p>
+                <div className={`relative w-full aspect-[4/3] mb-3 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${partner.bgClass}`}>
+                  <Image
+                    src={partner.image}
+                    alt={partner.name}
+                    width={240}
+                    height={180}
+                    draggable={false}
+                    className={`${partner.imgClass || 'object-contain max-h-[85%] max-w-[85%]'} select-none pointer-events-none`}
+                  />
                 </div>
-                <div className="w-16 h-px bg-cyan-500/40 mt-2" />
+                <div className="flex flex-col w-full justify-center flex-grow">
+                  <h3 className="text-sm md:text-base lg:text-lg font-bold text-white mb-0 leading-tight group-hover:text-cyan-300 transition-colors">
+                    {partner.name}
+                  </h3>
+                </div>
               </div>
-              <div className={`relative w-full aspect-[4/3] mb-3 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${partner.bgClass}`}>
-                <Image
-                  src={partner.image}
-                  alt={partner.name}
-                  width={240}
-                  height={180}
-                  draggable={false}
-                  className={`${partner.imgClass || 'object-contain max-h-[85%] max-w-[85%]'} select-none pointer-events-none`}
-                />
-              </div>
-              <div className="flex flex-col w-full justify-center flex-grow">
-                <h3 className="text-sm md:text-base lg:text-lg font-bold text-white mb-0 leading-tight group-hover:text-cyan-300 transition-colors">
-                  {partner.name}
-                </h3>
-              </div>
-            </motion.div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     </section>
