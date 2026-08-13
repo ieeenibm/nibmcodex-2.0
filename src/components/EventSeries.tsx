@@ -1,6 +1,6 @@
 'use client';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, MapPin } from 'lucide-react';
+import { Calendar, Clock, MapPin, ArrowRight } from 'lucide-react';
 
 const events = [
   {
@@ -10,7 +10,7 @@ const events = [
     borderColor: 'border-cyan-400/20',
     glowColor: 'rgba(34, 211, 238, 0.15)',
     description:
-      'A focused three-hour AI/ML session bridging the gap between academic theory and real-world application. Led by a Coventry University lecturer, this workshop gives students clarity on how AI is reshaping the tech industry.',
+      'A focused 3-hour AI/ML session bridging the gap between academic theory and real-world application. Gain clarity on how AI is reshaping the modern tech industry.',
     highlights: [
       { icon: Calendar, text: '19 August 2026' },
       { icon: Clock, text: '3-Hour Session' },
@@ -23,7 +23,7 @@ const events = [
     borderColor: 'border-violet-400/20',
     glowColor: 'rgba(167, 139, 250, 0.15)',
     description:
-      'Our flagship full-day technology summit confronting the gap between campus education and industry expectations. Join working practitioners for honest conversations about emerging technologies, career readiness, and the future of tech work.',
+      'Our flagship full-day technology summit. Join working practitioners for honest conversations about emerging technologies, career readiness, and the future of work.',
     highlights: [
       { icon: Calendar, text: '12 September 2026' },
       { icon: Clock, text: 'Full Day' },
@@ -36,7 +36,7 @@ const events = [
     borderColor: 'border-emerald-400/20',
     glowColor: 'rgba(52, 211, 153, 0.15)',
     description:
-      'The culmination of the NIBMCodeX journey: a 24-hour physical coding challenge for registered NIBM teams competing in the official IEEEXtreme 20.0 competition. Experience real teamwork, debugging under pressure, and endurance.',
+      'The 24-hour physical coding finale. Compete in the official IEEEXtreme 20.0 and experience real teamwork, debugging under pressure, and endurance.',
     highlights: [
       { icon: Calendar, text: '31 October 2026' },
       { icon: Clock, text: '24 Hours' },
@@ -109,17 +109,23 @@ export default function EventSeries() {
                   {/* Divider */}
                   <div className={`h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-5`} />
 
-                  {/* Highlights */}
-                  <div className="flex flex-col gap-2">
-                    {event.highlights.map((h, i) => {
-                      const HIcon = h.icon;
-                      return (
-                        <div key={i} className="flex items-center gap-2.5">
-                          <HIcon size={13} className="text-slate-500 shrink-0" strokeWidth={1.5} />
-                          <span className="text-xs text-slate-400 font-mono">{h.text}</span>
-                        </div>
-                      );
-                    })}
+                  {/* Highlights & CTA */}
+                  <div className="flex items-end justify-between gap-4 mt-auto">
+                    <div className="flex flex-col gap-2">
+                      {event.highlights.map((h, i) => {
+                        const HIcon = h.icon;
+                        return (
+                          <div key={i} className="flex items-center gap-2.5">
+                            <HIcon size={13} className="text-slate-500 shrink-0" strokeWidth={1.5} />
+                            <span className="text-xs text-slate-400 font-mono">{h.text}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/10 group-hover:bg-white/10 group-hover:scale-110 transition-all duration-300`}>
+                      <ArrowRight size={16} className="text-slate-400 group-hover:text-white transition-colors" />
+                    </div>
                   </div>
                 </div>
               </motion.div>
@@ -127,20 +133,7 @@ export default function EventSeries() {
           })}
         </div>
 
-        {/* Bottom connecting line / journey indicator */}
-        <motion.div
-          initial={{ opacity: 0, scaleX: 0 }}
-          whileInView={{ opacity: 1, scaleX: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className="mt-16 max-w-4xl mx-auto flex items-center gap-4"
-        >
-          <div className="h-px flex-1 bg-gradient-to-r from-transparent via-violet-400/30 to-cyan-400/30" />
-          <span className="text-xs font-mono uppercase tracking-[0.3em] text-slate-500 whitespace-nowrap">
-            Aligned with IEEEXtreme 20.0
-          </span>
-          <div className="h-px flex-1 bg-gradient-to-l from-transparent via-emerald-400/30 to-cyan-400/30" />
-        </motion.div>
+
       </div>
     </section>
   );
