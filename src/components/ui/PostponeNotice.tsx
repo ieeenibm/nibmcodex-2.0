@@ -3,23 +3,29 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 
+const STORAGE_KEY = 'nibmcodex_notice_visits';
+
+function computeInitialOpen(): boolean {
+  if (typeof window === 'undefined') return false;
+  const count = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
+  if (count === 0 || count >= 5) {
+    localStorage.setItem(STORAGE_KEY, '1');
+    return true;
+  }
+  localStorage.setItem(STORAGE_KEY, String(count + 1));
+  return false;
+}
+
 export default function PostponeNotice() {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return computeInitialOpen();
+  });
+
+  // Guard against SSR - only render after hydration
   const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    const STORAGE_KEY = 'nibmcodex_notice_visits';
-    const count = parseInt(localStorage.getItem(STORAGE_KEY) || '0', 10);
-
-    if (count === 0 || count >= 5) {
-      setIsOpen(true);
-      localStorage.setItem(STORAGE_KEY, '1');
-    } else {
-      localStorage.setItem(STORAGE_KEY, String(count + 1));
-    }
-
-    setMounted(true);
-  }, []);
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { setMounted(true); }, []);
 
   if (!mounted) return null;
 

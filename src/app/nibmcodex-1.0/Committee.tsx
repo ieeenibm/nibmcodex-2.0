@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ExternalLink } from 'lucide-react';
@@ -8,19 +8,19 @@ import SpotlightCard from '@/components/ui/SpotlightCard';
 const execBoard = [
   {
     name: 'Pradeesha Hettiarachchi',
-    role: 'Chairperson — Executive Committee',
+    role: 'Chairperson - Executive Committee',
     image: '/images/nibmcodex-1.0/h2.png',
     linkedin: 'https://www.linkedin.com/in/pradeesha-hettiarachchi',
   },
   {
     name: 'Pabodha Thathsarani Ihalagama',
-    role: 'Vice Chair — Executive Committee',
+    role: 'Vice Chair - Executive Committee',
     image: '/images/nibmcodex-1.0/h4.jpg',
     linkedin: 'https://www.linkedin.com/in/pabodha-ihalagama',
   },
   {
     name: 'Thusathmi Sapumanage',
-    role: 'Secretary — Executive Committee',
+    role: 'Secretary - Executive Committee',
     image: '/images/nibmcodex-1.0/h3.jpg',
     linkedin: 'https://www.linkedin.com/in/thusathmi-sapumanage',
   },
@@ -159,6 +159,43 @@ const teamsData: Team[] = [
 
 export default function Committee() {
   const [activeTeam, setActiveTeam] = useState(0);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const startAutoSwitch = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setActiveTeam((prev) => (prev + 1) % teamsData.length);
+    }, 3000);
+  }, []);
+
+  useEffect(() => {
+    startAutoSwitch();
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    };
+  }, [startAutoSwitch]);
+
+  const handleManualClick = (idx: number) => {
+    setActiveTeam(idx);
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    pauseTimeoutRef.current = setTimeout(() => {
+      startAutoSwitch();
+    }, 5000);
+  };
+  const handleHoverStart = useCallback(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+  }, []);
+
+  const handleHoverEnd = useCallback(() => {
+    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    pauseTimeoutRef.current = setTimeout(() => {
+      startAutoSwitch();
+    }, 1500);
+  }, [startAutoSwitch]);
 
   return (
     <section className="py-32 bg-navy-950 border-t border-white/5 relative overflow-hidden">
@@ -338,7 +375,7 @@ export default function Committee() {
             {teamsData.map((team, idx) => (
               <button
                 key={idx}
-                onClick={() => setActiveTeam(idx)}
+                onClick={() => handleManualClick(idx)}
                 className={`px-4 py-2 text-xs font-mono uppercase tracking-wider clip-slanted transition-all duration-300 ${
                   activeTeam === idx
                     ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
@@ -359,6 +396,8 @@ export default function Committee() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
+              onMouseEnter={handleHoverStart}
+              onMouseLeave={handleHoverEnd}
             >
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-6xl mx-auto justify-items-center">
                 {teamsData[activeTeam].members.map((member, idx) => (

@@ -31,7 +31,7 @@ export default function BackToMainCta() {
             Ready for the <span className="text-gradient-cyan">Next Level</span>?
           </h2>
           <p className="text-slate-400 text-lg font-light mb-12 max-w-lg mx-auto leading-relaxed">
-            NIBMCodeX 2.0 is here — bigger, bolder, and ready to push the boundaries even further. 
+            NIBMCodeX 2.0 is here - bigger, bolder, and ready to push the boundaries even further. 
             Dont just watch history. Make it.
           </p>
 
