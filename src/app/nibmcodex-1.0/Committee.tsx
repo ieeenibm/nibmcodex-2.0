@@ -8,19 +8,19 @@ import SpotlightCard from '@/components/ui/SpotlightCard';
 const execBoard = [
   {
     name: 'Pradeesha Hettiarachchi',
-    role: 'Chairperson — Executive Committee',
+    role: 'Chairperson - Executive Committee',
     image: '/images/nibmcodex-1.0/h2.png',
     linkedin: 'https://www.linkedin.com/in/pradeesha-hettiarachchi',
   },
   {
     name: 'Pabodha Thathsarani Ihalagama',
-    role: 'Vice Chair — Executive Committee',
+    role: 'Vice Chair - Executive Committee',
     image: '/images/nibmcodex-1.0/h4.jpg',
     linkedin: 'https://www.linkedin.com/in/pabodha-ihalagama',
   },
   {
     name: 'Thusathmi Sapumanage',
-    role: 'Secretary — Executive Committee',
+    role: 'Secretary - Executive Committee',
     image: '/images/nibmcodex-1.0/h3.jpg',
     linkedin: 'https://www.linkedin.com/in/thusathmi-sapumanage',
   },

@@ -66,7 +66,7 @@ export default function CountdownSection() {
       id="about"
       className="relative py-28 md:py-36 w-full flex items-center min-h-[70vh] overflow-hidden bg-navy-950 border-t border-white/5"
     >
-      {/* Ambient glow — colour follows the active event */}
+      {/* Ambient glow - colour follows the active event */}
       <AnimatePresence mode="wait">
         <motion.div
           key={activeIdx}
@@ -91,7 +91,7 @@ export default function CountdownSection() {
           {allPast ? 'Series Complete' : 'Next Up'}
         </motion.div>
 
-        {/* Event title — animates when active event changes */}
+        {/* Event title - animates when active event changes */}
         <AnimatePresence mode="wait">
           <motion.div
             key={activeIdx}

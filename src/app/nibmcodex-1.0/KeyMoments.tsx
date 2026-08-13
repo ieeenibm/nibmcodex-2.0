@@ -21,7 +21,7 @@ const moments = [
   {
     icon: Zap,
     title: 'Midnight Innovation',
-    date: '25th — 26th October 2025',
+    date: '25th - 26th October 2025',
     desc: 'The campus lit up through the night as teams coded relentlessly, fueled by pizza and passion.',
   },
   {
