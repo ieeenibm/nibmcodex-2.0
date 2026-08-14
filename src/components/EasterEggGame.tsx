@@ -95,7 +95,7 @@ export default function EasterEggGame({ onClose }: EasterEggGameProps) {
         <div className="flex items-center justify-between mb-8">
           <div>
             <h2 className="text-2xl font-bold text-white tracking-tight flex items-center gap-2">
-              <Cpu className="text-cyan-400" /> System Override
+              <Cpu className="text-cyan-400" /> Memory Match
             </h2>
             <p className="text-slate-400 font-mono text-xs mt-1">Moves: {moves}</p>
           </div>
