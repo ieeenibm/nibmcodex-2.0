@@ -108,7 +108,7 @@ export default function EventSeries() {
                         filter: isOtherHovered ? 'blur(4px)' : 'blur(0px)',
                       }}
                       transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                      className={`relative h-full rounded-2xl border ${event.borderColor} bg-white/[0.02] backdrop-blur-2xl overflow-hidden flex flex-col shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]`}
+                      className={`relative h-full clip-slanted border ${event.borderColor} bg-white/[0.02] backdrop-blur-2xl overflow-hidden flex flex-col shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]`}
                       style={{ 
                         boxShadow: isHovered 
                           ? `0 20px 40px -10px ${event.glowColor}, inset 0 1px 1px rgba(255,255,255,0.15)` 
