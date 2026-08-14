@@ -80,12 +80,13 @@ export default function EventSeries() {
         >
           <CardSwap 
             pauseOnHover={true}
-            delay={3000}
+            delay={1500}
             width={340}
             height={480}
-            cardDistance={65}
-            verticalDistance={35}
+            cardDistance={90}
+            verticalDistance={45}
             skewAmount={4}
+            easing="linear"
           >
             {events.map((event) => (
               <Card 
