@@ -1,7 +1,7 @@
 'use client';
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, MapPin, ArrowRight } from 'lucide-react';
+import CardSwap, { Card } from './ui/CardSwap';
 
 const events = [
   {
@@ -47,8 +47,6 @@ const events = [
 ];
 
 export default function EventSeries() {
-  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-
   return (
     <section id="events" className="relative py-28 bg-navy-950 border-t border-white/5 overflow-hidden">
 
@@ -72,52 +70,44 @@ export default function EventSeries() {
           </p>
         </motion.div>
 
-        {/* Event Cards */}
-        <div 
-          className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto"
-          onMouseLeave={() => setHoveredIdx(null)}
+        {/* Card Swap Stack */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="h-[550px] w-full relative flex items-center justify-center"
         >
-          {events.map((event, idx) => {
-            const isHovered = hoveredIdx === idx;
-            const isOtherHovered = hoveredIdx !== null && hoveredIdx !== idx;
-
-            return (
-              <motion.div
+          <CardSwap 
+            pauseOnHover={true}
+            width={340}
+            height={480}
+            cardDistance={40}
+            verticalDistance={30}
+            skewAmount={3}
+          >
+            {events.map((event) => (
+              <Card 
                 key={event.number}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ delay: idx * 0.12, type: 'spring', stiffness: 80, damping: 20 }}
-                className="relative z-10 flex flex-col"
-                style={{ zIndex: isHovered ? 20 : 10 }}
-                onMouseEnter={() => setHoveredIdx(idx)}
+                customClass={`relative h-full clip-slanted border ${event.borderColor} glass-panel-light overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-2xl`}
+                style={{ boxShadow: `0 0 40px ${event.glowColor}` }}
               >
-                <motion.div
-                  animate={{
-                    scale: isHovered ? 1.03 : isOtherHovered ? 0.97 : 1,
-                    opacity: isOtherHovered ? 0.6 : 1,
-                    filter: isOtherHovered ? 'blur(2px)' : 'blur(0px)',
-                  }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                  className={`relative h-full clip-slanted border ${event.borderColor} glass-panel-light overflow-hidden flex flex-col group`}
-                  style={{ boxShadow: `0 0 40px ${event.glowColor}` }}
-                >
                 {/* Top accent gradient */}
                 <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${event.accentColor.replace('/20', '/60').replace('/10', '/0')}`} />
 
                 {/* Glow blob */}
                 <div className={`absolute -top-10 -right-10 w-40 h-40 rounded-full bg-gradient-to-br ${event.accentColor} blur-3xl opacity-60 group-hover:opacity-100 transition-opacity duration-700`} />
 
-                <div className="relative z-10 p-7 flex flex-col h-full">
+                <div className="relative z-10 p-8 flex flex-col h-full">
                   {/* Number row */}
-                  <div className="flex items-center mb-5">
-                    <span className="text-5xl font-bold text-white/5 group-hover:text-white/30 transition-all duration-500 font-mono leading-none select-none">
+                  <div className="flex items-center mb-6">
+                    <span className="text-6xl font-bold text-white/10 group-hover:text-white/30 transition-all duration-500 font-mono leading-none select-none">
                       {event.number}
                     </span>
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-xl font-bold text-white tracking-tight mb-3 leading-snug group-hover:text-cyan-100 transition-colors duration-300">
+                  <h3 className="text-2xl font-bold text-white tracking-tight mb-4 leading-snug group-hover:text-cyan-100 transition-colors duration-300">
                     {event.title}
                   </h3>
 
@@ -127,33 +117,31 @@ export default function EventSeries() {
                   </p>
 
                   {/* Divider */}
-                  <div className={`h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-5`} />
+                  <div className={`h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-6`} />
 
                   {/* Highlights & CTA */}
                   <div className="flex items-end justify-between gap-4 mt-auto">
-                    <div className="flex flex-col gap-2">
+                    <div className="flex flex-col gap-3">
                       {event.highlights.map((h, i) => {
                         const HIcon = h.icon;
                         return (
-                          <div key={i} className="flex items-center gap-2.5">
-                            <HIcon size={13} className="text-slate-500 shrink-0" strokeWidth={1.5} />
+                          <div key={i} className="flex items-center gap-3">
+                            <HIcon size={14} className="text-slate-500 shrink-0" strokeWidth={1.5} />
                             <span className="text-xs text-slate-400 font-mono">{h.text}</span>
                           </div>
                         );
                       })}
                     </div>
                     
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/10 group-hover:bg-white/10 group-hover:scale-110 transition-all duration-300`}>
-                      <ArrowRight size={16} className="text-slate-400 group-hover:text-white transition-colors" />
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center bg-white/5 border border-white/10 group-hover:bg-white/10 group-hover:scale-110 transition-all duration-300 shadow-xl`}>
+                      <ArrowRight size={18} className="text-slate-400 group-hover:text-white transition-colors" />
                     </div>
                   </div>
                 </div>
-                </motion.div>
-              </motion.div>
-            );
-          })}
-        </div>
-
+              </Card>
+            ))}
+          </CardSwap>
+        </motion.div>
 
       </div>
     </section>
