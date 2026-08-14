@@ -129,24 +129,24 @@ export default function EasterEggGame({ onClose }: EasterEggGameProps) {
         </AnimatePresence>
 
         {/* Game Grid */}
-        <div className="grid grid-cols-4 gap-3 md:gap-4 perspective-1000">
+        <div className="grid grid-cols-4 gap-3 md:gap-4 [perspective:1000px]">
           {cards.map((card, idx) => {
             const Icon = icons[card.iconIdx];
             return (
               <motion.div
                 key={card.id}
                 onClick={() => handleCardClick(idx)}
-                className="relative w-full aspect-square cursor-pointer transform-style-3d"
+                className="relative w-full aspect-square cursor-pointer [transform-style:preserve-3d]"
                 animate={{ rotateY: card.isFlipped || card.isMatched ? 180 : 0 }}
                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
               >
                 {/* Back of Card (Hidden when flipped) */}
-                <div className="absolute inset-0 backface-hidden bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
+                <div className="absolute inset-0 [backface-visibility:hidden] bg-white/5 border border-white/10 rounded-xl flex items-center justify-center hover:bg-white/10 transition-colors">
                   <span className="text-cyan-400/30 font-mono text-2xl font-bold select-none">&lt;/&gt;</span>
                 </div>
 
                 {/* Front of Card (Visible when flipped) */}
-                <div className="absolute inset-0 backface-hidden bg-gradient-to-br from-cyan-500/20 to-violet-500/20 border border-cyan-500/30 rounded-xl flex items-center justify-center [transform:rotateY(180deg)]">
+                <div className="absolute inset-0 [backface-visibility:hidden] bg-gradient-to-br from-cyan-500/20 to-violet-500/20 border border-cyan-500/30 rounded-xl flex items-center justify-center [transform:rotateY(180deg)]">
                   <Icon size={32} className={`text-cyan-300 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] ${card.isMatched ? 'opacity-50' : 'opacity-100'}`} />
                 </div>
               </motion.div>
