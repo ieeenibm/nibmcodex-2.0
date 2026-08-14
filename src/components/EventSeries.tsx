@@ -89,7 +89,7 @@ export default function EventSeries() {
             {events.map((event) => (
               <Card 
                 key={event.number}
-                customClass={`relative h-full clip-slanted border ${event.borderColor} glass-panel-light overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-2xl`}
+                customClass={`h-full clip-slanted border ${event.borderColor} glass-panel-light overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-2xl`}
                 style={{ boxShadow: `0 0 40px ${event.glowColor}` }}
               >
                 {/* Top accent gradient */}

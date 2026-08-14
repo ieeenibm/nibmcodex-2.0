@@ -5,7 +5,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User } from 'lucide-react';
 import { FaLinkedin } from 'react-icons/fa';
 import SpotlightCard from './ui/SpotlightCard';
-import EasterEggGame from './EasterEggGame';
 
 import committeeData from '@/data/committee.json';
 
@@ -26,15 +25,14 @@ const leadership: Member[] = committeeData.leadership;
 const execBoard: Member[] = committeeData.execBoard;
 const teams: Team[] = committeeData.teams;
 
-function MemberCard({ member, idx, onClick }: { member: Member; idx: number; onClick?: () => void }) {
+function MemberCard({ member, idx }: { member: Member; idx: number }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: (idx % 5) * 0.05 }}
-      className="h-full cursor-pointer"
-      onClick={onClick}
+      className="h-full"
     >
       <SpotlightCard
         className={`h-full p-6 flex flex-col items-center text-center group ${
@@ -86,22 +84,8 @@ function MemberCard({ member, idx, onClick }: { member: Member; idx: number; onC
 
 export default function Committee() {
   const [activeTeam, setActiveTeam] = useState(0);
-  const [showEasterEgg, setShowEasterEgg] = useState(false);
-  const clickCountRef = useRef(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handleMemberClick = (name: string) => {
-    if (name === 'Supun Hewagamage') {
-      clickCountRef.current += 1;
-      if (clickCountRef.current === 5) {
-        setShowEasterEgg(true);
-        clickCountRef.current = 0; // reset
-      }
-    } else {
-      clickCountRef.current = 0; // reset if clicking someone else
-    }
-  };
 
   const startAutoSwitch = useCallback(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
@@ -173,7 +157,7 @@ export default function Committee() {
         {/* Leadership */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto mb-20">
           {leadership.map((member, idx) => (
-            <MemberCard key={member.role} member={member} idx={idx} onClick={() => handleMemberClick(member.name)} />
+            <MemberCard key={member.role} member={member} idx={idx} />
           ))}
         </div>
 
@@ -183,7 +167,7 @@ export default function Committee() {
         </h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-5xl mx-auto mb-20">
           {execBoard.map((member, idx) => (
-            <MemberCard key={member.role} member={member} idx={idx} onClick={() => handleMemberClick(member.name)} />
+            <MemberCard key={member.role} member={member} idx={idx} />
           ))}
         </div>
 
@@ -224,19 +208,13 @@ export default function Committee() {
             >
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-6xl mx-auto">
                 {teams[activeTeam].members.map((member, idx) => (
-                  <MemberCard key={idx} member={member} idx={idx} onClick={() => handleMemberClick(member.name)} />
+                  <MemberCard key={idx} member={member} idx={idx} />
                 ))}
               </div>
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
-
-      <AnimatePresence>
-        {showEasterEgg && (
-          <EasterEggGame onClose={() => setShowEasterEgg(false)} />
-        )}
-      </AnimatePresence>
     </section>
   );
 }
