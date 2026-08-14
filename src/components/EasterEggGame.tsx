@@ -116,13 +116,13 @@ export default function EasterEggGame({ onClose }: EasterEggGameProps) {
               className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-navy-950/90 backdrop-blur-sm rounded-2xl"
             >
               <Trophy size={64} className="text-cyan-400 mb-6 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]" />
-              <h3 className="text-4xl font-bold text-white mb-2">Access Granted</h3>
-              <p className="text-slate-400 mb-8 font-mono">Matched all protocols in {moves} moves.</p>
+              <h3 className="text-4xl font-bold text-white mb-2">You Win!</h3>
+              <p className="text-slate-400 mb-8 font-mono">Completed in {moves} moves.</p>
               <button 
                 onClick={onClose}
                 className="px-8 py-3 rounded-full bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/50 text-cyan-50 transition-all hover:scale-105"
               >
-                Return to Codex
+                Close Game
               </button>
             </motion.div>
           )}
