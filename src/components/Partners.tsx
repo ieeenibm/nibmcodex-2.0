@@ -100,7 +100,7 @@ export default function Partners() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: idx * 0.1 }}
-              className="glass-panel-light px-5 py-4 md:px-6 md:py-5 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-full max-w-[280px] sm:w-[260px] flex-1"
+              className="glass-panel-light px-5 py-4 md:px-6 md:py-5 clip-slanted flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-full max-w-[280px] sm:w-[260px] flex-1"
             >
               <div className={`relative w-full aspect-[4/3] mb-3 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${partner.bgClass}`}>
                 <Image
@@ -131,7 +131,7 @@ export default function Partners() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-50px" }}
-              className="glass-panel-light px-5 py-4 md:px-6 md:py-5 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-[200px] md:w-[280px]"
+              className="glass-panel-light px-5 py-4 md:px-6 md:py-5 clip-slanted flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-[200px] md:w-[280px]"
             >
               <div className={`relative w-full aspect-[16/9] md:aspect-[21/9] mb-3 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${nationalPartner.bgClass}`}>
                 <Image
@@ -164,7 +164,7 @@ export default function Partners() {
             {[...partnersRow1, ...partnersRow2, ...partnersRow1, ...partnersRow2].map((partner, idx) => (
               <div
                 key={`${partner.name}-${idx}`}
-                className="glass-panel-light px-5 py-4 md:px-6 md:py-5 rounded-2xl flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-[260px] md:w-[280px] shrink-0"
+                className="glass-panel-light px-5 py-4 md:px-6 md:py-5 clip-slanted flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-[260px] md:w-[280px] shrink-0"
               >
                 <div className="w-full flex flex-col items-center mb-4">
                   <div className="h-8 md:h-10 flex items-center justify-center w-full px-2">
