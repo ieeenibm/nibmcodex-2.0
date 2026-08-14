@@ -1,7 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, MapPin, ArrowRight } from 'lucide-react';
-import CardSwap, { Card } from './ui/CardSwap';
+import ScrollStack, { ScrollStackItem } from './ui/ScrollStack';
 
 const events = [
   {
@@ -70,29 +70,24 @@ export default function EventSeries() {
           </p>
         </motion.div>
 
-        {/* Card Swap Stack */}
-        <motion.div 
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="h-[550px] w-full relative flex items-center justify-center"
-        >
-          <CardSwap 
-            pauseOnHover={true}
-            delay={1500}
-            width={340}
-            height={480}
-            cardDistance={90}
-            verticalDistance={45}
-            skewAmount={4}
-            easing="linear"
+        {/* Scroll Stack Container */}
+        <div className="max-w-md mx-auto">
+          <ScrollStack
+            itemDistance={150}
+            itemScale={0.05}
+            itemStackDistance={35}
+            stackPosition="20%"
+            scaleEndPosition="10%"
+            baseScale={0.85}
+            rotationAmount={1.5}
+            blurAmount={2}
+            useWindowScroll={false}
+            className="h-[800px]"
           >
             {events.map((event) => (
-              <Card 
+              <ScrollStackItem 
                 key={event.number}
-                customClass={`h-full clip-slanted border ${event.borderColor} bg-navy-950 overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-2xl`}
-                style={{ boxShadow: `0 0 40px ${event.glowColor}` }}
+                itemClassName={`!h-[480px] !p-0 !rounded-none !bg-navy-950 clip-slanted border ${event.borderColor} overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-2xl`}
               >
                 {/* Top accent gradient */}
                 <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${event.accentColor.replace('/20', '/60').replace('/10', '/0')}`} />
@@ -100,7 +95,7 @@ export default function EventSeries() {
                 {/* Glow blob */}
                 <div className={`absolute -top-10 -right-10 w-40 h-40 rounded-full bg-gradient-to-br ${event.accentColor} blur-3xl opacity-60 group-hover:opacity-100 transition-opacity duration-700`} />
 
-                <div className="relative z-10 p-8 flex flex-col h-full">
+                <div className="relative z-10 p-8 flex flex-col h-full" style={{ boxShadow: `0 0 40px ${event.glowColor}` }}>
                   {/* Number row */}
                   <div className="flex items-center mb-6">
                     <span className="text-6xl font-bold text-white/10 group-hover:text-white/30 transition-all duration-500 font-mono leading-none select-none">
@@ -140,10 +135,10 @@ export default function EventSeries() {
                     </div>
                   </div>
                 </div>
-              </Card>
+              </ScrollStackItem>
             ))}
-          </CardSwap>
-        </motion.div>
+          </ScrollStack>
+        </div>
 
       </div>
     </section>
