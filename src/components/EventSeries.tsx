@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, MapPin, ArrowRight } from 'lucide-react';
 
@@ -46,6 +47,8 @@ const events = [
 ];
 
 export default function EventSeries() {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
   return (
     <section id="events" className="relative py-28 bg-navy-950 border-t border-white/5 overflow-hidden">
 
@@ -70,8 +73,14 @@ export default function EventSeries() {
         </motion.div>
 
         {/* Event Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        <div 
+          className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-6xl mx-auto"
+          onMouseLeave={() => setHoveredIdx(null)}
+        >
           {events.map((event, idx) => {
+            const isHovered = hoveredIdx === idx;
+            const isOtherHovered = hoveredIdx !== null && hoveredIdx !== idx;
+
             return (
               <motion.div
                 key={event.number}
@@ -79,9 +88,20 @@ export default function EventSeries() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-50px' }}
                 transition={{ delay: idx * 0.12, type: 'spring', stiffness: 80, damping: 20 }}
-                className={`relative clip-slanted border ${event.borderColor} glass-panel-light overflow-hidden flex flex-col group`}
-                style={{ boxShadow: `0 0 40px ${event.glowColor}` }}
+                className="relative z-10 flex flex-col"
+                style={{ zIndex: isHovered ? 20 : 10 }}
+                onMouseEnter={() => setHoveredIdx(idx)}
               >
+                <motion.div
+                  animate={{
+                    scale: isHovered ? 1.03 : isOtherHovered ? 0.97 : 1,
+                    opacity: isOtherHovered ? 0.6 : 1,
+                    filter: isOtherHovered ? 'blur(2px)' : 'blur(0px)',
+                  }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                  className={`relative h-full clip-slanted border ${event.borderColor} glass-panel-light overflow-hidden flex flex-col group`}
+                  style={{ boxShadow: `0 0 40px ${event.glowColor}` }}
+                >
                 {/* Top accent gradient */}
                 <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${event.accentColor.replace('/20', '/60').replace('/10', '/0')}`} />
 
@@ -128,6 +148,7 @@ export default function EventSeries() {
                     </div>
                   </div>
                 </div>
+                </motion.div>
               </motion.div>
             );
           })}
