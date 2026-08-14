@@ -80,16 +80,17 @@ export default function EventSeries() {
         >
           <CardSwap 
             pauseOnHover={true}
+            delay={3000}
             width={340}
             height={480}
-            cardDistance={40}
-            verticalDistance={30}
-            skewAmount={3}
+            cardDistance={65}
+            verticalDistance={35}
+            skewAmount={4}
           >
             {events.map((event) => (
               <Card 
                 key={event.number}
-                customClass={`h-full clip-slanted border ${event.borderColor} glass-panel-light overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-2xl`}
+                customClass={`h-full clip-slanted border ${event.borderColor} bg-navy-950 overflow-hidden flex flex-col group transition-all duration-300 hover:shadow-2xl`}
                 style={{ boxShadow: `0 0 40px ${event.glowColor}` }}
               >
                 {/* Top accent gradient */}
