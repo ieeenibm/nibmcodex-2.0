@@ -76,13 +76,13 @@ export default function EventSeries() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: "easeOut" }}
-          className="h-[550px] w-full relative flex items-center justify-center"
+          className="h-[650px] w-full relative flex items-center justify-center"
         >
           <CardSwap 
             pauseOnHover={true}
-            delay={1500}
-            width={340}
-            height={480}
+            delay={3500}
+            width={680}
+            height={360}
             cardDistance={90}
             verticalDistance={45}
             skewAmount={4}
