@@ -91,7 +91,7 @@ export default function EventSeries() {
                 <div className="relative z-10 p-7 flex flex-col h-full">
                   {/* Number row */}
                   <div className="flex items-center mb-5">
-                    <span className="text-5xl font-bold text-white/5 font-mono leading-none select-none">
+                    <span className="text-5xl font-bold text-white/5 group-hover:text-white/30 transition-all duration-500 font-mono leading-none select-none">
                       {event.number}
                     </span>
                   </div>
