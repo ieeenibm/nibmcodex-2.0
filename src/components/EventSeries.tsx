@@ -15,6 +15,7 @@ const events = [
     highlights: [
       { icon: Calendar, text: '19 August 2026' },
       { icon: Clock, text: '3-Hour Session' },
+      { icon: MapPin, text: 'Trace Expert City' },
     ],
   },
   {
@@ -28,6 +29,7 @@ const events = [
     highlights: [
       { icon: Calendar, text: '12 September 2026' },
       { icon: Clock, text: 'Full Day' },
+      { icon: MapPin, text: 'NIBM Campus' },
     ],
   },
   {
