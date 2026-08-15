@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, MapPin, ArrowRight } from 'lucide-react';
+import { Calendar, Clock, MapPin } from 'lucide-react';
 
 const events = [
   {
@@ -166,9 +166,7 @@ export default function EventSeries() {
                             })}
                           </div>
                           
-                          <div className="w-12 h-12 rounded-full flex items-center justify-center bg-white/5 border border-white/10 group-hover:bg-white/10 group-hover:scale-110 group-hover:border-white/20 transition-all duration-300 shrink-0">
-                            <ArrowRight size={18} className="text-slate-400 group-hover:text-white transition-colors" />
-                          </div>
+
                         </div>
                       </div>
                     </motion.div>
