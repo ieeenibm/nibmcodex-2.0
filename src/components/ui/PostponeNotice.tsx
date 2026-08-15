@@ -83,20 +83,9 @@ export default function PostponeNotice() {
                   </svg>
                 </button>
               </div>
-              <p className="text-sm text-slate-300 leading-relaxed mb-4">
+              <p className="text-sm text-slate-300 leading-relaxed">
                 Enterprise, AI and Robotics Learning Outcomes
               </p>
-              <a
-                href="https://luma.com/ln0thivz"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-400/10 border border-cyan-400/30 text-cyan-300 text-sm font-semibold hover:bg-cyan-400/20 hover:border-cyan-400/50 transition-all group"
-              >
-                Register Now
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                </svg>
-              </a>
             </div>
           </motion.div>
         )}
