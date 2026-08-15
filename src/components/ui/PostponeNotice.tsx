@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import CountdownTimer from './CountdownTimer';
 
 const STORAGE_KEY = 'nibmcodex_notice_visits';
 
@@ -25,8 +24,28 @@ export default function PostponeNotice() {
 
   // Guard against SSR - only render after hydration
   const [mounted, setMounted] = useState(false);
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { setMounted(true); }, []);
+  const [timeLeft, setTimeLeft] = useState({ days: '00', hours: '00', minutes: '00', seconds: '00' });
+
+  useEffect(() => { 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true); 
+    const targetDate = new Date(Date.UTC(2026, 7, 19, 0, 0, 0));
+    const calculate = () => {
+      const diff = targetDate.getTime() - Date.now();
+      if (diff <= 0) return { days: '00', hours: '00', minutes: '00', seconds: '00' };
+      const total = Math.floor(diff / 1000);
+      const pad = (n: number) => String(Math.max(0, n)).padStart(2, '0');
+      return {
+        days: pad(Math.floor(total / 86400)),
+        hours: pad(Math.floor((total % 86400) / 3600)),
+        minutes: pad(Math.floor((total % 3600) / 60)),
+        seconds: pad(total % 60),
+      };
+    };
+    setTimeLeft(calculate());
+    const interval = setInterval(() => setTimeLeft(calculate()), 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   if (!mounted) return null;
 
@@ -84,11 +103,13 @@ export default function PostponeNotice() {
                   </svg>
                 </button>
               </div>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                Enterprise, AI and Robotics Learning Outcomes
-              </p>
-              <div className="mt-2 -ml-1 origin-left scale-[0.65] sm:scale-[0.70]">
-                <CountdownTimer targetDate={new Date(Date.UTC(2026, 7, 19, 0, 0, 0))} />
+              <div className="flex justify-between items-end gap-3 mt-1">
+                <p className="text-sm text-slate-300 leading-relaxed max-w-[65%]">
+                  Enterprise, AI and Robotics Learning Outcomes
+                </p>
+                <div className="text-xs font-mono font-semibold text-cyan-400 whitespace-nowrap bg-cyan-400/10 px-2 py-1 rounded border border-cyan-400/20 shadow-[inset_0_1px_2px_rgba(0,0,0,0.5)]">
+                  {timeLeft.days}d {timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}
+                </div>
               </div>
             </div>
           </motion.div>
