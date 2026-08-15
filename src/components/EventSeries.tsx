@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, MapPin, ArrowRight } from 'lucide-react';
+import { Calendar, Clock, MapPin } from 'lucide-react';
 
 const events = [
   {
@@ -81,76 +81,97 @@ export default function EventSeries() {
             const isHovered = hoveredIdx === idx;
             const isOtherHovered = hoveredIdx !== null && hoveredIdx !== idx;
 
-            return (
-              <motion.div
-                key={event.number}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ delay: idx * 0.12, type: 'spring', stiffness: 80, damping: 20 }}
-                className="relative z-10 flex flex-col"
-                style={{ zIndex: isHovered ? 20 : 10 }}
-                onMouseEnter={() => setHoveredIdx(idx)}
-              >
-                <motion.div
-                  animate={{
-                    scale: isHovered ? 1.03 : isOtherHovered ? 0.97 : 1,
-                    opacity: isOtherHovered ? 0.6 : 1,
-                    filter: isOtherHovered ? 'blur(2px)' : 'blur(0px)',
-                  }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                  className={`relative h-full clip-slanted border ${event.borderColor} glass-panel-light overflow-hidden flex flex-col group`}
-                  style={{ boxShadow: `0 0 40px ${event.glowColor}` }}
-                >
-                {/* Top accent gradient */}
-                <div className={`absolute inset-x-0 top-0 h-px bg-gradient-to-r ${event.accentColor.replace('/20', '/60').replace('/10', '/0')}`} />
+                const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const y = e.clientY - rect.top;
+                  e.currentTarget.style.setProperty('--mouse-x', `${x}px`);
+                  e.currentTarget.style.setProperty('--mouse-y', `${y}px`);
+                };
 
-                {/* Glow blob */}
-                <div className={`absolute -top-10 -right-10 w-40 h-40 rounded-full bg-gradient-to-br ${event.accentColor} blur-3xl opacity-60 group-hover:opacity-100 transition-opacity duration-700`} />
+                return (
+                  <motion.div
+                    key={event.number}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-50px' }}
+                    transition={{ delay: idx * 0.12, type: 'spring', stiffness: 80, damping: 20 }}
+                    className="relative z-10 flex flex-col group h-full"
+                    style={{ zIndex: isHovered ? 20 : 10 }}
+                    onMouseEnter={() => setHoveredIdx(idx)}
+                    onMouseMove={handleMouseMove}
+                  >
+                    <motion.div
+                      animate={{
+                        scale: isHovered ? 1.02 : isOtherHovered ? 0.98 : 1,
+                        opacity: isOtherHovered ? 0.5 : 1,
+                        filter: isOtherHovered ? 'blur(4px)' : 'blur(0px)',
+                      }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                      className={`relative h-full clip-slanted border ${event.borderColor} bg-white/[0.02] backdrop-blur-2xl overflow-hidden flex flex-col shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]`}
+                      style={{ 
+                        boxShadow: isHovered 
+                          ? `0 20px 40px -10px ${event.glowColor}, inset 0 1px 1px rgba(255,255,255,0.15)` 
+                          : `0 10px 30px -10px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05)`
+                      }}
+                    >
+                      {/* Dynamic Mouse Spotlight */}
+                      <div 
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                        style={{
+                          background: `radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.08), transparent 40%)`
+                        }}
+                      />
 
-                <div className="relative z-10 p-7 flex flex-col h-full">
-                  {/* Number row */}
-                  <div className="flex items-center mb-5">
-                    <span className="text-5xl font-bold text-white/5 group-hover:text-white/30 transition-all duration-500 font-mono leading-none select-none">
-                      {event.number}
-                    </span>
-                  </div>
+                      {/* Top accent gradient line */}
+                      <div className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r ${event.accentColor.replace('/20', '/80').replace('/10', '/0')}`} />
 
-                  {/* Title */}
-                  <h3 className="text-xl font-bold text-white tracking-tight mb-3 leading-snug group-hover:text-cyan-100 transition-colors duration-300">
-                    {event.title}
-                  </h3>
+                      {/* Soft underlying glow blob */}
+                      <div className={`absolute -top-20 -right-20 w-64 h-64 rounded-full bg-gradient-to-br ${event.accentColor} blur-[80px] opacity-40 group-hover:opacity-70 transition-opacity duration-700 pointer-events-none`} />
 
-                  {/* Description */}
-                  <p className="text-slate-400 text-sm leading-relaxed mb-6 font-light flex-grow">
-                    {event.description}
-                  </p>
+                      <div className="relative z-10 p-8 flex flex-col h-full">
+                        {/* Number row */}
+                        <div className="flex items-center mb-6">
+                          <span className="text-6xl font-bold text-white/5 group-hover:text-white/20 transition-all duration-500 font-mono leading-none select-none">
+                            {event.number}
+                          </span>
+                        </div>
 
-                  {/* Divider */}
-                  <div className={`h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-5`} />
+                        {/* Title */}
+                        <h3 className="text-2xl font-bold text-white tracking-tight mb-4 leading-snug group-hover:text-cyan-100 transition-colors duration-300">
+                          {event.title}
+                        </h3>
 
-                  {/* Highlights & CTA */}
-                  <div className="flex items-end justify-between gap-4 mt-auto">
-                    <div className="flex flex-col gap-2">
-                      {event.highlights.map((h, i) => {
-                        const HIcon = h.icon;
-                        return (
-                          <div key={i} className="flex items-center gap-2.5">
-                            <HIcon size={13} className="text-slate-500 shrink-0" strokeWidth={1.5} />
-                            <span className="text-xs text-slate-400 font-mono">{h.text}</span>
+                        {/* Description */}
+                        <p className="text-slate-400 text-[15px] leading-relaxed mb-8 font-light flex-grow">
+                          {event.description}
+                        </p>
+
+                        {/* Divider */}
+                        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-6" />
+
+                        {/* Highlights & CTA */}
+                        <div className="flex items-end justify-between gap-4 mt-auto">
+                          <div className="flex flex-col gap-3">
+                            {event.highlights.map((h, i) => {
+                              const HIcon = h.icon;
+                              return (
+                                <div key={i} className="flex items-center gap-3">
+                                  <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                                    <HIcon size={12} className="text-slate-300" strokeWidth={2} />
+                                  </div>
+                                  <span className="text-sm text-slate-300 font-medium tracking-wide">{h.text}</span>
+                                </div>
+                              );
+                            })}
                           </div>
-                        );
-                      })}
-                    </div>
-                    
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-white/5 border border-white/10 group-hover:bg-white/10 group-hover:scale-110 transition-all duration-300`}>
-                      <ArrowRight size={16} className="text-slate-400 group-hover:text-white transition-colors" />
-                    </div>
-                  </div>
-                </div>
-                </motion.div>
-              </motion.div>
-            );
+                          
+
+                        </div>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                );
           })}
         </div>
 
