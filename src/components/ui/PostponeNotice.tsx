@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import CountdownTimer from './CountdownTimer';
 
 const STORAGE_KEY = 'nibmcodex_notice_visits';
 
@@ -86,6 +87,9 @@ export default function PostponeNotice() {
               <p className="text-sm text-slate-300 leading-relaxed">
                 Enterprise, AI and Robotics Learning Outcomes
               </p>
+              <div className="mt-2 -ml-1 origin-left scale-[0.65] sm:scale-[0.70]">
+                <CountdownTimer targetDate={new Date(Date.UTC(2026, 7, 19, 0, 0, 0))} />
+              </div>
             </div>
           </motion.div>
         )}
