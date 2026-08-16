@@ -12,6 +12,7 @@ import Partners from '@/components/Partners';
 import FAQ from '@/components/FAQ';
 // import Registration from '@/components/Registration';
 import Footer from '@/components/Footer';
+import RegistrationPill from '@/components/ui/RegistrationPill';
 
 export default function Home() {
   return (
@@ -30,6 +31,7 @@ export default function Home() {
       <FAQ />
       {/* <Registration /> */}
       <Footer />
+      <RegistrationPill />
     </main>
   );
 }
