@@ -1,55 +1,52 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, X, ChevronRight } from 'lucide-react';
-
-const STORAGE_KEY = 'ieee_pill_dismissed';
+import { Users, ChevronRight } from 'lucide-react';
 
 export default function RegistrationPill() {
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isDismissed, setIsDismissed] = useState(true);
+  const [autoExpanded, setAutoExpanded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
 
-  // Initialize and attach scroll listener
+  // Initialize and trigger entrance
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
-    if (typeof window === 'undefined') return;
+    
+    // Slight delay so the drop-in animation plays smoothly on page load
+    const entranceTimer = setTimeout(() => {
+      setIsVisible(true);
+    }, 7000);
 
-    const dismissed = sessionStorage.getItem(STORAGE_KEY) === 'true';
-    setIsDismissed(dismissed);
-
-    if (dismissed) return;
-
-    const handleScroll = () => {
-      // Trigger when scrolling past 800px (roughly past hero section)
-      if (window.scrollY > 800) {
-        setIsVisible(true);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => clearTimeout(entranceTimer);
   }, []);
 
-  // Handle auto-expansion after it becomes visible
+  // Handle auto-expansion and auto-collapse after it becomes visible
   useEffect(() => {
-    if (isVisible && !isExpanded) {
-      const timer = setTimeout(() => {
-        setIsExpanded(true);
-      }, 1200); // Wait 1.2s before expanding
-      return () => clearTimeout(timer);
+    if (isVisible) {
+      let collapseTimer: NodeJS.Timeout;
+      
+      // 1. Wait 1.2s before expanding
+      const expandTimer = setTimeout(() => {
+        setAutoExpanded(true);
+        
+        // 2. Stay expanded for 4s, then collapse back to icon
+        collapseTimer = setTimeout(() => {
+          setAutoExpanded(false);
+        }, 4000);
+      }, 1200); 
+      
+      return () => {
+        clearTimeout(expandTimer);
+        clearTimeout(collapseTimer);
+      };
     }
-  }, [isVisible, isExpanded]);
+  }, [isVisible]);
 
-  const handleDismiss = () => {
-    setIsVisible(false);
-    setIsDismissed(true);
-    sessionStorage.setItem(STORAGE_KEY, 'true');
-  };
+  if (!mounted) return null;
 
-  if (!mounted || isDismissed) return null;
+  const showExpanded = autoExpanded || isHovered;
 
   return (
     <div className="fixed top-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex justify-center">
@@ -58,14 +55,26 @@ export default function RegistrationPill() {
           <motion.div
             layout
             initial={{ y: -100, scale: 0.5, opacity: 0 }}
-            animate={{ y: 0, scale: 1, opacity: 1 }}
+            animate={{ 
+              y: 0, 
+              scale: 1, 
+              opacity: 1,
+              boxShadow: [
+                "0 0 15px rgba(34,211,238,0.1)", 
+                "0 0 30px rgba(34,211,238,0.25)", 
+                "0 0 15px rgba(34,211,238,0.1)"
+              ]
+            }}
             exit={{ y: -100, scale: 0.8, opacity: 0 }}
             transition={{ 
               layout: { type: "spring", stiffness: 350, damping: 30 },
               y: { type: "spring", stiffness: 400, damping: 25 },
-              opacity: { duration: 0.2 }
+              opacity: { duration: 0.2 },
+              boxShadow: { duration: 3, repeat: Infinity, ease: "easeInOut" }
             }}
-            className="pointer-events-auto flex items-center bg-navy-900/90 backdrop-blur-xl border border-cyan-500/30 shadow-[0_0_20px_rgba(34,211,238,0.2)] rounded-full overflow-hidden p-1.5"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className="pointer-events-auto flex items-center bg-navy-900/90 backdrop-blur-xl border border-cyan-500/30 rounded-full overflow-hidden p-1.5 cursor-pointer"
           >
             {/* The Icon (Always visible) */}
             <motion.div 
@@ -77,7 +86,7 @@ export default function RegistrationPill() {
 
             {/* The Expanded Content */}
             <AnimatePresence mode="popLayout">
-              {isExpanded && (
+              {showExpanded && (
                 <motion.div
                   initial={{ opacity: 0, width: 0 }}
                   animate={{ opacity: 1, width: 'auto' }}
@@ -85,7 +94,7 @@ export default function RegistrationPill() {
                   transition={{ type: "spring", stiffness: 350, damping: 30 }}
                   className="flex items-center overflow-hidden whitespace-nowrap"
                 >
-                  <div className="flex items-center gap-3 pl-3 pr-1">
+                  <div className="flex items-center gap-3 pl-3 pr-2">
                     <span className="text-sm font-medium text-slate-200">
                       Become an IEEE Member
                     </span>
@@ -98,18 +107,6 @@ export default function RegistrationPill() {
                       Register
                       <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
                     </a>
-                    
-                    {/* Divider */}
-                    <div className="w-[1px] h-4 bg-slate-700 mx-1"></div>
-                    
-                    {/* Close Button */}
-                    <button
-                      onClick={handleDismiss}
-                      className="text-slate-400 hover:text-slate-200 transition-colors p-1 rounded-full hover:bg-white/5"
-                      aria-label="Dismiss notification"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
                   </div>
                 </motion.div>
               )}
