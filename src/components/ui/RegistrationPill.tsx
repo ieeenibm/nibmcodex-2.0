@@ -87,7 +87,7 @@ export default function RegistrationPill() {
                 >
                   <div className="flex items-center gap-3 pl-3 pr-1">
                     <span className="text-sm font-medium text-slate-200">
-                      Join the IEEE Student Branch
+                      Become an IEEE Member
                     </span>
                     <a
                       href="https://www.ieee.org/membership/join/index.html"
