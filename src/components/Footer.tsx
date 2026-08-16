@@ -39,6 +39,7 @@ export default function Footer() {
               <li><Link href={isHome ? '#timeline' : '/#timeline'} onClick={(e) => handleHashClick(e, isHome ? '#timeline' : '/#timeline')} className="hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">Schedule</Link></li>
               <li><Link href={isHome ? '#faq' : '/#faq'} onClick={(e) => handleHashClick(e, isHome ? '#faq' : '/#faq')} className="hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">FAQ</Link></li>
               <li><a href="https://nibmcodex.nibmieee.org" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">NIBMCodeX 1.0</a></li>
+              <li><a href="https://www.ieee.org/membership/join/index.html" target="_blank" rel="noopener noreferrer" className="hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">IEEE Membership</a></li>
             </ul>
           </div>
 
