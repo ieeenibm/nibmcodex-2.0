@@ -34,15 +34,15 @@ function MemberCard({ member, idx, onMemberClick }: { member: Member; idx: numbe
       viewport={{ once: true }}
       transition={{ delay: (idx % 5) * 0.05 }}
       className="h-full"
-      onClick={() => onMemberClick?.(member.name)}
     >
       <SpotlightCard
         className={`h-full p-6 flex flex-col items-center text-center group ${
           member.highlight ? 'glass-panel border-cyan-400/30' : 'glass-panel'
-        }`}
+        } ${onMemberClick ? 'cursor-pointer select-none' : ''}`}
         spotlightColor={
           member.highlight ? 'rgba(34, 211, 238, 0.2)' : 'rgba(255, 255, 255, 0.08)'
         }
+        onClick={() => onMemberClick?.(member.name)}
       >
         <div className="relative mb-5 mt-2 w-28 h-28 mx-auto">
           <div className="relative w-full h-full rounded-full flex items-center justify-center bg-navy-900 border-2 border-white/5 text-slate-500 overflow-hidden group-hover:border-cyan-400/40 group-hover:ring-4 group-hover:ring-cyan-400/10 transition-all duration-500">
