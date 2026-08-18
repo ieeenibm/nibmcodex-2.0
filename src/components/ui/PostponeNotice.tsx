@@ -29,7 +29,7 @@ export default function PostponeNotice() {
   useEffect(() => { 
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true); 
-    const targetDate = new Date(Date.UTC(2026, 7, 19, 0, 0, 0));
+    const targetDate = new Date(Date.UTC(2026, 7, 19, 4, 30, 0));
     const calculate = () => {
       const diff = targetDate.getTime() - Date.now();
       if (diff <= 0) return { days: '00', hours: '00', minutes: '00', seconds: '00' };
