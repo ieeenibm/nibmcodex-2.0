@@ -94,7 +94,7 @@ export default function Committee() {
   const handleMemberClick = (name: string) => {
     if (name === 'Supun Hewagamage') {
       clickCountRef.current += 1;
-      if (clickCountRef.current === 5) {
+      if (clickCountRef.current === 7) {
         setShowEasterEgg(true);
         clickCountRef.current = 0; // reset
       }
