@@ -50,8 +50,8 @@ export default function CountdownSection() {
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true); }, []);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNowMs(Date.now());
     const interval = setInterval(() => setNowMs(Date.now()), 1000);
     return () => clearInterval(interval);

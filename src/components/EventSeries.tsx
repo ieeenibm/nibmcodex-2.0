@@ -120,63 +120,71 @@ export default function EventSeries() {
                 >
                   {/* FRONT / DETAILS SIDE (rotateY=0) */}
                   <div
-                    className={`relative h-full clip-slanted border ${event.borderColor} bg-white/[0.02] backdrop-blur-2xl overflow-hidden flex flex-col shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]`}
+                    className="relative h-full w-full"
                     style={{ 
-                      backfaceVisibility: 'hidden',
-                      boxShadow: isHovered 
-                        ? `0 20px 40px -10px ${event.glowColor}, inset 0 1px 1px rgba(255,255,255,0.15)` 
-                        : `0 10px 30px -10px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05)`
+                      backfaceVisibility: 'hidden', 
+                      WebkitBackfaceVisibility: 'hidden',
+                      transform: 'translateZ(0)' // Force GPU to respect backface
                     }}
                   >
-                    {/* Dynamic Mouse Spotlight */}
-                    <div 
-                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                      style={{
-                        background: `radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.08), transparent 40%)`
+                    <div
+                      className={`relative h-full clip-slanted border ${event.borderColor} bg-white/[0.02] backdrop-blur-2xl overflow-hidden flex flex-col shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]`}
+                      style={{ 
+                        boxShadow: isHovered 
+                          ? `0 20px 40px -10px ${event.glowColor}, inset 0 1px 1px rgba(255,255,255,0.15)` 
+                          : `0 10px 30px -10px rgba(0,0,0,0.5), inset 0 1px 1px rgba(255,255,255,0.05)`
                       }}
-                    />
+                    >
+                      {/* Dynamic Mouse Spotlight */}
+                      <div 
+                        className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+                        style={{
+                          background: `radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.08), transparent 40%)`
+                        }}
+                      />
 
-                    {/* Top accent gradient line */}
-                    <div className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r ${event.accentColor.replace('/20', '/80').replace('/10', '/0')}`} />
+                      {/* Top accent gradient line */}
+                      <div className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r ${event.accentColor.replace('/20', '/80').replace('/10', '/0')}`} />
 
-                    {/* Soft underlying glow blob */}
-                    <div className={`absolute -top-20 -right-20 w-64 h-64 rounded-full bg-gradient-to-br ${event.accentColor} blur-[80px] opacity-40 group-hover:opacity-70 transition-opacity duration-700 pointer-events-none`} />
+                      {/* Soft underlying glow blob */}
+                      <div className={`absolute -top-20 -right-20 w-64 h-64 rounded-full bg-gradient-to-br ${event.accentColor} blur-[80px] opacity-40 group-hover:opacity-70 transition-opacity duration-700 pointer-events-none`} />
 
-                    <div className="relative z-10 p-8 flex flex-col h-full">
-                      {/* Number row */}
-                      <div className="flex items-center mb-6">
-                        <span className="text-6xl font-bold text-white/5 group-hover:text-white/20 transition-all duration-500 font-mono leading-none select-none">
-                          {event.number}
-                        </span>
-                      </div>
+                      <div className="relative z-10 p-8 flex flex-col h-full">
+                        {/* Number row */}
+                        <div className="flex items-center mb-6">
+                          <span className="text-6xl font-bold text-white/5 group-hover:text-white/20 transition-all duration-500 font-mono leading-none select-none">
+                            {event.number}
+                          </span>
+                        </div>
 
-                      {/* Title */}
-                      <h3 className="text-2xl font-bold text-white tracking-tight mb-4 leading-snug group-hover:text-cyan-100 transition-colors duration-300">
-                        {event.title}
-                      </h3>
+                        {/* Title */}
+                        <h3 className="text-2xl font-bold text-white tracking-tight mb-4 leading-snug group-hover:text-cyan-100 transition-colors duration-300">
+                          {event.title}
+                        </h3>
 
-                      {/* Description */}
-                      <p className="text-slate-400 text-[15px] leading-relaxed mb-8 font-light flex-grow">
-                        {event.description}
-                      </p>
+                        {/* Description */}
+                        <p className="text-slate-400 text-[15px] leading-relaxed mb-8 font-light flex-grow">
+                          {event.description}
+                        </p>
 
-                      {/* Divider */}
-                      <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-6" />
+                        {/* Divider */}
+                        <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-6" />
 
-                      {/* Highlights */}
-                      <div className="flex items-end justify-between gap-4 mt-auto">
-                        <div className="flex flex-col gap-3">
-                          {event.highlights.map((h, i) => {
-                            const HIcon = h.icon;
-                            return (
-                              <div key={i} className="flex items-center gap-3">
-                                <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-                                  <HIcon size={12} className="text-slate-300" strokeWidth={2} />
+                        {/* Highlights */}
+                        <div className="flex items-end justify-between gap-4 mt-auto">
+                          <div className="flex flex-col gap-3">
+                            {event.highlights.map((h, i) => {
+                              const HIcon = h.icon;
+                              return (
+                                <div key={i} className="flex items-center gap-3">
+                                  <div className="w-6 h-6 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                                    <HIcon size={12} className="text-slate-300" strokeWidth={2} />
+                                  </div>
+                                  <span className="text-sm text-slate-300 font-medium tracking-wide">{h.text}</span>
                                 </div>
-                                <span className="text-sm text-slate-300 font-medium tracking-wide">{h.text}</span>
-                              </div>
-                            );
-                          })}
+                              );
+                            })}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -184,15 +192,23 @@ export default function EventSeries() {
 
                   {/* BACK / COMPLETED SIDE (rotateY=180) */}
                   {event.isCompleted && (
-                    <div 
-                      className={`absolute inset-0 h-full w-full clip-slanted border border-white/5 bg-navy-900/40 backdrop-blur-3xl overflow-hidden flex flex-col items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]`}
-                      style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                    <div
+                      className="absolute inset-0 h-full w-full"
+                      style={{ 
+                        backfaceVisibility: 'hidden', 
+                        WebkitBackfaceVisibility: 'hidden',
+                        transform: 'rotateY(180deg)'
+                      }}
                     >
-                      <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10">
-                        <CheckCircle className="text-cyan-400/80" size={32} />
+                      <div 
+                        className={`relative h-full clip-slanted border border-white/5 bg-navy-900/40 backdrop-blur-3xl overflow-hidden flex flex-col items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]`}
+                      >
+                        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10">
+                          <CheckCircle className="text-cyan-400/80" size={32} />
+                        </div>
+                        <span className="text-2xl font-bold tracking-widest text-white/40 mb-1">COMPLETED</span>
+                        <span className="text-[10px] text-slate-500/70 font-mono uppercase tracking-[0.2em] px-3 py-1 rounded-full border border-white/5 bg-white/[0.02]">Hover to view</span>
                       </div>
-                      <span className="text-2xl font-bold tracking-widest text-white/40 mb-1">COMPLETED</span>
-                      <span className="text-[10px] text-slate-500/70 font-mono uppercase tracking-[0.2em] px-3 py-1 rounded-full border border-white/5 bg-white/[0.02]">Hover to view</span>
                     </div>
                   )}
 
