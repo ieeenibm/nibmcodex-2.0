@@ -22,7 +22,13 @@ const organizers: PartnerData[] = [
     role: 'Organizer',
     image: '/images/nibmcodex-1.0/sponsor-nibm1.png',
     bgClass: 'bg-white',
-  }
+  },
+  // {
+  //   name: 'NIBM Computer Society',
+  //   role: 'Organizer',
+  //   image: '/images/nibmcodex-1.0/sponsor-nibmcs.png',
+  //   bgClass: 'bg-white',
+  // }
 ];
 
 const nationalPartner: PartnerData = {
