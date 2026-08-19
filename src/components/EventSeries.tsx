@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, MapPin, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, MapPin } from 'lucide-react';
 
 const events = [
   {
@@ -17,7 +17,6 @@ const events = [
       { icon: Clock, text: '3-Hour Session' },
       { icon: MapPin, text: 'Trace Expert City' },
     ],
-    isCompleted: true,
   },
   {
     number: '02',
@@ -32,7 +31,6 @@ const events = [
       { icon: Clock, text: 'Full Day' },
       { icon: MapPin, text: 'NIBM Campus' },
     ],
-    isCompleted: false,
   },
   {
     number: '03',
@@ -47,7 +45,6 @@ const events = [
       { icon: Clock, text: '24 Hours' },
       { icon: MapPin, text: 'NIBM Campus' },
     ],
-    isCompleted: false,
   },
 ];
 
@@ -85,49 +82,34 @@ export default function EventSeries() {
           {events.map((event, idx) => {
             const isHovered = hoveredIdx === idx;
             const isOtherHovered = hoveredIdx !== null && hoveredIdx !== idx;
-            const shouldFlip = event.isCompleted && !isHovered;
 
-            const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              const x = e.clientX - rect.left;
-              const y = e.clientY - rect.top;
-              e.currentTarget.style.setProperty('--mouse-x', `${x}px`);
-              e.currentTarget.style.setProperty('--mouse-y', `${y}px`);
-            };
+                const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const y = e.clientY - rect.top;
+                  e.currentTarget.style.setProperty('--mouse-x', `${x}px`);
+                  e.currentTarget.style.setProperty('--mouse-y', `${y}px`);
+                };
 
-            return (
-              <motion.div
-                key={event.number}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-50px' }}
-                transition={{ delay: idx * 0.12, type: 'spring', stiffness: 80, damping: 20 }}
-                className="relative z-10 flex flex-col group h-full"
-                style={{ zIndex: isHovered ? 20 : 10, perspective: 1200 }}
-                onMouseEnter={() => setHoveredIdx(idx)}
-                onMouseMove={handleMouseMove}
-              >
-                <motion.div
-                  animate={{
-                    rotateY: shouldFlip ? 180 : 0,
-                    scale: isHovered ? 1.02 : isOtherHovered ? 0.98 : 1,
-                    opacity: isOtherHovered ? 0.5 : 1,
-                    filter: isOtherHovered ? 'blur(4px)' : 'blur(0px)',
-                  }}
-                  transition={{ type: 'spring', stiffness: 70, damping: 20 }}
-                  className="relative h-full w-full"
-                  style={{ transformStyle: 'preserve-3d' }}
-                >
-                  {/* FRONT / DETAILS SIDE (rotateY=0) */}
-                  <div
-                    className="relative h-full w-full"
-                    style={{ 
-                      backfaceVisibility: 'hidden', 
-                      WebkitBackfaceVisibility: 'hidden',
-                      transform: 'translateZ(0)' // Force GPU to respect backface
-                    }}
+                return (
+                  <motion.div
+                    key={event.number}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-50px' }}
+                    transition={{ delay: idx * 0.12, type: 'spring', stiffness: 80, damping: 20 }}
+                    className="relative z-10 flex flex-col group h-full"
+                    style={{ zIndex: isHovered ? 20 : 10 }}
+                    onMouseEnter={() => setHoveredIdx(idx)}
+                    onMouseMove={handleMouseMove}
                   >
-                    <div
+                    <motion.div
+                      animate={{
+                        scale: isHovered ? 1.02 : isOtherHovered ? 0.98 : 1,
+                        opacity: isOtherHovered ? 0.5 : 1,
+                        filter: isOtherHovered ? 'blur(4px)' : 'blur(0px)',
+                      }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                       className={`relative h-full clip-slanted border ${event.borderColor} bg-white/[0.02] backdrop-blur-2xl overflow-hidden flex flex-col shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]`}
                       style={{ 
                         boxShadow: isHovered 
@@ -170,7 +152,7 @@ export default function EventSeries() {
                         {/* Divider */}
                         <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-6" />
 
-                        {/* Highlights */}
+                        {/* Highlights & CTA */}
                         <div className="flex items-end justify-between gap-4 mt-auto">
                           <div className="flex flex-col gap-3">
                             {event.highlights.map((h, i) => {
@@ -185,36 +167,13 @@ export default function EventSeries() {
                               );
                             })}
                           </div>
+                          
+
                         </div>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* BACK / COMPLETED SIDE (rotateY=180) */}
-                  {event.isCompleted && (
-                    <div
-                      className="absolute inset-0 h-full w-full"
-                      style={{ 
-                        backfaceVisibility: 'hidden', 
-                        WebkitBackfaceVisibility: 'hidden',
-                        transform: 'rotateY(180deg)'
-                      }}
-                    >
-                      <div 
-                        className={`relative h-full clip-slanted border border-white/5 bg-navy-900/40 backdrop-blur-3xl overflow-hidden flex flex-col items-center justify-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]`}
-                      >
-                        <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-4 border border-white/10">
-                          <CheckCircle className="text-cyan-400/80" size={32} />
-                        </div>
-                        <span className="text-2xl font-bold tracking-widest text-white/40 mb-1">COMPLETED</span>
-                        <span className="text-[10px] text-slate-500/70 font-mono uppercase tracking-[0.2em] px-3 py-1 rounded-full border border-white/5 bg-white/[0.02]">Hover to view</span>
-                      </div>
-                    </div>
-                  )}
-
-                </motion.div>
-              </motion.div>
-            );
+                    </motion.div>
+                  </motion.div>
+                );
           })}
         </div>
 
