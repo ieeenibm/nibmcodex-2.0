@@ -7,6 +7,7 @@ const events = [
   {
     number: '01',
     title: 'AI for Learning Workshop',
+    completed: true,
     accentColor: 'from-cyan-500/20 to-sky-500/10',
     borderColor: 'border-cyan-400/20',
     glowColor: 'rgba(34, 211, 238, 0.15)',
@@ -133,10 +134,16 @@ export default function EventSeries() {
 
                       <div className="relative z-10 p-8 flex flex-col h-full">
                         {/* Number row */}
-                        <div className="flex items-center mb-6">
+                        <div className="flex items-center justify-between mb-6">
                           <span className="text-6xl font-bold text-white/5 group-hover:text-white/20 transition-all duration-500 font-mono leading-none select-none">
                             {event.number}
                           </span>
+                          {/* @ts-ignore */}
+                          {event.completed && (
+                            <div className="px-3 py-1 rounded-full border border-white/10 bg-white/5 text-[10px] font-bold tracking-widest text-slate-400 uppercase backdrop-blur-sm">
+                              Completed
+                            </div>
+                          )}
                         </div>
 
                         {/* Title */}
