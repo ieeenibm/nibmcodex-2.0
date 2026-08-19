@@ -10,9 +10,10 @@ function pad(n: number): string {
 
 function calcTimeLeft(target: Date) {
   const diff = target.getTime() - Date.now();
-  if (diff <= 0) return { days: '00', hours: '00', minutes: '00', seconds: '00' };
+  if (diff <= 0) return { isPast: true, days: '00', hours: '00', minutes: '00', seconds: '00' };
   const total = Math.floor(diff / 1000);
   return {
+    isPast: false,
     days: pad(Math.floor(total / 86400)),
     hours: pad(Math.floor((total % 86400) / 3600)),
     minutes: pad(Math.floor((total % 3600) / 60)),
@@ -77,6 +78,23 @@ export default function CountdownTimer({ targetDate, colorClass }: { targetDate:
   }, [targetDate]);
 
   if (!mounted) return null;
+
+  if (time.isPast) {
+    return (
+      <div className="flex items-center justify-center">
+        <div className="glass-panel-light rounded-lg px-8 py-5 sm:px-12 sm:py-7 relative flex justify-center items-center overflow-hidden border border-white/5 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+          <motion.span 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, type: "spring" }}
+            className={`font-mono text-2xl sm:text-4xl md:text-5xl font-bold ${colorClass} tracking-widest`}
+          >
+            ENDED
+          </motion.span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center gap-2 sm:gap-3 md:gap-4">

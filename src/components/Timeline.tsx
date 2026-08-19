@@ -49,20 +49,6 @@ export default function Timeline() {
       ) 
     },
     { 
-      title: 'Branch Awareness Sessions 2', 
-      date: <>TBA (Postponed)</>, 
-      status: 'postponed',
-      desc: (
-        <div className="inline-block text-left">
-          <div className="grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-1">
-            <span className="font-medium text-slate-300">KIC</span><span>:</span><span>10:30 - 11:30</span>
-            <span className="font-medium text-slate-300">Kandy</span><span>:</span><span>12:00 - 13:00</span>
-            <span className="font-medium text-slate-300">Kurunegala</span><span>:</span><span>14:30 - 15:30</span>
-          </div>
-        </div>
-      ) 
-    },
-    { 
       title: 'AI for Learning Workshop', 
       date: <>19<sup className="lowercase">th</sup> of August | 10:00 - 13:00</>, 
       startISO: '2026-08-19T10:00:00+05:30',
@@ -77,6 +63,21 @@ export default function Timeline() {
               By <a href="https://www.linkedin.com/in/mark-elshaw-5a645814/" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 transition-colors cursor-pointer">Dr. Mark Elshaw</a>
             </div>
             <div className="text-[13px] text-slate-400">Senior Lecturer in AI, Coventry University, UK</div>
+          </div>
+        </div>
+      ) 
+    },
+    { 
+      title: 'Branch Awareness Sessions 2', 
+      date: <>24<sup className="lowercase">th</sup> of August</>, 
+      startISO: '2026-08-24T10:30:00+05:30',
+      endISO: '2026-08-24T16:00:00+05:30',
+      desc: (
+        <div className="inline-block text-left">
+          <div className="grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-1">
+            <span className="font-medium text-slate-300">KIC</span><span>:</span><span>10:30 - 11:30</span>
+            <span className="font-medium text-slate-300">Kandy</span><span>:</span><span>12:00 - 13:00</span>
+            <span className="font-medium text-slate-300">Kurunegala</span><span>:</span><span>15:00 - 16:00</span>
           </div>
         </div>
       ) 

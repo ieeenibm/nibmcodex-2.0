@@ -45,15 +45,14 @@ function getNextEventIndex(): number {
 export default function CountdownSection() {
   const [activeIdx, setActiveIdx] = useState<number>(() => getNextEventIndex());
   const [mounted, setMounted] = useState(false);
-  const [nowMs, setNowMs] = useState<number>(() => {
-    if (typeof window === 'undefined') return 0;
-    return Date.now();
-  });
+  const [nowMs, setNowMs] = useState<number>(0);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNowMs(Date.now());
     const interval = setInterval(() => setNowMs(Date.now()), 1000);
     return () => clearInterval(interval);
   }, []);
