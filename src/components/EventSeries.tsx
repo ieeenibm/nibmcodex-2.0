@@ -138,7 +138,6 @@ export default function EventSeries() {
                           <span className="text-6xl font-bold text-white/5 group-hover:text-white/20 transition-all duration-500 font-mono leading-none select-none">
                             {event.number}
                           </span>
-                          {/* @ts-expect-error */}
                           {event.completed && (
                             <div className="px-3 py-1 rounded-full border border-white/10 bg-white/5 text-[10px] font-bold tracking-widest text-slate-400 uppercase backdrop-blur-sm">
                               Completed
