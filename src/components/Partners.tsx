@@ -1,5 +1,5 @@
 'use client';
-import { motion } from 'framer-motion';
+import { motion, useAnimationFrame, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import Image from 'next/image';
 
 type PartnerData = {
@@ -76,7 +76,6 @@ const partnersRow2: PartnerData[] = [
 ];
 
 import { useRef } from 'react';
-import { motion, useAnimationFrame, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 
 function wrap(min: number, max: number, v: number) {
   const rangeSize = max - min;
