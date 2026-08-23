@@ -138,7 +138,7 @@ export default function GalleryGrid() {
                 <SpotlightCard className="group h-full glass-panel-light clip-slanted overflow-hidden">
                 <div className="relative h-48 overflow-hidden">
                   <Image
-                    src={`/images/nibmcodex-1.0/${event.images[0]}`}
+                    src={`https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/${event.images[0].replace(/\.[^/.]+$/, "")}`}
                     alt={event.title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
@@ -202,18 +202,17 @@ export default function GalleryGrid() {
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={activeIndex}
-                    initial={{ opacity: 0, x: 50 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -50 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className="relative w-full h-full flex items-center justify-center"
+                    className="relative w-[90vw] h-[85vh] flex items-center justify-center"
                   >
                     <Image
-                      src={`/images/nibmcodex-1.0/${activeEvent.images[activeIndex]}`}
-                      alt={`${activeEvent.title} - Photo ${activeIndex + 1}`}
-                      width={1200}
-                      height={800}
-                      className="max-h-[70vh] w-auto object-contain rounded-lg"
+                      src={`https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/${activeEvent.images[activeIndex].replace(/\.[^/.]+$/, "")}`}
+                      alt={activeEvent.title}
+                      fill
+                      className="object-contain"
                     />
                   </motion.div>
                 </AnimatePresence>

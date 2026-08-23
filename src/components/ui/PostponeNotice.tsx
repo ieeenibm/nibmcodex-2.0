@@ -73,7 +73,7 @@ export default function PostponeNotice() {
             <div className="grid transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] grid-rows-[0fr] group-hover:grid-rows-[1fr] w-full rounded-t-xl overflow-hidden opacity-0 group-hover:opacity-100 relative z-0">
               <div className="min-h-0 relative w-full aspect-[4/5] overflow-hidden translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]">
                 <Image
-                  src="/images/partners/ai-workshop.png"
+                  src="https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/ai-workshop"
                   alt="AI for Learning Workshop"
                   fill
                   sizes="(max-width: 640px) 320px, 352px"

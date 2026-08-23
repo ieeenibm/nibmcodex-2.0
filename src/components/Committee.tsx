@@ -143,7 +143,7 @@ export default function Committee() {
     <section id="committee" className="relative py-32 bg-navy-950 overflow-hidden border-t border-white/5">
       <div className="absolute inset-0 z-0 opacity-20">
         <Image
-          src="/images/holodeck.webp"
+          src="https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/misc/holodeck"
           alt="Holodeck Background"
           fill
           sizes="100vw"

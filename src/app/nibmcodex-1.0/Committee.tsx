@@ -9,19 +9,19 @@ const execBoard = [
   {
     name: 'Pradeesha Hettiarachchi',
     role: 'Chairperson - Executive Committee',
-    image: '/images/nibmcodex-1.0/h2.png',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/h2',
     linkedin: 'https://www.linkedin.com/in/pradeesha-hettiarachchi',
   },
   {
     name: 'Pabodha Thathsarani Ihalagama',
     role: 'Vice Chair - Executive Committee',
-    image: '/images/nibmcodex-1.0/h4.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/h4',
     linkedin: 'https://www.linkedin.com/in/pabodha-ihalagama',
   },
   {
     name: 'Thusathmi Sapumanage',
     role: 'Secretary - Executive Committee',
-    image: '/images/nibmcodex-1.0/h3.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/h3',
     linkedin: 'https://www.linkedin.com/in/thusathmi-sapumanage',
   },
 ];
@@ -29,14 +29,14 @@ const execBoard = [
 const ambassador = {
   name: 'Thenuja Dulwana',
   role: 'Student Branch Ambassador',
-  image: '/images/nibmcodex-1.0/h1.jpg',
+  image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/h1',
   linkedin: 'https://www.linkedin.com/in/thenujadulwana',
 };
 
 const proctor = {
   name: 'Mr. Niranga Dharmaratna',
   role: 'Proctor',
-  image: '/images/nibmcodex-1.0/p1.jpg',
+  image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/p1',
   linkedin: 'https://www.linkedin.com/in/niranga-shashi-dharmaratna/',
 };
 
@@ -409,8 +409,9 @@ export default function Committee() {
                   >
                     <SpotlightCard className="group glass-panel-light clip-slanted overflow-hidden h-full">
                       <div className="relative h-28 sm:h-32 overflow-hidden">
+                        <div className="absolute inset-0 bg-navy-900" />
                         <Image
-                          src={`/images/nibmcodex-1.0/${member.img}`}
+                          src={`https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/${member.img.replace(/\.[^/.]+$/, "")}`}
                           alt={`${member.first} ${member.last}`}
                           fill
                           sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"

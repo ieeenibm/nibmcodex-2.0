@@ -7,27 +7,27 @@ const partnerGroups = [
   {
     label: 'Organized By',
     partners: [
-      { name: 'IEEE Student Branch of NIBM', image: '/images/nibmcodex-1.0/sponsor-ieeesb.png' },
-      { name: 'NIBM City University', image: '/images/nibmcodex-1.0/sponsor-nibm1.png' },
-      { name: 'NIBM Computer Society', image: '/images/nibmcodex-1.0/sponsor-nibmcs.png' },
+      { name: 'IEEE Student Branch of NIBM', image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-ieeesb' },
+      { name: 'NIBM City University', image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-nibm1' },
+      { name: 'NIBM Computer Society', image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-nibmcs' },
     ],
   },
   {
     label: 'National Partners',
     partners: [
-      { name: 'ICTA', image: '/images/nibmcodex-1.0/sponsor-icta1.png' },
+      { name: 'ICTA', image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-icta1' },
     ],
   },
   {
     label: 'Collaborative Partners',
     partners: [
-      { name: 'Dialog', image: '/images/nibmcodex-1.0/sponsor-dialog1.png' },
-      { name: 'PickMe', image: '/images/nibmcodex-1.0/sponsor-pickme1.png' },
-      { name: 'Dilexus', image: '/images/nibmcodex-1.0/sponsor-dilexus1.png' },
-      { name: 'Toursurv', image: '/images/nibmcodex-1.0/sponsor-toursurv1.png' },
-      { name: 'NIBM Gavel Club', image: '/images/nibmcodex-1.0/sponsor-gavel1.png' },
-      { name: 'Maliban Kiri', image: '/images/nibmcodex-1.0/sponsor-maliban1.png' },
-      { name: 'Lemino Bliss', image: '/images/nibmcodex-1.0/sponsor-lemino1.png' },
+      { name: 'Dialog', image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-dialog1' },
+      { name: 'PickMe', image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-pickme1' },
+      { name: 'Dilexus', image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-dilexus1' },
+      { name: 'Toursurv', image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-toursurv1' },
+      { name: 'NIBM Gavel Club', image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-gavel1' },
+      { name: 'Maliban Kiri', image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-maliban1' },
+      { name: 'Lemino Bliss', image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-lemino1' },
     ],
   },
 ];

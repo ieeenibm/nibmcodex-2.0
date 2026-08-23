@@ -9,25 +9,25 @@ const provides = [
     icon: Wifi,
     title: 'Technical Environment',
     desc: 'High-speed internet, power backup, and tech support available throughout the event.',
-    image: '/images/nibmcodex-1.0/gain1.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/gain1',
   },
   {
     icon: Users,
     title: 'Networking & Community',
     desc: 'Meet fellow developers, share ideas, and collaborate on projects in a vibrant atmosphere.',
-    image: '/images/nibmcodex-1.0/gain2.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/gain2',
   },
   {
     icon: Lightbulb,
     title: 'Innovation & Learning',
     desc: 'Opportunities to brainstorm, learn, and implement cutting-edge solutions with mentors.',
-    image: '/images/nibmcodex-1.0/gain3.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/gain3',
   },
   {
     icon: Moon,
     title: '24-Hour Safe Stay',
     desc: 'Comfortable accommodations available round-the-clock for all participants.',
-    image: '/images/nibmcodex-1.0/gain4.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/gain4',
   },
 ];
 
