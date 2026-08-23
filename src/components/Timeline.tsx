@@ -153,7 +153,9 @@ export default function Timeline() {
           <span className="inline-block px-4 py-1 mb-6 border border-white/10 text-cyan-400 text-xs font-mono uppercase tracking-[0.2em] rounded-full glass-panel-light shadow-xl">
             Journey
           </span>
-          <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter drop-shadow-2xl">Event Timeline</h2>
+          <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter drop-shadow-2xl">
+            Event <span className="text-gradient-cyan">Timeline</span>
+          </h2>
           <p className="text-slate-400 mt-4 font-light tracking-wide max-w-lg mx-auto">The roadmap leading up to the ultimate challenge.</p>
         </motion.div>
 
