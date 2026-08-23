@@ -1,5 +1,6 @@
 'use client';
 import DriftWall, { DriftWallItem } from '@/components/ui/DriftWall';
+import Link from 'next/link';
 
 const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'jwuioa0d';
 const getUrl = (id: string) => `https://res.cloudinary.com/${cloudName}/image/upload/w_600,q_auto,f_auto/v1/${id}`;
@@ -68,6 +69,16 @@ export default function LandingGallery() {
           grayscale={true}
           overlayColor="#020617"
         />
+      </div>
+
+      <div className="relative z-20 mt-12 flex justify-center w-full px-4">
+        <Link
+          href="/gallery"
+          className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-white/5 hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-500/50 rounded-full text-base font-semibold text-slate-300 hover:text-cyan-400 transition-all duration-300 backdrop-blur-md shadow-[0_0_20px_rgba(34,211,238,0.05)] hover:shadow-[0_0_30px_rgba(34,211,238,0.15)]"
+        >
+          View Full Gallery
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </Link>
       </div>
     </section>
   );
