@@ -4,7 +4,7 @@ import DriftWall, { DriftWallItem } from '@/components/ui/DriftWall';
 const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'jwuioa0d';
 const getUrl = (id: string) => `https://res.cloudinary.com/${cloudName}/image/upload/w_600,q_auto,f_auto/v1/${id}`;
 
-// Strictly NIBMCodeX 2.0 images
+// Strictly NIBMCodeX 2.0 images (AI Workshop + Awareness Sessions)
 const baseImages = [
   "nibmcodex/2.0/gallery/ai-workshop/Copy_of_20260819_115108",
   "nibmcodex/2.0/gallery/ai-workshop/Copy_of_20260819_123943",
@@ -14,7 +14,15 @@ const baseImages = [
   "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2180",
   "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2268",
   "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_7514",
-  "nibmcodex/2.0/gallery/ai-workshop/file"
+  "nibmcodex/2.0/gallery/ai-workshop/file",
+  "nibmcodex/awareness-sessions-1/1",
+  "nibmcodex/awareness-sessions-1/2",
+  "nibmcodex/awareness-sessions-1/3",
+  "nibmcodex/awareness-sessions-1/4",
+  "nibmcodex/awareness-sessions-1/5",
+  "nibmcodex/awareness-sessions-1/6",
+  "nibmcodex/awareness-sessions-1/7",
+  "nibmcodex/awareness-sessions-1/8",
 ];
 
 // Duplicate the items so the wall looks dense and masonry-like
