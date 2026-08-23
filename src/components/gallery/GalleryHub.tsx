@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CldImage, CldVideoPlayer } from 'next-cloudinary';
 import 'next-cloudinary/dist/cld-video-player.css';
@@ -136,9 +137,18 @@ const galleries: EventGallery[] = [
 ];
 
 export default function GalleryHub() {
-  const [activeTab, setActiveTab] = useState(galleries[0].id);
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get('tab') || galleries[0].id;
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [subFilter, setSubFilter] = useState<string>('All');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && galleries.some(g => g.id === tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
 
   const activeGallery = galleries.find(g => g.id === activeTab) || galleries[0];
@@ -177,6 +187,8 @@ export default function GalleryHub() {
               key={gallery.id}
               onClick={() => { setActiveTab(gallery.id); setSubFilter('All'); }}
               className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
+                gallery.id === 'nibmcodex-1.0' ? 'ml-auto' : ''
+              } ${
                 isActive 
                   ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-400/30 shadow-[0_0_15px_rgba(34,211,238,0.15)]' 
                   : 'text-slate-400 hover:text-slate-200 hover:bg-white/5 border border-transparent'

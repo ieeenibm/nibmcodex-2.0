@@ -1,6 +1,7 @@
 import { CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 export interface DriftWallItem {
+  id?: string;
   image: string;
   title?: string;
   href?: string;
@@ -28,6 +29,7 @@ export interface DriftWallProps {
   dim?: number;
   grayscale?: boolean;
   overlayColor?: string;
+  onItemClick?: (item: DriftWallItem) => void;
   className?: string;
   style?: CSSProperties;
 }
@@ -78,6 +80,7 @@ const DriftWall = ({
   dim = 0.55,
   grayscale = false,
   overlayColor = '#060010',
+  onItemClick,
   className = '',
   style
 }: DriftWallProps) => {
@@ -316,7 +319,10 @@ const DriftWall = ({
       'data-tile-id': id,
       'data-col': colIndex,
       onFocus: () => activate(id, colIndex),
-      onBlur: release
+      onBlur: release,
+      onClick: () => {
+        if (onItemClick) onItemClick(item);
+      }
     };
     if (item.href) {
       return (
