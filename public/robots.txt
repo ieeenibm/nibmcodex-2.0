@@ -38,3 +38,5 @@ Disallow: /
 # Allow normal search engines (Google, Bing, etc.)
 User-agent: *
 Allow: /
+
+Sitemap: https://nibmcodex.nibmieee.org/sitemap.xml
