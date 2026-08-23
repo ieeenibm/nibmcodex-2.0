@@ -3,17 +3,19 @@ import { useState, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import { CldImage } from 'next-cloudinary';
 
 interface MemoriesGalleryProps {
   images: string[];
   eventTitle: string;
   onHoverImage?: (src: string | null) => void;
-  isOpen: boolean;
-  onToggle: () => void;
+  isOpen?: boolean;
+  onToggle?: () => void;
   highlightButton?: boolean;
+  extraAction?: React.ReactNode;
 }
 
-export default function MemoriesGallery({ images, eventTitle, onHoverImage, isOpen, onToggle, highlightButton }: MemoriesGalleryProps) {
+export default function MemoriesGallery({ images, eventTitle, onHoverImage, isOpen, onToggle, highlightButton, extraAction }: MemoriesGalleryProps) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const openLightbox = useCallback((idx: number) => {
@@ -52,30 +54,33 @@ export default function MemoriesGallery({ images, eventTitle, onHoverImage, isOp
 
   return (
     <>
-      {/* Toggle Button */}
-      <motion.button
-        onClick={onToggle}
-        className={`mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 text-[11px] font-mono uppercase tracking-wider hover:bg-cyan-500/20 hover:border-cyan-400/50 transition-all duration-300 cursor-pointer ${highlightButton && !isOpen ? 'animate-[pulse_2s_ease-in-out_infinite] shadow-[0_0_15px_rgba(34,211,238,0.2)]' : ''}`}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        {isOpen ? 'Hide Memories' : `View Memories (${images.length})`}
-        <motion.svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-3 h-3"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={2}
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.3 }}
+      {/* Toggle Button & Extra Actions */}
+      <div className="flex flex-wrap items-center gap-3 mt-4">
+        <motion.button
+          onClick={onToggle}
+          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-cyan-400/30 bg-cyan-500/10 text-cyan-300 text-[11px] font-mono uppercase tracking-wider hover:bg-cyan-500/20 hover:border-cyan-400/50 transition-all duration-300 cursor-pointer ${highlightButton && !isOpen ? 'animate-[pulse_2s_ease-in-out_infinite] shadow-[0_0_15px_rgba(34,211,238,0.2)]' : ''}`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-        </motion.svg>
-      </motion.button>
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          {isOpen ? 'Hide Memories' : `View Memories (${images.length})`}
+          <motion.svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-3 h-3"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+            animate={{ rotate: isOpen ? 180 : 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </motion.svg>
+        </motion.button>
+        {extraAction}
+      </div>
 
       {/* Expandable Grid */}
       <AnimatePresence>
@@ -99,11 +104,12 @@ export default function MemoriesGallery({ images, eventTitle, onHoverImage, isOp
                   onMouseEnter={() => onHoverImage?.(src)}
                   onMouseLeave={() => onHoverImage?.(null)}
                 >
-                  <Image
+                  <div className="absolute inset-0 bg-slate-800/60 overflow-hidden pointer-events-none"><div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" /></div>
+                  <CldImage
                     src={src}
                     alt={`${eventTitle} memory ${idx + 1}`}
                     fill
-                    className="object-cover transition-transform duration-500 group-hover/img:scale-110"
+                    className="text-transparent object-cover transition-transform duration-500 group-hover/img:scale-110"
                     sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-navy-950/60 via-transparent to-transparent opacity-0 group-hover/img:opacity-100 transition-opacity duration-300" />
@@ -170,12 +176,12 @@ export default function MemoriesGallery({ images, eventTitle, onHoverImage, isOp
                   className="relative max-w-[90vw] max-h-[85vh] w-auto h-auto"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <Image
+                  <CldImage
                     src={images[lightboxIndex]}
                     alt={`${eventTitle} memory ${lightboxIndex + 1}`}
-                    width={1024}
-                    height={768}
-                    className="object-contain max-h-[85vh] w-auto rounded-lg shadow-2xl"
+                    width={1920}
+                    height={1080}
+                    className="max-w-full max-h-[85vh] w-auto h-auto object-contain rounded-lg shadow-2xl"
                     priority
                   />
                 </motion.div>

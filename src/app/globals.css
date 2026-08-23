@@ -1,6 +1,11 @@
 @import "tailwindcss";
 
 @theme {
+  --animate-shimmer: shimmer 2s infinite linear;
+  @keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
   --color-navy-950: #02040a;
   --color-navy-900: #050914;
   --color-navy-800: #0a1128;

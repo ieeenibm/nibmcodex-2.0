@@ -4,7 +4,9 @@ import { motion, useSpring, AnimatePresence } from 'framer-motion';
 import { useScrollProgress } from './SmoothScroll';
 import SpotlightCard from './ui/SpotlightCard';
 import MemoriesGallery from './ui/MemoriesGallery';
+import Link from 'next/link';
 import Image from 'next/image';
+import { CldImage } from 'next-cloudinary';
 
 export default function Timeline() {
   const containerRef = useRef<HTMLElement>(null);
@@ -38,7 +40,8 @@ export default function Timeline() {
       date: <>3<sup className="lowercase">rd</sup> of August</>, 
       startISO: '2026-08-03T10:30:00+05:30',
       endISO: '2026-08-03T15:30:00+05:30',
-      memories: Array.from({ length: 8 }, (_, i) => `/images/memories/awareness-sessions-1/${i + 1}.webp`),
+      memories: Array.from({ length: 8 }, (_, i) => `nibmcodex/awareness-sessions-1/${i + 1}`),
+      hasMoreMemories: true,
       desc: (
         <div className="inline-block text-left">
           <div className="grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-1">
@@ -53,6 +56,17 @@ export default function Timeline() {
       date: <>19<sup className="lowercase">th</sup> of August | 10:00 - 13:00</>, 
       startISO: '2026-08-19T10:00:00+05:30',
       endISO: '2026-08-19T13:00:00+05:30',
+      memories: [
+        'nibmcodex/2.0/gallery/ai-workshop/Copy_of_20260819_115108',
+        'nibmcodex/2.0/gallery/ai-workshop/Copy_of_20260819_123943',
+        'nibmcodex/2.0/gallery/ai-workshop/Copy_of_20260819_123951',
+        'nibmcodex/2.0/gallery/ai-workshop/Copy_of_20260819_124112',
+        'nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2153',
+        'nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2180',
+        'nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2268',
+        'nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_7514',
+      ],
+      hasMoreMemories: true,
       desc: (
         <div className="inline-block text-left space-y-2">
           <div className="text-[14px] text-slate-300 font-medium italic -mt-1">
@@ -72,6 +86,7 @@ export default function Timeline() {
       date: <>24<sup className="lowercase">th</sup> of August</>, 
       startISO: '2026-08-24T10:30:00+05:30',
       endISO: '2026-08-24T16:00:00+05:30',
+
       desc: (
         <div className="inline-block text-left">
           <div className="grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-1">
@@ -246,14 +261,27 @@ export default function Timeline() {
 
                         {/* Memories Gallery for completed events */}
                         {isCompleted && step.memories && step.memories.length > 0 && (
-                          <MemoriesGallery 
-                            images={step.memories} 
-                            eventTitle={step.title} 
-                            onHoverImage={(src) => setHoveredPreview(src ? { src, idx } : null)}
-                            isOpen={openGalleryIdx === idx}
-                            onToggle={() => setOpenGalleryIdx(prev => prev === idx ? null : idx)}
-                            highlightButton={idx === 0}
-                          />
+                          <div className="mt-2">
+                            <MemoriesGallery 
+                              images={step.memories} 
+                              eventTitle={step.title} 
+                              onHoverImage={(src) => setHoveredPreview(src ? { src, idx } : null)}
+                              isOpen={openGalleryIdx === idx}
+                              onToggle={() => setOpenGalleryIdx(prev => prev === idx ? null : idx)}
+                              highlightButton={idx === 0 || idx === 1}
+                              {...step.hasMoreMemories ? {
+                                extraAction: (
+                                  <Link 
+                                    href="/gallery" 
+                                    className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-500/50 rounded-lg text-sm font-medium text-slate-300 hover:text-cyan-400 transition-all duration-300"
+                                  >
+                                    View Full Gallery
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                                  </Link>
+                                )
+                              } : {}}
+                            />
+                          </div>
                         )}
                       </div>
                     </SpotlightCard>
@@ -272,7 +300,8 @@ export default function Timeline() {
                         >
                           <div className="relative w-full h-full rounded-2xl overflow-hidden glass-panel-light shadow-[0_0_30px_rgba(34,211,238,0.15)] p-2">
                             <div className="relative w-full h-full rounded-xl overflow-hidden bg-navy-950/50">
-                               <Image src={hoveredPreview.src} fill className="object-cover" alt="Memory preview" />
+                               <div className="absolute inset-0 bg-slate-800/80 overflow-hidden pointer-events-none"><div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" /></div>
+                               <CldImage src={hoveredPreview.src} fill className="text-transparent object-cover" alt="Memory preview" sizes="(max-width: 768px) 100vw, 50vw" />
                                <div className="absolute inset-0 border border-cyan-400/20 rounded-xl" />
                             </div>
                           </div>

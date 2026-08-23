@@ -15,7 +15,7 @@ export default function About() {
     <section id="about" className="relative py-32 w-full flex items-center min-h-[80vh] overflow-hidden bg-navy-950 border-t border-white/5">
       <div className="absolute inset-0 z-0 opacity-40">
         <Image
-          src="/images/symmetrical-corridor.webp"
+          src="https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/misc/symmetrical-corridor"
           alt="Symmetrical Corridor"
           fill
           className="object-cover object-center"
