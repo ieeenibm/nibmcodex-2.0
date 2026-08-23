@@ -209,13 +209,13 @@ export default function GalleryHub() {
             <button
               key={filter}
               onClick={() => setSubFilter(filter)}
-              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-300 capitalize ${
+              className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all duration-300 ${filter.toLowerCase() === 'icta' ? 'uppercase' : 'capitalize'} ${
                 subFilter === filter 
                   ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/30' 
                   : 'bg-white/5 text-slate-400 hover:text-slate-200 hover:bg-white/10 border border-white/5'
               }`}
             >
-              {filter.replace(/\d+$/, match => ' ' + match)}
+              {filter.toLowerCase() === 'icta' ? 'ICTA' : filter.replace(/\d+$/, match => ' ' + match)}
             </button>
           ))}
         </div>

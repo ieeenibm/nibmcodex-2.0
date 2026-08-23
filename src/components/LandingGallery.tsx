@@ -54,7 +54,7 @@ export default function LandingGallery() {
           <span className="text-cyan-400 text-xs font-bold tracking-[0.2em] uppercase">Visual Journey</span>
         </div>
         <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter">
-          Captured <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Moments</span>
+          Captured Moments
         </h2>
         <p className="mt-6 text-slate-400 text-lg max-w-2xl mx-auto">
           Explore highlights from our latest workshops and sessions.
