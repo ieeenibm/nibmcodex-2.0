@@ -20,25 +20,13 @@ const galleries: EventGallery[] = [
     date: 'August 19, 2026',
     imageIds: [
       "nibmcodex/2.0/gallery/ai-workshop/Copy_of_20260819_115108",
-      "nibmcodex/2.0/gallery/ai-workshop/Copy_of_20260819_123935#video",
       "nibmcodex/2.0/gallery/ai-workshop/Copy_of_20260819_123943",
       "nibmcodex/2.0/gallery/ai-workshop/Copy_of_20260819_123951",
-      "nibmcodex/2.0/gallery/ai-workshop/Copy_of_20260819_124101#video",
       "nibmcodex/2.0/gallery/ai-workshop/Copy_of_20260819_124112",
-      "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2142#video",
       "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2153",
-      "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2178#video",
       "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2180",
-      "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2238#video",
-      "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2244#video",
-      "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2256#video",
-      "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2265#video",
-      "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2266#video",
       "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2268",
-      "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_7510#video",
-      "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_7511#video",
-      "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_7514",
-      "nibmcodex/2.0/gallery/ai-workshop/file"
+      "nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_7514"
     ],
   },
   {
