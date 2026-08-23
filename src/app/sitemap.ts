@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://nibmcodex.nibmieee.org';
+  const baseUrl = 'https://nibmcodex.nibmieee.lk';
 
   return [
     {

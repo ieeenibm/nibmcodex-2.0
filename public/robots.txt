@@ -39,4 +39,4 @@ Disallow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://nibmcodex.nibmieee.org/sitemap.xml
+Sitemap: https://nibmcodex.nibmieee.lk/sitemap.xml
