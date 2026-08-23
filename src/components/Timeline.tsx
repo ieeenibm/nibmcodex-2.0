@@ -41,7 +41,7 @@ export default function Timeline() {
       startISO: '2026-08-03T10:30:00+05:30',
       endISO: '2026-08-03T15:30:00+05:30',
       memories: Array.from({ length: 8 }, (_, i) => `nibmcodex/awareness-sessions-1/${i + 1}`),
-      hasMoreMemories: true,
+      galleryTabId: 'awareness-1',
       desc: (
         <div className="inline-block text-left">
           <div className="grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-1">
@@ -66,7 +66,7 @@ export default function Timeline() {
         'nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_2268',
         'nibmcodex/2.0/gallery/ai-workshop/Copy_of_IMG_7514',
       ],
-      hasMoreMemories: true,
+      galleryTabId: 'ai-workshop',
       desc: (
         <div className="inline-block text-left space-y-2">
           <div className="text-[14px] text-slate-300 font-medium italic -mt-1">
@@ -153,7 +153,9 @@ export default function Timeline() {
           <span className="inline-block px-4 py-1 mb-6 border border-white/10 text-cyan-400 text-xs font-mono uppercase tracking-[0.2em] rounded-full glass-panel-light shadow-xl">
             Journey
           </span>
-          <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter drop-shadow-2xl">Event Timeline</h2>
+          <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter drop-shadow-2xl">
+            Event <span className="text-gradient-cyan">Timeline</span>
+          </h2>
           <p className="text-slate-400 mt-4 font-light tracking-wide max-w-lg mx-auto">The roadmap leading up to the ultimate challenge.</p>
         </motion.div>
 
@@ -269,10 +271,10 @@ export default function Timeline() {
                               isOpen={openGalleryIdx === idx}
                               onToggle={() => setOpenGalleryIdx(prev => prev === idx ? null : idx)}
                               highlightButton={idx === 0 || idx === 1}
-                              {...step.hasMoreMemories ? {
+                              {...step.galleryTabId ? {
                                 extraAction: (
                                   <Link 
-                                    href="/gallery" 
+                                    href={`/gallery?tab=${step.galleryTabId}`} 
                                     className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-cyan-500/50 rounded-lg text-sm font-medium text-slate-300 hover:text-cyan-400 transition-all duration-300"
                                   >
                                     View Full Gallery

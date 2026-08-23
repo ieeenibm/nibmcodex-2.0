@@ -2,6 +2,7 @@ import Header from '@/components/Header';
 import Hero from '@/components/Hero';
 import CountdownSection from '@/components/CountdownSection';
 import SectionSeparator from '@/components/SectionSeparator';
+import LandingGallery from '@/components/LandingGallery';
 import EventSeries from '@/components/EventSeries';
 import Timeline from '@/components/Timeline';
 import VerticalScrollMoment from '@/components/VerticalScrollMoment';
@@ -21,6 +22,7 @@ export default function Home() {
       <Hero />
       <CountdownSection />
       <SectionSeparator />
+      <LandingGallery />
       <EventSeries />
       <Timeline />
       <Committee />
