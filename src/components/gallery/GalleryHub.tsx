@@ -2,8 +2,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CldImage, CldVideoPlayer } from 'next-cloudinary';
-import { PlayCircle } from 'lucide-react';
-import { LayoutGrid, Layers } from 'lucide-react';
+import 'next-cloudinary/dist/cld-video-player.css';
+import { PlayCircle, LayoutGrid, Layers } from 'lucide-react';
 
 type EventGallery = {
   id: string;
@@ -249,6 +249,7 @@ export default function GalleryHub() {
                     src={realId}
                     alt={`Gallery image ${index + 1}`}
                     fill
+                    priority={index < 4}
                     className="text-transparent object-cover transition-transform duration-500 group-hover:scale-110 z-10"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   />
@@ -307,14 +308,12 @@ export default function GalleryHub() {
                 
                 return isVid ? (
                   <div className="max-w-full max-h-[85vh] w-auto h-auto rounded-lg shadow-2xl overflow-hidden bg-black flex items-center justify-center">
-                    <CldVideoPlayer
-                      id={`video-player-${cleanId.replace(/[^a-zA-Z0-9]/g, '')}`}
-                      src={cleanId}
-                      width={1920}
-                      height={1080}
-                      className="max-w-full max-h-[85vh]"
+                    <video
+                      src={`https://res.cloudinary.com/jwuioa0d/video/upload/q_auto,f_auto/v1/${cleanId}`}
+                      className="max-w-full max-h-[85vh] w-auto h-auto rounded-lg"
                       autoPlay
                       controls
+                      playsInline
                     />
                   </div>
                 ) : (
