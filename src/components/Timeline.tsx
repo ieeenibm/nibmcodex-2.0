@@ -40,7 +40,7 @@ export default function Timeline() {
       date: <>3<sup className="lowercase">rd</sup> of August</>, 
       startISO: '2026-08-03T10:30:00+05:30',
       endISO: '2026-08-03T15:30:00+05:30',
-      memories: Array.from({ length: 8 }, (_, i) => `nibmcodex/awareness-sessions-1/${i + 1}`),
+      memories: Array.from({ length: 8 }, (_, i) => `nibmcodex/2.0/memories/awareness-sessions-1/${i + 1}`),
       galleryTabId: 'awareness-1',
       desc: (
         <div className="inline-block text-left">
