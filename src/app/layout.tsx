@@ -7,6 +7,7 @@ import PageTransition from '@/components/PageTransition';
 import NoiseOverlay from '@/components/ui/NoiseOverlay';
 import Preloader from '@/components/Preloader';
 import ClickSpark from '@/components/ui/ClickSpark';
+import AwarenessPopup from '@/components/ui/AwarenessPopup';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const spaceMono = Space_Mono({ subsets: ['latin'], weight: ['400', '700'], variable: '--font-mono' });
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
     description: 'Join NIBMCodeX 2.0, the premier hackathon experience at NIBM. Showcase your skills, innovate, and compete with the best.',
     images: [
       {
-        url: '/images/wide-cityscape.webp',
+        url: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/misc/wide-cityscape',
         width: 1200,
         height: 630,
         alt: 'NIBMCodeX 2.0 Hackathon',
@@ -39,7 +40,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'NIBMCodeX 2.0 | The Ultimate Hackathon Experience',
     description: 'Join NIBMCodeX 2.0, the premier hackathon experience at NIBM. Showcase your skills, innovate, and compete with the best.',
-    images: ['/images/wide-cityscape.webp'],
+    images: ['https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/misc/wide-cityscape'],
   },
 };
 
@@ -73,6 +74,7 @@ export default function RootLayout({
         <Preloader />
         <NoiseOverlay />
         <ClickSpark />
+        <AwarenessPopup />
         <SmoothScroll>
           <PageTransition>{children}</PageTransition>
         </SmoothScroll>

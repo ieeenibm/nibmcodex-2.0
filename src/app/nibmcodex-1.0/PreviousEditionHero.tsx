@@ -16,7 +16,7 @@ export default function PreviousEditionHero() {
       {/* Parallax Background */}
       <motion.div style={{ y, scale: 1.05 }} className="absolute inset-0 z-0">
         <Image
-          src="/images/theme.webp"
+          src="https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/misc/theme"
           alt="NIBMCodeX 1.0"
           fill
           className="object-cover object-center"

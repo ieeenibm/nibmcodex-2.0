@@ -14,19 +14,19 @@ const organizers: PartnerData[] = [
   {
     name: 'IEEE Student Branch of NIBM',
     role: 'Organizer',
-    image: '/images/nibmcodex-1.0/sponsor-ieeesb.png',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-ieeesb',
     bgClass: 'bg-white',
   },
   {
     name: 'National Institute of Business Management',
     role: 'Organizer',
-    image: '/images/nibmcodex-1.0/sponsor-nibm1.png',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-nibm1',
     bgClass: 'bg-white',
   },
   {
     name: 'NIBM Computer Society',
     role: 'Organizer',
-    image: '/images/nibmcodex-1.0/sponsor-nibmcs.png',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-nibmcs',
     bgClass: 'bg-white',
   }
 ];
@@ -34,7 +34,7 @@ const organizers: PartnerData[] = [
 const nationalPartner: PartnerData = {
   name: 'Ministry of Digital Economy',
   role: 'Official National Partner',
-  image: '/images/partners/mode-logo.png',
+  image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/mode-logo',
   bgClass: 'bg-white',
 };
 
@@ -42,25 +42,25 @@ const partnersRow1: PartnerData[] = [
   {
     name: 'Lanka School on Internet Governance',
     role: 'Official Strategic Partner',
-    image: '/images/partners/lksig-logo.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/lksig-logo',
     bgClass: 'bg-white',
   },
   {
     name: 'NIBM Gavel Club',
     role: 'Official Community Partner',
-    image: '/images/partners/gavelclub-logo-cropped.png',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/gavelclub-logo-cropped',
     bgClass: 'bg-white p-2',
   },
   {
     name: 'AZEA Creation',
     role: 'Official Visual Content Partner',
-    image: '/images/partners/azeacreation-logo.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/azeacreation-logo',
     bgClass: 'bg-black border-[1.5px] border-white',
   },
   {
     name: 'EventFrame Productions',
     role: 'Event content production partner',
-    image: '/images/partners/eventframe.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/eventframe',
     bgClass: 'bg-[#842223]',
     imgClass: 'object-contain max-h-[75%] max-w-[75%]',
   },
@@ -70,7 +70,7 @@ const partnersRow2: PartnerData[] = [
   {
     name: 'HackSL',
     role: 'Official Digital Media Partner',
-    image: '/images/partners/hacksl-logo.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/hacksl-logo',
     bgClass: 'bg-white',
   },
 ];
