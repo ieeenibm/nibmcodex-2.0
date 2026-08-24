@@ -7,7 +7,6 @@ import PageTransition from '@/components/PageTransition';
 import NoiseOverlay from '@/components/ui/NoiseOverlay';
 import Preloader from '@/components/Preloader';
 import ClickSpark from '@/components/ui/ClickSpark';
-import AwarenessPopup from '@/components/ui/AwarenessPopup';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 const spaceMono = Space_Mono({ subsets: ['latin'], weight: ['400', '700'], variable: '--font-mono' });
@@ -74,7 +73,6 @@ export default function RootLayout({
         <Preloader />
         <NoiseOverlay />
         <ClickSpark />
-        <AwarenessPopup />
         <SmoothScroll>
           <PageTransition>{children}</PageTransition>
         </SmoothScroll>
