@@ -22,7 +22,16 @@ export default function AdminLogin() {
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await res.json();
+      let data;
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        throw new Error(
+          res.ok ? 'Unexpected non-JSON response.' : 'Server error: The backend crashed before fulfilling the request.'
+        );
+      }
 
       if (!res.ok) {
         throw new Error(data.error || 'Login failed');

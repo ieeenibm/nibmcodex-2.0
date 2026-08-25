@@ -355,7 +355,11 @@ export default function HostView() {
             <div className="text-center mb-8">
               <CheckCircle2 className="w-16 h-16 text-green-400 mx-auto mb-4" />
               <h2 className="text-4xl sm:text-5xl font-black text-white mb-2">Arena Completed!</h2>
-              <p className="text-slate-400 text-base">Here are the final standings for this session.</p>
+              <p className="text-slate-400 text-base">
+                {session.mode === 'COMPETITIVE' 
+                  ? 'Here are the final standings for this session.' 
+                  : 'Thank you for hosting this collaborative session!'}
+              </p>
             </div>
 
             {session.mode === 'COMPETITIVE' ? (
