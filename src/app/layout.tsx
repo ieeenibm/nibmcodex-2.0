@@ -41,6 +41,9 @@ export const metadata: Metadata = {
     description: 'Join NIBMCodeX 2.0, the premier hackathon experience at NIBM. Showcase your skills, innovate, and compete with the best.',
     images: ['https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/misc/wide-cityscape'],
   },
+  verification: {
+    google: 'LN5K-dbVc16qefWhvDw4NGYUlyRibg42pGNMwslGwC4',
+  },
 };
 
 export default function RootLayout({
