@@ -10,8 +10,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
     }
 
-    // Fetch session and question together to validate everything in one round-trip
-    const [session, question] = await Promise.all([
+    // Fetch session, question, AND participant together to validate everything in one round-trip
+    const [session, question, participant] = await Promise.all([
       prisma.session.findUnique({
         where: { id: sessionId },
         select: { status: true, activeQuestionId: true, questionStartedAt: true, mode: true }
@@ -19,6 +19,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       prisma.question.findUnique({
         where: { id: questionId },
         select: { sessionId: true, type: true, correctAnswer: true, timeLimit: true, options: true }
+      }),
+      prisma.participant.findUnique({
+        where: { id: participantId },
+        select: { sessionId: true, streak: true }
       }),
     ]);
 
@@ -31,6 +35,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
     if (!question || question.sessionId !== sessionId) {
       return NextResponse.json({ error: 'Invalid question' }, { status: 400 });
+    }
+    if (!participant || participant.sessionId !== sessionId) {
+      return NextResponse.json({ error: 'Participant does not belong to this session' }, { status: 403 });
     }
 
     // Server-side time limit check (only if question has a time limit > 0)
@@ -65,62 +72,62 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       }
     }
 
-    // Create response — the DB unique constraint will reject duplicates
-    let response;
+    // Execute atomic transaction for response creation and participant updates
+    let finalScore = scoreEarned;
     try {
-      response = await prisma.response.create({
-        data: {
-          questionId,
-          participantId,
-          answer,
-          isCorrect,
-          scoreEarned,
+      await prisma.$transaction(async (tx) => {
+        if (isCorrect && session.mode === 'COMPETITIVE') {
+          const currentStreak = participant.streak ?? 0;
+          const newStreak = currentStreak + 1;
+          const multiplier = Math.min(2.5, 1 + currentStreak * 0.1);
+          finalScore = Math.round(scoreEarned * multiplier);
+
+          await tx.response.create({
+            data: {
+              questionId,
+              participantId,
+              answer,
+              isCorrect,
+              scoreEarned: finalScore,
+            }
+          });
+
+          await tx.participant.update({
+            where: { id: participantId },
+            data: {
+              score: { increment: finalScore },
+              streak: newStreak,
+            }
+          });
+        } else {
+          // Incorrect or Non-Competitive mode
+          await tx.response.create({
+            data: {
+              questionId,
+              participantId,
+              answer,
+              isCorrect,
+              scoreEarned: 0, // No points awarded
+            }
+          });
+
+          if (session.mode === 'COMPETITIVE') {
+            await tx.participant.update({
+              where: { id: participantId },
+              data: { streak: 0 }
+            });
+          }
         }
       });
     } catch (err: any) {
-      // Prisma unique constraint violation (P2002)
+      // Prisma unique constraint violation (P2002) for response
       if (err?.code === 'P2002') {
         return NextResponse.json({ error: 'You have already answered this question' }, { status: 409 });
       }
       throw err;
     }
 
-    // Update participant score and streak atomically
-    if (isCorrect && session.mode === 'COMPETITIVE') {
-      // Fetch current streak to calculate multiplier
-      const participant = await prisma.participant.findUnique({
-        where: { id: participantId },
-        select: { streak: true }
-      });
-      const currentStreak = participant?.streak ?? 0;
-      const newStreak = currentStreak + 1;
-      // Multiplier: 1x base, +0.1x per streak, capped at 2.5x (15 consecutive)
-      const multiplier = Math.min(2.5, 1 + currentStreak * 0.1);
-      const finalScore = Math.round(scoreEarned * multiplier);
-
-      await prisma.participant.update({
-        where: { id: participantId },
-        data: {
-          score: { increment: finalScore },
-          streak: newStreak,
-        }
-      });
-
-      // Update stored scoreEarned with the multiplied value
-      await prisma.response.update({
-        where: { id: response.id },
-        data: { scoreEarned: finalScore }
-      });
-
-    } else if (!isCorrect && session.mode === 'COMPETITIVE') {
-      // Reset streak on wrong answer
-      await prisma.participant.update({
-        where: { id: participantId },
-        data: { streak: 0 }
-      });
-    }
-
-    return NextResponse.json({ success: true, isCorrect, scoreEarned });
+    return NextResponse.json({ success: true, isCorrect, scoreEarned: finalScore });
   } catch (error) {
     console.error('Submit answer error:', error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });

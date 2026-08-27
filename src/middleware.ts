@@ -39,10 +39,15 @@ export async function middleware(request: NextRequest) {
     }
 
     // Pass the user info via headers for downstream API routes
-    const response = NextResponse.next();
-    response.headers.set('x-user-id', payload.id as string);
-    response.headers.set('x-user-role', payload.role as string);
-    return response;
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('x-user-id', payload.id as string);
+    requestHeaders.set('x-user-role', payload.role as string);
+
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
   }
 
   return NextResponse.next();

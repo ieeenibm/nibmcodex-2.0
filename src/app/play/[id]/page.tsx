@@ -58,18 +58,19 @@ export default function AttendeeLivePlay() {
 
   // Tab switch detection (soft warning)
   useEffect(() => {
+    let timer: NodeJS.Timeout;
     const handleVisibilityChange = () => {
-      if (document.hidden) {
-        // user left tab
-      } else {
-        // user returned
+      if (!document.hidden) {
         setTabSwitchWarning(true);
-        const timer = setTimeout(() => setTabSwitchWarning(false), 4000);
-        return () => clearTimeout(timer);
+        clearTimeout(timer);
+        timer = setTimeout(() => setTabSwitchWarning(false), 4000);
       }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      clearTimeout(timer);
+    };
   }, []);
 
   // SSE Connection setup
@@ -97,7 +98,6 @@ export default function AttendeeLivePlay() {
 
       eventSource.onerror = () => {
         setSseConnected(false);
-        eventSource?.close();
       };
     } catch (err) {
       setSseConnected(false);
@@ -189,8 +189,13 @@ export default function AttendeeLivePlay() {
       });
 
       const data = await res.json();
-      setSubmittedQuestionId(activeQuestion.id);
-      await fetchFeedback(activeQuestion.id);
+      if (res.ok) {
+        setSubmittedQuestionId(activeQuestion.id);
+        await fetchFeedback(activeQuestion.id);
+      } else {
+        console.error('Submit failed:', data.error);
+        // Fallback for user UX: could toast here in a real app
+      }
     } catch (err) {
       console.error('Submit error', err);
     } finally {
