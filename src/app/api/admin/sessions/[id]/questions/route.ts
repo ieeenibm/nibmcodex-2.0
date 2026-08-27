@@ -20,6 +20,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         options: body.options || null,
         correctAnswer: body.correctAnswer || null,
         timeLimit: body.timeLimit !== undefined ? Number(body.timeLimit) : 30,
+        maxAnswers: body.maxAnswers !== undefined ? Number(body.maxAnswers) : 1,
         order: nextOrder,
       }
     });

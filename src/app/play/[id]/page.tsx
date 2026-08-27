@@ -32,6 +32,7 @@ export default function AttendeeLivePlay() {
   // Participant live stats from feedback
   const [feedback, setFeedback] = useState<{
     hasSubmitted: boolean;
+    submittedCount: number;
     isCorrect: boolean;
     scoreEarned: number;
     currentScore: number;
@@ -190,7 +191,9 @@ export default function AttendeeLivePlay() {
 
       const data = await res.json();
       if (res.ok) {
-        setSubmittedQuestionId(activeQuestion.id);
+        setAnswerText(''); // Clear input for next submission
+        // Optimistically increment submittedCount
+        setFeedback(prev => prev ? { ...prev, submittedCount: prev.submittedCount + 1 } : null);
         await fetchFeedback(activeQuestion.id);
       } else {
         console.error('Submit failed:', data.error);
@@ -202,6 +205,12 @@ export default function AttendeeLivePlay() {
       setSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    if (activeQuestion?.id) {
+      fetchFeedback(activeQuestion.id);
+    }
+  }, [activeQuestion?.id]);
 
   // Deterministically shuffle MCQ options based on participantId so layout is stable
   const shuffledOptions = useMemo(() => {
@@ -225,9 +234,9 @@ export default function AttendeeLivePlay() {
 
   if (!sessionState || !participantId) {
     return (
-      <div className="min-h-screen bg-navy-950 flex flex-col justify-center items-center text-cyan-400 font-bold gap-4">
-        <Loader2 className="w-10 h-10 animate-spin text-cyan-400" />
-        <p className="tracking-wide">Joining Pulse Mini Arena...</p>
+      <div className="min-h-screen bg-navy-950 flex flex-col items-center justify-center p-6 text-center">
+        <Loader2 className="w-8 h-8 text-cyan-400 animate-spin mb-4" />
+        <p className="text-white font-bold animate-pulse">Syncing with Live Session...</p>
       </div>
     );
   }
@@ -298,7 +307,8 @@ export default function AttendeeLivePlay() {
   }
 
   const activeQ = activeQuestion;
-  const hasSubmitted = submittedQuestionId === activeQ?.id;
+  const maxAnswers = activeQ?.maxAnswers ?? 1;
+  const isLockedOut = (feedback?.submittedCount ?? 0) >= maxAnswers;
   const timeProgress = activeQ?.timeLimit ? (timeLeft / activeQ.timeLimit) * 100 : 100;
 
   return (
@@ -373,7 +383,7 @@ export default function AttendeeLivePlay() {
         </div>
 
         {/* Input Form / MCQ Buttons */}
-        {hasSubmitted ? (
+        {isLockedOut ? (
           <div className="bg-navy-900/90 border border-cyan-500/30 clip-slanted rounded-none p-8 text-center backdrop-blur-md shadow-2xl flex flex-col items-center justify-center animate-in zoom-in-95 duration-300">
             <div className="w-16 h-16 bg-cyan-500/20 rounded-full flex items-center justify-center mb-4">
               <CheckCircle2 className="w-8 h-8 text-cyan-400" />

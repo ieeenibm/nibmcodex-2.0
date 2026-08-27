@@ -45,6 +45,7 @@ export default function SessionEditorPage() {
   const [newQuestionText, setNewQuestionText] = useState('');
   const [newQuestionType, setNewQuestionType] = useState('MCQ');
   const [newTimeLimit, setNewTimeLimit] = useState<number>(0);
+  const [newQuestionMaxAnswers, setNewQuestionMaxAnswers] = useState<number>(1);
   const [newOptions, setNewOptions] = useState(['', '', '', '']);
   const [correctOptionIndex, setCorrectOptionIndex] = useState(0);
 
@@ -72,6 +73,7 @@ export default function SessionEditorPage() {
           options: newQuestionType === 'MCQ' || newQuestionType === 'POLL' ? newOptions : null,
           correctAnswer: newQuestionType === 'MCQ' ? newOptions[correctOptionIndex] : '',
           timeLimit: newTimeLimit,
+          maxAnswers: newQuestionMaxAnswers,
         }),
       });
       setNewQuestionText('');
@@ -271,6 +273,22 @@ export default function SessionEditorPage() {
             </select>
           </div>
         </div>
+
+        {newQuestionType === 'TEXT' && (
+          <div className="mb-6">
+            <label className="block text-xs uppercase tracking-widest font-bold text-slate-400 mb-2">
+              Max Answers Per Participant
+            </label>
+            <input
+              type="number"
+              min="1"
+              max="100"
+              value={newQuestionMaxAnswers}
+              onChange={(e) => setNewQuestionMaxAnswers(Math.max(1, parseInt(e.target.value) || 1))}
+              className="w-full bg-navy-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-medium focus:outline-none focus:border-cyan-500"
+            />
+          </div>
+        )}
 
         {(newQuestionType === 'MCQ' || newQuestionType === 'POLL') && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">

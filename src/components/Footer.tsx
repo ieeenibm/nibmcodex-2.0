@@ -78,6 +78,8 @@ export default function Footer() {
               <a href="https://www.linkedin.com/company/nibmcodex/" target="_blank" rel="noopener noreferrer" className="self-start hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">LinkedIn</a>
               <a href="https://www.instagram.com/nibmcodex/" target="_blank" rel="noopener noreferrer" className="self-start hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">Instagram</a>
               <a href="https://www.facebook.com/nibmcodex/" target="_blank" rel="noopener noreferrer" className="self-start hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">Facebook</a>
+              <a href="https://youtube.com/@nibmcodex?si=oOtbvm4svXujQftw" target="_blank" rel="noopener noreferrer" className="self-start hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">YouTube</a>
+              <a href="https://www.tiktok.com/@nibmcodex?is_from_webapp=1&sender_device=pc" target="_blank" rel="noopener noreferrer" className="self-start hover:text-cyan-400 transition-colors inline-block relative after:absolute after:bottom-0 after:left-0 after:h-[1px] after:w-0 hover:after:w-full after:bg-cyan-400 after:transition-all">TikTok</a>
             </div>
           </div>
         </div>
