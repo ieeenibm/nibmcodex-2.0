@@ -40,7 +40,7 @@ export default function SessionEditorPage() {
   const { id } = useParams();
   const router = useRouter();
 
-  const { data: session, isLoading, mutate } = useSWR(`/api/admin/sessions/${id}`, fetcher);
+  const { data: session, isLoading, mutate, error } = useSWR(`/api/admin/sessions/${id}`, fetcher);
 
   const [newQuestionText, setNewQuestionText] = useState('');
   const [newQuestionType, setNewQuestionType] = useState('MCQ');
@@ -107,6 +107,7 @@ export default function SessionEditorPage() {
       </div>
     );
   }
+  if (error) return <div className="text-red-400">Error: {error.message || 'Failed to load'}</div>;
   if (!session) return <div className="text-red-400">Session not found.</div>;
 
   return (
