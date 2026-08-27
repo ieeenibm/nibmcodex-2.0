@@ -39,7 +39,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
     return NextResponse.json({
       status: session.status,
-      activeQuestion: activeQuestion ? { ...activeQuestion, questionStartedAt: session.questionStartedAt } : null,
+      activeQuestion,
+      questionStartedAt: session.questionStartedAt,
     });
   } catch (error) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
