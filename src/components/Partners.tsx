@@ -62,7 +62,6 @@ const partnersRow1: PartnerData[] = [
     role: 'Event content production partner',
     image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/eventframe',
     bgClass: 'bg-[#842223]',
-    imgClass: 'object-contain max-h-[75%] max-w-[75%]',
   },
 ];
 
@@ -99,7 +98,7 @@ function PartnerCard({ partner, idx }: { partner: PartnerData, idx: number }) {
           width={240}
           height={180}
           draggable={false}
-          className={`${partner.imgClass || 'object-contain max-h-[85%] max-w-[85%]'} select-none pointer-events-none`}
+          className={`${partner.imgClass || 'object-contain h-24 sm:h-28 w-auto max-w-[80%]'} select-none pointer-events-none`}
         />
       </div>
       <div className="flex flex-col w-full justify-center flex-grow">
