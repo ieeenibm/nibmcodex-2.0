@@ -18,7 +18,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       }),
       prisma.question.findUnique({
         where: { id: questionId },
-        select: { sessionId: true, type: true, correctAnswer: true, timeLimit: true, options: true }
+        select: { sessionId: true, type: true, correctAnswer: true, timeLimit: true, maxAnswers: true, options: true }
       }),
       prisma.participant.findUnique({
         where: { id: participantId },
@@ -38,6 +38,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
     if (!participant || participant.sessionId !== sessionId) {
       return NextResponse.json({ error: 'Participant does not belong to this session' }, { status: 403 });
+    }
+
+    // Enforce maxAnswers
+    const existingResponsesCount = await prisma.response.count({
+      where: { participantId, questionId }
+    });
+
+    if (existingResponsesCount >= (question.maxAnswers ?? 1)) {
+       return NextResponse.json({ error: 'You have reached the maximum number of answers for this question' }, { status: 409 });
     }
 
     // Server-side time limit check (only if question has a time limit > 0)
@@ -120,10 +129,6 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         }
       });
     } catch (err: any) {
-      // Prisma unique constraint violation (P2002) for response
-      if (err?.code === 'P2002') {
-        return NextResponse.json({ error: 'You have already answered this question' }, { status: 409 });
-      }
       throw err;
     }
 

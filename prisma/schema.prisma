@@ -42,6 +42,7 @@ model Question {
   options       Json?      // Array of options if MCQ or POLL
   correctAnswer String?
   timeLimit     Int        @default(30)
+  maxAnswers    Int        @default(1)
   order         Int
   responses     Response[]
 
@@ -71,7 +72,6 @@ model Response {
   scoreEarned   Int         @default(0) // points earned for this specific response
   answeredAt    DateTime    @default(now())
 
-  @@unique([participantId, questionId]) // prevents duplicate submissions
   @@index([questionId])
   @@index([participantId])
 }
