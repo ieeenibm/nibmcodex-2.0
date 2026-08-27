@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  allowedDevOrigins: ['192.168.36.12'],
+  allowedDevOrigins: ['192.168.36.12', '192.168.1.16'],
   turbopack: {
     root: process.cwd(),
   },
