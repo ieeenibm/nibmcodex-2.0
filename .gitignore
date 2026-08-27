@@ -7,11 +7,23 @@ __v0_jsx-dev-runtime.ts
 .vercel/
 
 # Environment variables
-.env*.local
+.env
+.env.*
+!.env.example
 
 # Common ignores
 node_modules
 .next/
 .DS_Store
+.vscode/
 # Local analysis docs
 SCAN.md
+
+/src/generated/prisma
+/antigravity-corner
+
+# Agent tool directories
+.claude/
+.agents/
+.windsurf/
+skills-lock.json

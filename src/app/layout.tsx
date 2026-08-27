@@ -16,16 +16,16 @@ export const metadata: Metadata = {
     default: 'NIBMCodeX 2.0 | The Ultimate Hackathon Experience',
     template: '%s | NIBMCodeX 2.0',
   },
-  description: 'Join NIBMCodeX 2.0, the premier hackathon experience at NIBM. Showcase your skills, innovate, and compete with the best.',
+  description: 'Join NIBMCodeX 2.0, a 24-hour hackathon bringing together the brightest minds to solve real-world challenges through innovation and technology.',
   keywords: ['Hackathon', 'NIBM', 'NIBMCodeX', 'Coding Competition', 'Sri Lanka', 'Tech Event', 'Software Engineering', 'IT', 'Innovation'],
   authors: [{ name: 'NIBM' }],
-  metadataBase: new URL('https://nibmcodex.nibmieee.org'),
+  metadataBase: new URL('https://nibmcodex.nibmieee.lk'),
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://nibmcodex.nibmieee.org',
-    title: 'NIBMCodeX 2.0 | The Ultimate Hackathon Experience',
-    description: 'Join NIBMCodeX 2.0, the premier hackathon experience at NIBM. Showcase your skills, innovate, and compete with the best.',
+    url: 'https://nibmcodex.nibmieee.lk',
+    title: 'NIBMCodeX 2.0 | Empowering the Next Generation of Tech Leaders',
+    description: 'Join NIBMCodeX 2.0, a 24-hour hackathon bringing together the brightest minds to solve real-world challenges through innovation and technology.',
     images: [
       {
         url: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/misc/wide-cityscape',

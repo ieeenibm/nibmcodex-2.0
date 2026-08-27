@@ -8,9 +8,9 @@ const events = [
     number: '01',
     title: 'AI for Learning Workshop',
     completed: true,
-    accentColor: 'from-cyan-500/20 to-sky-500/10',
-    borderColor: 'border-cyan-400/20',
-    glowColor: 'rgba(34, 211, 238, 0.15)',
+    accentColor: 'from-violet-500/20 to-purple-500/10',
+    borderColor: 'border-violet-400/20',
+    glowColor: 'rgba(167, 139, 250, 0.15)',
     description:
       'A focused 3-hour AI/ML session bridging the gap between academic theory and real-world application. Gain clarity on how AI is reshaping the modern tech industry.',
     highlights: [
@@ -23,9 +23,9 @@ const events = [
     number: '02',
     title: 'Code Grid Summit 2026',
     nextUp: true,
-    accentColor: 'from-violet-500/20 to-purple-500/10',
-    borderColor: 'border-violet-400/20',
-    glowColor: 'rgba(167, 139, 250, 0.15)',
+    accentColor: 'from-cyan-500/20 to-sky-500/10',
+    borderColor: 'border-cyan-400/20',
+    glowColor: 'rgba(34, 211, 238, 0.15)',
     description:
       'Our flagship full-day technology summit. Join working practitioners for honest conversations about emerging technologies, career readiness, and the future of work.',
     highlights: [
@@ -145,10 +145,10 @@ export default function EventSeries() {
                             </div>
                           )}
                           {event.nextUp && (
-                            <div className="px-3 py-1 rounded-full border border-violet-400/30 bg-violet-500/10 text-[10px] font-bold tracking-widest text-violet-300 uppercase backdrop-blur-sm flex items-center gap-1.5">
+                            <div className="px-3 py-1 rounded-full border border-cyan-400/30 bg-cyan-500/10 text-[10px] font-bold tracking-widest text-cyan-300 uppercase backdrop-blur-sm flex items-center gap-1.5">
                               <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-violet-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-violet-500"></span>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
                               </span>
                               Next Up
                             </div>

@@ -14,6 +14,7 @@ import FAQ from '@/components/FAQ';
 // import Registration from '@/components/Registration';
 import Footer from '@/components/Footer';
 import RegistrationPill from '@/components/ui/RegistrationPill';
+import LivePlayBubble from '@/components/LivePlayBubble';
 
 export default function Home() {
   return (
@@ -34,6 +35,7 @@ export default function Home() {
       {/* <Registration /> */}
       <Footer />
       <RegistrationPill />
+      <LivePlayBubble />
     </main>
   );
 }

@@ -1,0 +1,444 @@
+'use client';
+
+import { useEffect, useState, useRef, useMemo } from 'react';
+import useSWR from 'swr';
+import { useParams, useRouter } from 'next/navigation';
+import { Loader2, CheckCircle2, Gamepad2, Flame, Trophy, AlertTriangle, Clock, Zap } from 'lucide-react';
+
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || 'Failed to fetch');
+  return data;
+};
+
+export default function AttendeeLivePlay() {
+  const { id } = useParams();
+  const router = useRouter();
+
+  const [participantId, setParticipantId] = useState<string | null>(null);
+  const [submittedQuestionId, setSubmittedQuestionId] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [answerText, setAnswerText] = useState('');
+  const [tabSwitchWarning, setTabSwitchWarning] = useState(false);
+
+  // SSE Stream state with SWR fallback
+  const [sseState, setSseState] = useState<any>(null);
+  const [sseConnected, setSseConnected] = useState(false);
+  const [activeQuestion, setActiveQuestion] = useState<any>(null);
+  const [questionStartedAt, setQuestionStartedAt] = useState<string | null>(null);
+  const [timeLeft, setTimeLeft] = useState<number>(30);
+
+  // Participant live stats from feedback
+  const [feedback, setFeedback] = useState<{
+    hasSubmitted: boolean;
+    isCorrect: boolean;
+    scoreEarned: number;
+    currentScore: number;
+    currentStreak: number;
+    rank: number;
+  } | null>(null);
+
+  // SWR Fallback Polling (only active if SSE is disconnected)
+  const { data: swrState, error: swrError } = useSWR(
+    !sseConnected ? `/api/play/${id}/state${activeQuestion?.id ? `?qId=${activeQuestion.id}` : ''}` : null,
+    fetcher,
+    { refreshInterval: 1200 }
+  );
+
+  // Check login
+  useEffect(() => {
+    const pId = localStorage.getItem(`pulse_mini_${id}`);
+    if (!pId) {
+      router.push(`/play?code=${id}`);
+    } else {
+      setParticipantId(pId);
+    }
+  }, [id, router]);
+
+  // Tab switch detection (soft warning)
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        setTabSwitchWarning(true);
+        clearTimeout(timer);
+        timer = setTimeout(() => setTabSwitchWarning(false), 4000);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      clearTimeout(timer);
+    };
+  }, []);
+
+  // SSE Connection setup
+  useEffect(() => {
+    if (!id) return;
+    let eventSource: EventSource | null = null;
+
+    try {
+      eventSource = new EventSource(`/api/play/${id}/stream`);
+
+      eventSource.onopen = () => {
+        setSseConnected(true);
+      };
+
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data && !data.error) {
+            setSseState(data);
+          }
+        } catch (e) {
+          console.error('SSE JSON parse error', e);
+        }
+      };
+
+      eventSource.onerror = () => {
+        setSseConnected(false);
+      };
+    } catch (err) {
+      setSseConnected(false);
+    }
+
+    return () => {
+      eventSource?.close();
+    };
+  }, [id]);
+
+  // Merge state from SSE or SWR
+  const sessionState = sseConnected && sseState ? sseState : swrState;
+
+  useEffect(() => {
+    const incomingQ = sessionState?.activeQuestion;
+    if (incomingQ) {
+      if (!incomingQ.unchanged) {
+        setActiveQuestion((prev: any) => {
+          if (prev?.id === incomingQ.id && prev?.text === incomingQ.text) return prev;
+          setAnswerText('');
+          return incomingQ;
+        });
+      }
+    } else {
+      setActiveQuestion((prev: any) => (prev ? null : prev));
+    }
+
+    if (sessionState?.questionStartedAt !== undefined) {
+      setQuestionStartedAt((prev) => (prev === sessionState?.questionStartedAt ? prev : sessionState.questionStartedAt));
+    }
+  }, [sessionState?.status, sessionState?.activeQuestion?.id, sessionState?.activeQuestion?.unchanged, sessionState?.questionStartedAt]);
+
+  const isTimed = (activeQuestion?.timeLimit ?? 30) > 0;
+
+  // Timer countdown loop
+  useEffect(() => {
+    if (!activeQuestion || !isTimed || !questionStartedAt) {
+      setTimeLeft(activeQuestion?.timeLimit || 0);
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const start = new Date(questionStartedAt).getTime();
+      const now = Date.now();
+      const elapsed = (now - start) / 1000;
+      const remaining = Math.max(0, (activeQuestion.timeLimit || 30) - elapsed);
+      setTimeLeft(Math.ceil(remaining));
+
+      if (remaining <= 0) {
+        clearInterval(interval);
+      }
+    }, 250);
+
+    return () => clearInterval(interval);
+  }, [activeQuestion?.id, activeQuestion?.timeLimit, isTimed, questionStartedAt]);
+
+  // Fetch feedback when submitting or when question changes
+  const fetchFeedback = async (qId: string) => {
+    if (!participantId || !qId) return;
+    try {
+      const res = await fetch(`/api/play/${id}/feedback?participantId=${participantId}&questionId=${qId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setFeedback(data);
+      }
+    } catch (e) {
+      console.error('Failed to load feedback', e);
+    }
+  };
+
+  const handleSubmit = async (answer: string) => {
+    if (!activeQuestion || !participantId || submitting || (isTimed && timeLeft <= 0)) return;
+
+    // Haptic feedback on tap
+    if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+      try { navigator.vibrate(40); } catch (_) {}
+    }
+
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/play/${id}/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          participantId,
+          questionId: activeQuestion.id,
+          answer,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setSubmittedQuestionId(activeQuestion.id);
+        await fetchFeedback(activeQuestion.id);
+      } else {
+        console.error('Submit failed:', data.error);
+        // Fallback for user UX: could toast here in a real app
+      }
+    } catch (err) {
+      console.error('Submit error', err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Deterministically shuffle MCQ options based on participantId so layout is stable
+  const shuffledOptions = useMemo(() => {
+    if (!activeQuestion?.options || !Array.isArray(activeQuestion.options)) return [];
+    return [...activeQuestion.options];
+  }, [activeQuestion]);
+
+  if (swrError && !sseConnected) {
+    return (
+      <div className="min-h-screen bg-navy-950 flex flex-col justify-center items-center text-red-400 font-bold p-6 text-center">
+        <p className="text-xl mb-4">Unable to connect to session.</p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-6 py-2 bg-white/10 hover:bg-white/20 clip-slanted rounded-none text-white font-medium"
+        >
+          Retry Connection
+        </button>
+      </div>
+    );
+  }
+
+  if (!sessionState || !participantId) {
+    return (
+      <div className="min-h-screen bg-navy-950 flex flex-col justify-center items-center text-cyan-400 font-bold gap-4">
+        <Loader2 className="w-10 h-10 animate-spin text-cyan-400" />
+        <p className="tracking-wide">Joining Pulse Mini Arena...</p>
+      </div>
+    );
+  }
+
+  if (sessionState.status === 'DRAFT') {
+    return (
+      <div className="min-h-screen bg-navy-950 flex flex-col justify-between items-center text-center p-6 select-none">
+        <div className="pt-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono font-bold tracking-wider">
+            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+            LOBBY CONNECTED
+          </div>
+        </div>
+
+        <div className="max-w-sm">
+          <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+            <div className="absolute inset-0 bg-cyan-500/20 clip-slanted rounded-none blur-xl animate-pulse" />
+            <div className="relative w-20 h-20 bg-navy-900 border border-cyan-500/30 clip-slanted rounded-none flex items-center justify-center shadow-2xl">
+              <Gamepad2 className="w-10 h-10 text-cyan-400 animate-bounce" />
+            </div>
+          </div>
+          <h1 className="text-3xl font-black text-white mb-3 tracking-tight">You're In!</h1>
+          <p className="text-slate-400 text-base leading-relaxed">
+            Keep your eyes on the host screen.<br />The game is starting soon.
+          </p>
+        </div>
+
+        <div className="pb-4 text-center">
+          <p className="text-slate-600 text-xs font-mono">POWERED BY PULSE MINI</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (sessionState.status === 'ENDED') {
+    return (
+      <div className="min-h-screen bg-navy-950 flex flex-col justify-between items-center text-center p-6">
+        <div className="pt-8">
+          <span className="text-xs font-mono uppercase tracking-widest text-slate-500">Session Completed</span>
+        </div>
+
+        <div className="max-w-md w-full bg-navy-900/60 border border-white/10 clip-slanted rounded-none p-8 backdrop-blur-md">
+          <Trophy className="w-16 h-16 text-yellow-400 mx-auto mb-4 animate-bounce" />
+          <h1 className="text-3xl font-black text-white mb-2">Game Over!</h1>
+          <p className="text-slate-400 mb-6">Thanks for playing with us today!</p>
+
+          {feedback && (
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
+              <div className="bg-navy-950/80 p-4 clip-slanted rounded-none border border-white/5">
+                <span className="text-xs text-slate-400 uppercase font-bold block mb-1">Final Score</span>
+                <span className="text-3xl font-black text-cyan-400">{feedback.currentScore}</span>
+                <span className="text-xs text-slate-500 block mt-1">points</span>
+              </div>
+              <div className="bg-navy-950/80 p-4 clip-slanted rounded-none border border-white/5">
+                <span className="text-xs text-slate-400 uppercase font-bold block mb-1">Your Rank</span>
+                <span className="text-3xl font-black text-yellow-400">#{feedback.rank}</span>
+                <span className="text-xs text-slate-500 block mt-1">on leaderboard</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="pb-4 text-center">
+          <p className="text-slate-600 text-xs font-mono">POWERED BY PULSE MINI</p>
+        </div>
+      </div>
+    );
+  }
+
+  const activeQ = activeQuestion;
+  const hasSubmitted = submittedQuestionId === activeQ?.id;
+  const timeProgress = activeQ?.timeLimit ? (timeLeft / activeQ.timeLimit) * 100 : 100;
+
+  return (
+    <div className="min-h-screen bg-navy-950 flex flex-col justify-between p-4 sm:p-6 max-w-lg mx-auto relative overflow-hidden select-none">
+      {/* Soft Tab-switch Warning Toast */}
+      {tabSwitchWarning && (
+        <div className="fixed top-4 left-4 right-4 max-w-sm mx-auto z-50 bg-amber-500/90 text-navy-950 px-4 py-3 clip-slanted rounded-none shadow-2xl flex items-center gap-3 backdrop-blur-md animate-in slide-in-from-top-4 duration-300">
+          <AlertTriangle className="w-6 h-6 shrink-0" />
+          <p className="text-xs font-bold leading-snug">
+            Welcome back! Stay on this tab for the best speed bonuses!
+          </p>
+        </div>
+      )}
+
+      {/* Top HUD: Score, Streak, Timer */}
+      <div className="w-full">
+        <div className="flex items-center justify-between gap-2 mb-3">
+          {/* Live Score & Streak */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 bg-navy-900/90 border border-white/10 px-3 py-1.5 clip-slanted rounded-none">
+              <Zap className="w-4 h-4 text-yellow-400 fill-yellow-400" />
+              <span className="text-sm font-black text-white font-mono">{feedback?.currentScore || 0}</span>
+            </div>
+
+            {(feedback?.currentStreak || 0) > 1 && (
+              <div className="flex items-center gap-1 bg-orange-500/20 border border-orange-500/40 px-2.5 py-1.5 clip-slanted rounded-none animate-pulse">
+                <Flame className="w-4 h-4 text-orange-400 fill-orange-400" />
+                <span className="text-xs font-black text-orange-400 font-mono">{feedback?.currentStreak}x</span>
+              </div>
+            )}
+          </div>
+
+          {/* Live Timer badge - only if isTimed */}
+          {isTimed ? (
+            <div className={`flex items-center gap-1.5 px-3 py-1.5 clip-slanted rounded-none font-mono text-sm font-black border transition-colors ${
+              timeLeft <= 5
+                ? 'bg-red-500/20 border-red-500/40 text-red-400 animate-bounce'
+                : 'bg-navy-900/90 border-white/10 text-cyan-400'
+            }`}>
+              <Clock className="w-4 h-4" />
+              <span>{timeLeft}s</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-1.5 px-3 py-1.5 clip-slanted rounded-none font-mono text-xs font-bold border bg-navy-900/90 border-white/10 text-slate-400">
+              <span>♾️ Live</span>
+            </div>
+          )}
+        </div>
+
+        {/* Linear progress bar for timer - only if isTimed */}
+        {isTimed && (
+          <div className="w-full h-1.5 bg-navy-900 rounded-full overflow-hidden border border-white/5">
+            <div
+              className={`h-full transition-all duration-300 ease-linear ${
+                timeLeft <= 5 ? 'bg-red-500' : timeLeft <= 10 ? 'bg-yellow-400' : 'bg-cyan-400'
+              }`}
+              style={{ width: `${Math.max(0, timeProgress)}%` }}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Main Question Display */}
+      <div className="my-auto py-6 flex flex-col justify-center">
+        <div className="mb-6 text-center">
+          <span className="inline-block text-[11px] font-mono font-bold tracking-widest text-cyan-400/80 uppercase bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20 mb-3">
+            {activeQ?.type === 'POLL' ? 'Live Poll' : activeQ?.type === 'TEXT' ? 'Open Response' : 'Multiple Choice'}
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-white leading-snug tracking-tight">
+            {activeQ?.text || 'Waiting for the next question...'}
+          </h2>
+        </div>
+
+        {/* Input Form / MCQ Buttons */}
+        {hasSubmitted ? (
+          <div className="bg-navy-900/90 border border-cyan-500/30 clip-slanted rounded-none p-8 text-center backdrop-blur-md shadow-2xl flex flex-col items-center justify-center animate-in zoom-in-95 duration-300">
+            <div className="w-16 h-16 bg-cyan-500/20 rounded-full flex items-center justify-center mb-4">
+              <CheckCircle2 className="w-8 h-8 text-cyan-400" />
+            </div>
+            <h3 className="text-2xl font-black text-white mb-2">Answer Locked In!</h3>
+            <p className="text-slate-400 text-sm">
+              Waiting for the host to reveal the results...
+            </p>
+
+            {feedback && feedback.scoreEarned > 0 && (
+              <div className="mt-4 inline-flex items-center gap-2 bg-green-500/20 border border-green-500/40 text-green-300 px-4 py-2 clip-slanted rounded-none font-mono text-sm font-black animate-bounce">
+                +{feedback.scoreEarned} PTS EARNED!
+              </div>
+            )}
+          </div>
+        ) : isTimed && timeLeft <= 0 ? (
+          <div className="bg-navy-900/90 border border-red-500/30 clip-slanted rounded-none p-8 text-center backdrop-blur-md shadow-2xl flex flex-col items-center justify-center animate-in zoom-in-95 duration-300">
+            <Clock className="w-12 h-12 text-red-400 mb-3" />
+            <h3 className="text-2xl font-black text-white mb-1">Time's Up!</h3>
+            <p className="text-slate-400 text-sm">Get ready for the next round.</p>
+          </div>
+        ) : (
+          <div className="w-full">
+            {activeQ?.type === 'MCQ' || activeQ?.type === 'POLL' ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                {shuffledOptions.map((opt: string, i: number) => (
+                  <button
+                    key={i}
+                    onClick={() => handleSubmit(opt)}
+                    disabled={submitting}
+                    className="w-full text-left bg-navy-900 hover:bg-cyan-500/15 active:bg-cyan-500/30 border-2 border-white/10 hover:border-cyan-400 clip-slanted rounded-none p-5 sm:p-6 text-lg sm:text-xl font-bold text-white transition-all transform active:scale-[0.98] shadow-lg flex items-center justify-between group"
+                  >
+                    <span className="leading-tight group-hover:text-cyan-200">{opt}</span>
+                    <span className="w-3 h-3 rounded-full border-2 border-white/20 group-hover:border-cyan-400 group-hover:bg-cyan-400 shrink-0 ml-3 transition-colors" />
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                <textarea
+                  value={answerText}
+                  onChange={(e) => setAnswerText(e.target.value)}
+                  placeholder="Type your response here..."
+                  maxLength={150}
+                  className="w-full h-36 bg-navy-900 border-2 border-white/10 focus:border-cyan-400 clip-slanted rounded-none p-5 text-lg text-white resize-none outline-none transition-colors shadow-inner"
+                />
+                <button
+                  onClick={() => handleSubmit(answerText)}
+                  disabled={!answerText.trim() || submitting}
+                  className="w-full py-4 bg-cyan-400 hover:bg-cyan-300 active:bg-cyan-500 disabled:opacity-40 clip-slanted rounded-none text-navy-950 font-black text-lg shadow-xl shadow-cyan-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                >
+                  {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Submit Response'}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Footer Branding */}
+      <div className="pt-4 pb-2 text-center">
+        <p className="text-slate-600 text-[11px] font-mono font-semibold tracking-wider">
+          PULSE MINI • NIBMCODEX 2.0
+        </p>
+      </div>
+    </div>
+  );
+}

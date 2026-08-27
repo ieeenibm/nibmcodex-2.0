@@ -68,6 +68,8 @@ export default function LandingGallery() {
           dim={1}
           grayscale={true}
           overlayColor="#020617"
+          turn={0}
+          tilt={10}
         />
       </div>
 
