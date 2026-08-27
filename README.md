@@ -73,4 +73,4 @@ Make sure you have Node.js installed (v18.17 or higher recommended).
 
 ## 📄 License
 
-This project is licensed under the MIT License.
+This project is proprietary and closed-source. All rights reserved.
