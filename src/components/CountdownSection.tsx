@@ -10,9 +10,9 @@ const EVENTS = [
     date: new Date(Date.UTC(2026, 7, 19, 4, 30, 0)), // Aug 19, 10:00 AM SLST
     displayDate: 'Aug 19, 2026, 10:00 AM',
     subtext: 'A focused three-hour AI/ML session with a Coventry University lecturer.',
-    accentClass: 'text-cyan-400',
-    dotClass: 'bg-cyan-400',
-    glowClass: 'bg-cyan-400/5',
+    accentClass: 'text-violet-400',
+    dotClass: 'bg-violet-400',
+    glowClass: 'bg-violet-400/5',
   },
   {
     label: 'Code Grid Summit 2026',
@@ -20,9 +20,9 @@ const EVENTS = [
     date: new Date(Date.UTC(2026, 8, 12, 3, 0, 0)), // Sep 12, 08:30 AM SLST
     displayDate: 'Sep 12, 2026, 08:30 AM',
     subtext: 'A full-day flagship technology summit confronting the academia-industry gap.',
-    accentClass: 'text-violet-400',
-    dotClass: 'bg-violet-400',
-    glowClass: 'bg-violet-400/5',
+    accentClass: 'text-cyan-400',
+    dotClass: 'bg-cyan-400',
+    glowClass: 'bg-cyan-400/5',
   },
   {
     label: '24hr IEEEXtreme 20.0',

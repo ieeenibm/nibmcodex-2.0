@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String     @id @default(cuid())
+  username        String     @unique
+  passwordHash    String
+  role            String     @default("HOST") // "ADMIN" or "HOST"
+  mustChangePass  Boolean    @default(true)
+  sessions        Session[]
+}
+
+model Session {
+  id               String        @id @default(cuid())
+  name             String
+  status           String        @default("DRAFT") // "DRAFT", "ACTIVE", "ENDED"
+  mode             String        @default("COMPETITIVE") // "COMPETITIVE", "NON_COMPETITIVE"
+  joinCode         String        @unique
+  hostId           String
+  host             User          @relation(fields: [hostId], references: [id])
+  activeQuestionId String?       // The question currently being shown
+  questionStartedAt DateTime?    // When the active question was activated (for time-based scoring)
+  createdAt        DateTime      @default(now())
+  questions        Question[]
+  participants     Participant[]
+
+  @@index([hostId])
+  @@index([status])
+}
+
+model Question {
+  id            String     @id @default(cuid())
+  sessionId     String
+  session       Session    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  type          String     // "MCQ", "TEXT", "POLL"
+  text          String
+  options       Json?      // Array of options if MCQ or POLL
+  correctAnswer String?
+  timeLimit     Int        @default(30)
+  order         Int
+  responses     Response[]
+
+  @@index([sessionId])
+}
+
+model Participant {
+  id        String     @id @default(cuid())
+  sessionId String
+  session   Session    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  name      String
+  score     Int        @default(0)
+  streak    Int        @default(0) // consecutive correct answers
+  responses Response[]
+
+  @@index([sessionId])
+}
+
+model Response {
+  id            String      @id @default(cuid())
+  questionId    String
+  question      Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  participantId String
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  answer        String
+  isCorrect     Boolean     @default(false)
+  scoreEarned   Int         @default(0) // points earned for this specific response
+  answeredAt    DateTime    @default(now())
+
+  @@unique([participantId, questionId]) // prevents duplicate submissions
+  @@index([questionId])
+  @@index([participantId])
+}
