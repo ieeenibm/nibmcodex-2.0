@@ -30,6 +30,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
           text: true,
           options: true,
           timeLimit: true,
+          maxAnswers: true,
         }
       });
     } else if (session.activeQuestionId === clientQuestionId) {

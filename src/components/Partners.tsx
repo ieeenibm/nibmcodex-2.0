@@ -49,7 +49,7 @@ const partnersRow1: PartnerData[] = [
     name: 'NIBM Gavel Club',
     role: 'Official Community Partner',
     image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/gavelclub-logo-cropped',
-    bgClass: 'bg-white p-2',
+    bgClass: 'bg-white',
   },
   {
     name: 'AZEA Creation',
@@ -62,7 +62,6 @@ const partnersRow1: PartnerData[] = [
     role: 'Event content production partner',
     image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/eventframe',
     bgClass: 'bg-[#842223]',
-    imgClass: 'object-contain max-h-[75%] max-w-[75%]',
   },
 ];
 
@@ -82,7 +81,7 @@ function PartnerCard({ partner, idx }: { partner: PartnerData, idx: number }) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ delay: idx * 0.1 }}
-      className="glass-panel-light px-5 py-4 md:px-6 md:py-5 clip-slanted flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-full max-w-[280px] sm:w-[260px] flex-1"
+      className="glass-panel-light px-5 py-4 md:px-6 md:py-5 clip-slanted flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-full max-w-[260px] flex-none"
     >
       <div className="w-full flex flex-col items-center mb-4">
         <div className="h-8 md:h-10 flex items-center justify-center w-full px-2">
@@ -99,7 +98,7 @@ function PartnerCard({ partner, idx }: { partner: PartnerData, idx: number }) {
           width={240}
           height={180}
           draggable={false}
-          className={`${partner.imgClass || 'object-contain max-h-[85%] max-w-[85%]'} select-none pointer-events-none`}
+          className={`${partner.imgClass || 'object-contain w-full h-full p-4 sm:p-6'} select-none pointer-events-none`}
         />
       </div>
       <div className="flex flex-col w-full justify-center flex-grow">

@@ -58,9 +58,9 @@ export default function ResponseBoard({ questionId }: { questionId: string }) {
   useEffect(() => {
     if (!containerRef.current) return;
 
-    // Initialize Matter.js Physics Engine with Sleeping enabled for performance
+    // Initialize Matter.js Physics Engine
     const engine = Matter.Engine.create({
-      enableSleeping: true,
+      enableSleeping: false,
       positionIterations: 4,
       velocityIterations: 4,
     });
