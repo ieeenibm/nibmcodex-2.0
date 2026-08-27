@@ -158,7 +158,7 @@ export default function HostView() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 bg-navy-900/90 px-4 py-2 rounded-2xl border border-white/10 shadow-lg">
+          <div className="flex items-center gap-2.5 bg-navy-900/90 px-4 py-2 clip-slanted rounded-none border border-white/10 shadow-lg">
             <Users className="w-5 h-5 text-cyan-400" />
             <span className="text-xl font-black text-white font-mono">{liveStats?.totalParticipants || 0}</span>
           </div>
@@ -185,11 +185,11 @@ export default function HostView() {
 
             {/* QR Code Container */}
             {qrDataUrl && (
-              <div className="bg-navy-900 p-5 rounded-3xl border-2 border-cyan-500/30 shadow-2xl shadow-cyan-500/10 mb-8 relative group">
+              <div className="bg-navy-900 p-5 clip-slanted rounded-none border-2 border-cyan-500/30 shadow-2xl shadow-cyan-500/10 mb-8 relative group">
                 <img
                   src={qrDataUrl}
                   alt="Join QR Code"
-                  className="w-56 h-56 sm:w-64 sm:h-64 rounded-2xl mx-auto"
+                  className="w-56 h-56 sm:w-64 sm:h-64 clip-slanted rounded-none mx-auto"
                 />
                 <div className="mt-3 flex items-center justify-center gap-2 text-cyan-400 font-mono font-bold text-xs">
                   <QrIcon className="w-4 h-4" />
@@ -201,7 +201,7 @@ export default function HostView() {
             <button
               onClick={handleStart}
               disabled={session.questions.length === 0}
-              className="px-10 py-5 bg-cyan-400 hover:bg-cyan-300 disabled:opacity-40 text-navy-950 font-black text-2xl rounded-2xl flex items-center gap-3 shadow-2xl shadow-cyan-500/30 transition-all transform hover:scale-105 active:scale-95"
+              className="px-10 py-5 bg-cyan-400 hover:bg-cyan-300 disabled:opacity-40 text-navy-950 font-black text-2xl clip-slanted rounded-none flex items-center gap-3 shadow-2xl shadow-cyan-500/30 transition-all transform hover:scale-105 active:scale-95"
             >
               <Play className="w-7 h-7 fill-current" /> Start Arena
             </button>
@@ -222,12 +222,12 @@ export default function HostView() {
                 </span>
 
                 {isTimed ? (
-                  <div className="flex items-center gap-2 bg-navy-900 px-3 py-1 rounded-xl border border-white/10 font-mono text-sm font-bold text-cyan-400">
+                  <div className="flex items-center gap-2 bg-navy-900 px-3 py-1 clip-slanted rounded-none border border-white/10 font-mono text-sm font-bold text-cyan-400">
                     <Clock className="w-4 h-4" />
                     <span>{timeLeft}s</span>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-1.5 bg-navy-900 px-3 py-1 rounded-xl border border-white/10 font-mono text-xs font-bold text-slate-400">
+                  <div className="flex items-center gap-1.5 bg-navy-900 px-3 py-1 clip-slanted rounded-none border border-white/10 font-mono text-xs font-bold text-slate-400">
                     <span>♾️ Untimed</span>
                   </div>
                 )}
@@ -260,12 +260,12 @@ export default function HostView() {
             </div>
 
             {/* Arena Canvas / Visualizers */}
-            <div className="flex-1 rounded-3xl overflow-hidden relative flex flex-col my-4">
+            <div className="flex-1 clip-slanted rounded-none overflow-hidden relative flex flex-col my-4">
               {/* COMPETITIVE MODE */}
               {session.mode === 'COMPETITIVE' && (
                 <div className="flex-1 flex flex-col items-center justify-center">
                   {showAnswer ? (
-                    <div className="bg-green-500/10 border-2 border-green-500/40 p-10 rounded-3xl text-center max-w-2xl w-full mx-4 backdrop-blur-md shadow-2xl animate-in zoom-in-95 duration-300">
+                    <div className="bg-green-500/10 border-2 border-green-500/40 p-10 clip-slanted rounded-none text-center max-w-2xl w-full mx-4 backdrop-blur-md shadow-2xl animate-in zoom-in-95 duration-300">
                       <p className="text-green-400 font-bold uppercase tracking-widest mb-3 text-xs font-mono">
                         OFFICIAL CORRECT ANSWER
                       </p>
@@ -293,7 +293,7 @@ export default function HostView() {
 
               {/* NON-COMPETITIVE MODE */}
               {session.mode === 'NON_COMPETITIVE' && (
-                <div className="flex-1 rounded-3xl overflow-hidden border-2 border-white/10 relative bg-navy-900/30 backdrop-blur-sm">
+                <div className="flex-1 clip-slanted rounded-none overflow-hidden border-2 border-white/10 relative bg-navy-900/30 backdrop-blur-sm">
                   {activeQuestion.type === 'TEXT' ? (
                     <ResponseBoard key={activeQuestion.id} questionId={activeQuestion.id} />
                   ) : (
@@ -306,7 +306,7 @@ export default function HostView() {
 
                           return (
                             <div key={i} className="flex flex-col gap-2">
-                              <div className="w-full bg-navy-950 border border-white/10 rounded-2xl p-6 text-center shadow-xl relative overflow-hidden">
+                              <div className="w-full bg-navy-950 border border-white/10 clip-slanted rounded-none p-6 text-center shadow-xl relative overflow-hidden">
                                 <div
                                   className="absolute bottom-0 left-0 right-0 bg-cyan-500/25 transition-all duration-700 ease-out z-0"
                                   style={{ height: `${heightPercentage}%` }}
@@ -332,7 +332,7 @@ export default function HostView() {
                 {session.mode === 'COMPETITIVE' && !showAnswer && (
                   <button
                     onClick={handleReveal}
-                    className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-2xl flex items-center gap-2.5 transition-all border border-white/10 text-base"
+                    className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold clip-slanted rounded-none flex items-center gap-2.5 transition-all border border-white/10 text-base"
                   >
                     <Eye className="w-5 h-5" /> Reveal Answer
                   </button>
@@ -340,7 +340,7 @@ export default function HostView() {
               </div>
               <button
                 onClick={handleNext}
-                className="px-8 py-3.5 bg-cyan-400 hover:bg-cyan-300 text-navy-950 font-black rounded-2xl flex items-center gap-2.5 transition-all shadow-xl shadow-cyan-500/20 text-base"
+                className="px-8 py-3.5 bg-cyan-400 hover:bg-cyan-300 text-navy-950 font-black clip-slanted rounded-none flex items-center gap-2.5 transition-all shadow-xl shadow-cyan-500/20 text-base"
               >
                 {activeQuestionIndex + 1 === session.questions.length ? 'Finish Arena' : 'Next Question'}
                 <ChevronRight className="w-5 h-5" />
@@ -363,7 +363,7 @@ export default function HostView() {
             </div>
 
             {session.mode === 'COMPETITIVE' ? (
-              <div className="bg-navy-900/90 border border-white/10 rounded-3xl p-6 sm:p-8 flex-1 overflow-y-auto backdrop-blur-md shadow-2xl max-h-[550px]">
+              <div className="bg-navy-900/90 border border-white/10 clip-slanted rounded-none p-6 sm:p-8 flex-1 overflow-y-auto backdrop-blur-md shadow-2xl max-h-[550px]">
                 <h3 className="text-xl font-bold text-white mb-6 flex items-center justify-center gap-2 font-mono">
                   🏆 TOP ARENA LEADERBOARD
                 </h3>
@@ -371,14 +371,14 @@ export default function HostView() {
                   {liveStats?.leaderboard?.map((p: any, i: number) => (
                     <div
                       key={p.id}
-                      className={`flex items-center gap-4 sm:gap-6 p-4 rounded-2xl border transition-all ${
+                      className={`flex items-center gap-4 sm:gap-6 p-4 clip-slanted rounded-none border transition-all ${
                         i === 0
                           ? 'bg-yellow-500/10 border-yellow-500/40 shadow-lg shadow-yellow-500/5'
                           : 'bg-white/5 border-white/5'
                       }`}
                     >
                       <div
-                        className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-xl shrink-0 font-mono shadow-inner ${
+                        className={`w-12 h-12 clip-slanted rounded-none flex items-center justify-center font-black text-xl shrink-0 font-mono shadow-inner ${
                           i === 0
                             ? 'bg-yellow-500 text-navy-950'
                             : i === 1
@@ -414,7 +414,7 @@ export default function HostView() {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-16 bg-navy-900/90 border border-white/10 rounded-3xl backdrop-blur-md">
+              <div className="text-center py-16 bg-navy-900/90 border border-white/10 clip-slanted rounded-none backdrop-blur-md">
                 <p className="text-3xl font-bold text-white mb-2 font-mono">
                   {liveStats?.totalParticipants || 0} TOTAL PARTICIPANTS
                 </p>
@@ -425,7 +425,7 @@ export default function HostView() {
             <div className="mt-8 flex justify-center">
               <Link
                 href="/admin/dashboard"
-                className="px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-2xl flex items-center gap-2 transition-colors border border-white/10"
+                className="px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold clip-slanted rounded-none flex items-center gap-2 transition-colors border border-white/10"
               >
                 <ArrowLeft className="w-5 h-5" /> Return to Host Dashboard
               </Link>
