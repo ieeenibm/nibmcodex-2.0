@@ -75,7 +75,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     // Execute atomic transaction for response creation and participant updates
     let finalScore = scoreEarned;
     try {
-      await prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx: any) => {
         if (isCorrect && session.mode === 'COMPETITIVE') {
           const currentStreak = participant.streak ?? 0;
           const newStreak = currentStreak + 1;
