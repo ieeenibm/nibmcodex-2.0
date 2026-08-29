@@ -283,7 +283,7 @@ export default function AttendeeLivePlay() {
           <h1 className="text-3xl font-black text-white mb-2">Game Over!</h1>
           <p className="text-slate-400 mb-6">Thanks for playing with us today!</p>
 
-          {feedback && (
+          {feedback && sessionState.mode === 'COMPETITIVE' && (
             <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/10">
               <div className="bg-navy-950/80 p-4 clip-slanted rounded-none border border-white/5">
                 <span className="text-xs text-slate-400 uppercase font-bold block mb-1">Final Score</span>
@@ -403,7 +403,10 @@ export default function AttendeeLivePlay() {
           <div className="bg-navy-900/90 border border-red-500/30 clip-slanted rounded-none p-8 text-center backdrop-blur-md shadow-2xl flex flex-col items-center justify-center animate-in zoom-in-95 duration-300">
             <Clock className="w-12 h-12 text-red-400 mb-3" />
             <h3 className="text-2xl font-black text-white mb-1">Time's Up!</h3>
-            <p className="text-slate-400 text-sm">Get ready for the next round.</p>
+            <p className="text-slate-400 text-sm mb-4">Get ready for the next round.</p>
+            <div className="flex items-center justify-center gap-2 text-cyan-400 text-xs font-mono animate-pulse">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" /> WAITING FOR HOST...
+            </div>
           </div>
         ) : (
           <div className="w-full">
