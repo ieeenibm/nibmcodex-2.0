@@ -79,15 +79,15 @@ const partnersRow1: PartnerData[] = [
 
 const partnersRow2: PartnerData[] = [
   {
-    name: 'HackSL',
-    role: 'Official Digital Media Partner',
-    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/hacksl-logo',
-    bgClass: 'bg-white',
-  },
-  {
     name: 'Flux',
     role: 'Editorial & Coverage Partner',
     image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/flux-logo',
+    bgClass: 'bg-white',
+  },
+  {
+    name: 'HackSL',
+    role: 'Official Digital Media Partner',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/hacksl-logo',
     bgClass: 'bg-white',
   },
 ];
