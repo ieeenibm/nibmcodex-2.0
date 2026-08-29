@@ -63,6 +63,18 @@ const partnersRow1: PartnerData[] = [
     image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/eventframe',
     bgClass: 'bg-[#842223]',
   },
+  {
+    name: 'Dilexus',
+    role: 'Knowledge Partner',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/dilexus-logo',
+    bgClass: 'bg-white',
+  },
+  {
+    name: 'Dialog Enterprise',
+    role: 'Connectivity Partner',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/dialog-enterprise-logo',
+    bgClass: 'bg-black border-[1.5px] border-white/20',
+  },
 ];
 
 const partnersRow2: PartnerData[] = [
@@ -70,6 +82,12 @@ const partnersRow2: PartnerData[] = [
     name: 'HackSL',
     role: 'Official Digital Media Partner',
     image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/hacksl-logo',
+    bgClass: 'bg-white',
+  },
+  {
+    name: 'Flux',
+    role: 'Editorial & Coverage Partner',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/flux-logo',
     bgClass: 'bg-white',
   },
 ];
