@@ -94,20 +94,27 @@ export default function ResponseBoard({ questionId }: { questionId: string }) {
     renderRef.current = render;
     runnerRef.current = runner;
 
-    // Handle window resize
-    const handleResize = () => {
-      if (containerRef.current && renderRef.current) {
-        const newW = containerRef.current.clientWidth;
-        const newH = containerRef.current.clientHeight;
-        renderRef.current.canvas.width = newW;
-        renderRef.current.canvas.height = newH;
-        Matter.Body.setPosition(floor, { x: newW / 2, y: newH + 30 });
+    // Handle container resize
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        if (renderRef.current && floor) {
+          const newW = entry.contentRect.width;
+          const newH = entry.contentRect.height;
+          if (newW > 0 && newH > 0) {
+            renderRef.current.canvas.width = newW;
+            renderRef.current.canvas.height = newH;
+            Matter.Body.setPosition(floor, { x: newW / 2, y: newH + 30 });
+            Matter.Body.setPosition(leftWall, { x: -30, y: newH / 2 });
+            Matter.Body.setPosition(rightWall, { x: newW + 30, y: newH / 2 });
+          }
+        }
       }
-    };
-    window.addEventListener('resize', handleResize);
+    });
+
+    resizeObserver.observe(containerRef.current);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
       Matter.Render.stop(render);
       Matter.Runner.stop(runner);
       if (engineRef.current) {
