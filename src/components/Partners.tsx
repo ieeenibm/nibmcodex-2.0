@@ -73,7 +73,7 @@ const partnersRow1: PartnerData[] = [
     name: 'Dialog Enterprise',
     role: 'Connectivity Partner',
     image: '/partners/dialog-enterprise-logo.png',
-    bgClass: 'bg-black border-[1.5px] border-white/20',
+    bgClass: 'bg-white',
   },
 ];
 
@@ -83,6 +83,7 @@ const partnersRow2: PartnerData[] = [
     role: 'Editorial & Coverage Partner',
     image: '/partners/flux-logo.png',
     bgClass: 'bg-white',
+    imgClass: 'object-contain w-full h-full p-1 sm:p-2 scale-110',
   },
   {
     name: 'HackSL',
