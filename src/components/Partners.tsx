@@ -66,13 +66,13 @@ const partnersRow1: PartnerData[] = [
   {
     name: 'Dilexus',
     role: 'Knowledge Partner',
-    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/dilexus-logo',
+    image: '/partners/dilexus-logo.png',
     bgClass: 'bg-white',
   },
   {
     name: 'Dialog Enterprise',
     role: 'Connectivity Partner',
-    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/dialog-enterprise-logo',
+    image: '/partners/dialog-enterprise-logo.png',
     bgClass: 'bg-black border-[1.5px] border-white/20',
   },
 ];
@@ -81,7 +81,7 @@ const partnersRow2: PartnerData[] = [
   {
     name: 'Flux',
     role: 'Editorial & Coverage Partner',
-    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/flux-logo',
+    image: '/partners/flux-logo.png',
     bgClass: 'bg-white',
   },
   {
