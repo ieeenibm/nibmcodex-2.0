@@ -133,6 +133,22 @@ export default function HostView() {
   };
 
   const timeProgress = activeQuestion?.timeLimit ? (timeLeft / activeQuestion.timeLimit) * 100 : 100;
+  const handleEndEarly = async () => {
+    if (!confirm("Are you sure you want to end this session early?")) return;
+    await fetch(`/api/admin/sessions/${id}/state`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "ENDED" }),
+    });
+  };
+
+  const handleRestart = async () => {
+    if (!confirm("Are you sure you want to restart this session? ALL participant data and scores will be permanently deleted.")) return;
+    await fetch(`/api/admin/sessions/${id}/reset`, {
+      method: "POST",
+    });
+  };
+
 
   return (
     <div className="min-h-screen bg-navy-950 flex flex-col relative overflow-hidden select-none">
@@ -326,9 +342,9 @@ export default function HostView() {
               )}
             </div>
 
-            {/* Bottom Controls */}
+                        {/* Bottom Controls */}
             <div className="flex justify-between items-center px-4 pt-2">
-              <div>
+              <div className="flex gap-3">
                 {session.mode === 'COMPETITIVE' && !showAnswer && (
                   <button
                     onClick={handleReveal}
@@ -337,6 +353,12 @@ export default function HostView() {
                     <Eye className="w-5 h-5" /> Reveal Answer
                   </button>
                 )}
+                <button
+                  onClick={handleEndEarly}
+                  className="px-6 py-3.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold clip-slanted rounded-none flex items-center transition-all border border-red-500/30 text-sm"
+                >
+                  End Early
+                </button>
               </div>
               <button
                 onClick={handleNext}
@@ -422,13 +444,19 @@ export default function HostView() {
               </div>
             )}
 
-            <div className="mt-8 flex justify-center">
+                        <div className="mt-8 flex justify-center gap-4">
               <Link
                 href="/admin/dashboard"
                 className="px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold clip-slanted rounded-none flex items-center gap-2 transition-colors border border-white/10"
               >
                 <ArrowLeft className="w-5 h-5" /> Return to Host Dashboard
               </Link>
+              <button
+                onClick={handleRestart}
+                className="px-8 py-3.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-bold clip-slanted rounded-none flex items-center gap-2 transition-colors border border-cyan-500/30"
+              >
+                Restart Session
+              </button>
             </div>
           </div>
         )}
