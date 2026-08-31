@@ -13,19 +13,19 @@ type PartnerData = {
 const organizers: PartnerData[] = [
   {
     name: 'IEEE Student Branch of NIBM',
-    role: 'Organizer',
+    role: '',
     image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-ieeesb',
     bgClass: 'bg-white',
   },
   {
     name: 'National Institute of Business Management',
-    role: 'Organizer',
+    role: '',
     image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-nibm1',
     bgClass: 'bg-white',
   },
   {
     name: 'NIBM Computer Society',
-    role: 'Organizer',
+    role: '',
     image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/sponsor-nibmcs',
     bgClass: 'bg-white',
   }
@@ -33,7 +33,7 @@ const organizers: PartnerData[] = [
 
 const nationalPartner: PartnerData = {
   name: 'Ministry of Digital Economy',
-  role: 'Official National Partner',
+  role: '',
   image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/mode-logo',
   bgClass: 'bg-white',
 };
@@ -63,9 +63,28 @@ const partnersRow1: PartnerData[] = [
     image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/eventframe',
     bgClass: 'bg-[#842223]',
   },
+  {
+    name: 'Dilexus',
+    role: 'Knowledge Partner',
+    image: '/partners/dilexus-logo.png',
+    bgClass: 'bg-white',
+  },
+  {
+    name: 'Dialog Enterprise',
+    role: 'Connectivity Partner',
+    image: '/partners/dialog-enterprise-logo-v2.png',
+    bgClass: 'bg-white',
+  },
 ];
 
 const partnersRow2: PartnerData[] = [
+  {
+    name: 'Flux',
+    role: 'Editorial & Coverage Partner',
+    image: '/partners/flux-logo.png',
+    bgClass: 'bg-white',
+    imgClass: 'object-contain w-full h-full p-0 scale-[1.85]',
+  },
   {
     name: 'HackSL',
     role: 'Official Digital Media Partner',
@@ -83,14 +102,16 @@ function PartnerCard({ partner, idx }: { partner: PartnerData, idx: number }) {
       transition={{ delay: idx * 0.1 }}
       className="glass-panel-light px-5 py-4 md:px-6 md:py-5 clip-slanted flex flex-col items-center justify-start text-center group hover:border-cyan-400/30 transition-colors w-full max-w-[260px] flex-none"
     >
-      <div className="w-full flex flex-col items-center mb-4">
-        <div className="h-8 md:h-10 flex items-center justify-center w-full px-2">
-          <p className="text-[10px] md:text-xs text-cyan-400/80 font-mono uppercase tracking-wider text-center leading-snug">
-            {partner.role}
-          </p>
+      {partner.role && (
+        <div className="w-full flex flex-col items-center mb-4">
+          <div className="h-8 md:h-10 flex items-center justify-center w-full px-2">
+            <p className="text-[10px] md:text-xs text-cyan-400/80 font-mono uppercase tracking-wider text-center leading-snug">
+              {partner.role}
+            </p>
+          </div>
+          <div className="w-16 h-px bg-cyan-500/40 mt-2" />
         </div>
-        <div className="w-16 h-px bg-cyan-500/40 mt-2" />
-      </div>
+      )}
       <div className={`relative w-full aspect-[4/3] mb-3 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${partner.bgClass}`}>
         <Image
           src={partner.image}
