@@ -17,6 +17,7 @@ import {
   Flame,
   Clock,
   Sparkles,
+  Zap,
 } from 'lucide-react';
 
 const ResponseBoard = dynamic(() => import('./ResponseBoard'), { ssr: false });
@@ -31,17 +32,29 @@ const fetcher = async (url: string) => {
 export default function HostView() {
   const { id } = useParams();
 
-  // Slower poll for overall session state (questions array, status, activeQuestionId)
-  const { data: session } = useSWR(`/api/admin/sessions/${id}`, fetcher, { refreshInterval: 2500 });
+  // Poll for overall session state
+  const { data: session, mutate: mutateSession } = useSWR(`/api/admin/sessions/${id}`, fetcher, { refreshInterval: 1500 });
 
-  // Fast poll for live stats (participant count, response count, distributions, leaderboard)
-  const { data: liveStats } = useSWR(`/api/admin/sessions/${id}/live-stats`, fetcher, { refreshInterval: 1000 });
+  // Poll for live stats (participant count, response count, distributions, leaderboard)
+  const { data: liveStats, mutate: mutateLiveStats } = useSWR(`/api/admin/sessions/${id}/live-stats`, fetcher, { refreshInterval: 1000 });
 
   // Track "show answer" state PER question ID to prevent resets on SWR re-poll
   const [revealedQuestions, setRevealedQuestions] = useState<Set<string>>(new Set());
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [timeLeft, setTimeLeft] = useState<number>(30);
   const [displayHost, setDisplayHost] = useState<string>('nibmcodex.nibmieee.lk/play');
+
+  // Auto-advance configuration
+  const [autoAdvance, setAutoAdvance] = useState<boolean>(true);
+  const [autoAdvanceSeconds, setAutoAdvanceSeconds] = useState<number | null>(null);
+  const [serverOffset, setServerOffset] = useState<number>(0);
+
+  // Sync serverOffset from session.serverTime
+  useEffect(() => {
+    if (session?.serverTime) {
+      setServerOffset(Date.now() - new Date(session.serverTime).getTime());
+    }
+  }, [session?.serverTime]);
 
   // Generate QR code for instant join
   useEffect(() => {
@@ -71,6 +84,11 @@ export default function HostView() {
   const showAnswer = activeQuestion ? revealedQuestions.has(activeQuestion.id) : false;
   const isTimed = (activeQuestion?.timeLimit ?? 30) > 0;
 
+  // Reset auto-advance countdown when active question changes
+  useEffect(() => {
+    setAutoAdvanceSeconds(null);
+  }, [session?.activeQuestionId]);
+
   useEffect(() => {
     if (!activeQuestion || !isTimed || !session?.questionStartedAt) {
       setTimeLeft(activeQuestion?.timeLimit || 0);
@@ -79,8 +97,8 @@ export default function HostView() {
 
     const interval = setInterval(() => {
       const start = new Date(session.questionStartedAt).getTime();
-      const now = Date.now();
-      const elapsed = (now - start) / 1000;
+      const synchronizedNow = Date.now() - serverOffset;
+      const elapsed = (synchronizedNow - start) / 1000;
       const remaining = Math.max(0, (activeQuestion.timeLimit || 30) - elapsed);
       setTimeLeft(Math.ceil(remaining));
 
@@ -90,7 +108,65 @@ export default function HostView() {
     }, 250);
 
     return () => clearInterval(interval);
-  }, [activeQuestion?.id, activeQuestion?.timeLimit, isTimed, session?.questionStartedAt]);
+  }, [activeQuestion?.id, activeQuestion?.timeLimit, isTimed, session?.questionStartedAt, serverOffset]);
+
+  const handleReveal = () => {
+    if (activeQuestion) {
+      setRevealedQuestions((prev) => new Set([...prev, activeQuestion.id]));
+    }
+  };
+
+  const handleNext = async () => {
+    setAutoAdvanceSeconds(null);
+    const nextIdx = activeQuestionIndex + 1;
+    if (nextIdx >= session.questions.length) {
+      await fetch(`/api/admin/sessions/${id}/state`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'ENDED' }),
+      });
+    } else {
+      await fetch(`/api/admin/sessions/${id}/state`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activeQuestionId: session.questions[nextIdx]?.id }),
+      });
+    }
+    await mutateSession();
+    await mutateLiveStats();
+  };
+
+  // Trigger auto-advance when timer ends
+  useEffect(() => {
+    if (!activeQuestion || !isTimed || timeLeft > 0 || !autoAdvance) return;
+    if (autoAdvanceSeconds !== null) return; // already in countdown
+
+    if (session?.mode === 'COMPETITIVE') {
+      // Reveal answer first, then countdown 5s before advancing
+      handleReveal();
+      setAutoAdvanceSeconds(5);
+    } else {
+      // Non-competitive (Polls/Text): give 3s grace before advancing
+      setAutoAdvanceSeconds(3);
+    }
+  }, [timeLeft, isTimed, autoAdvance, activeQuestion?.id, session?.mode, autoAdvanceSeconds]);
+
+  // Handle countdown tick
+  useEffect(() => {
+    if (autoAdvanceSeconds === null) return;
+
+    if (autoAdvanceSeconds <= 0) {
+      setAutoAdvanceSeconds(null);
+      handleNext();
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setAutoAdvanceSeconds((prev) => (prev !== null ? prev - 1 : null));
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [autoAdvanceSeconds]);
 
   if (!session) {
     return (
@@ -107,29 +183,8 @@ export default function HostView() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'ACTIVE', activeQuestionId: session.questions[0]?.id }),
     });
-  };
-
-  const handleNext = async () => {
-    const nextIdx = activeQuestionIndex + 1;
-    if (nextIdx >= session.questions.length) {
-      await fetch(`/api/admin/sessions/${id}/state`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'ENDED' }),
-      });
-    } else {
-      await fetch(`/api/admin/sessions/${id}/state`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ activeQuestionId: session.questions[nextIdx]?.id }),
-      });
-    }
-  };
-
-  const handleReveal = () => {
-    if (activeQuestion) {
-      setRevealedQuestions((prev) => new Set([...prev, activeQuestion.id]));
-    }
+    await mutateSession();
+    await mutateLiveStats();
   };
 
   const timeProgress = activeQuestion?.timeLimit ? (timeLeft / activeQuestion.timeLimit) * 100 : 100;
@@ -140,6 +195,8 @@ export default function HostView() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "ENDED" }),
     });
+    await mutateSession();
+    await mutateLiveStats();
   };
 
   const handleRestart = async () => {
@@ -147,6 +204,8 @@ export default function HostView() {
     await fetch(`/api/admin/sessions/${id}/reset`, {
       method: "POST",
     });
+    await mutateSession();
+    await mutateLiveStats();
   };
 
 
@@ -237,17 +296,50 @@ export default function HostView() {
                   QUESTION {activeQuestionIndex + 1} OF {session.questions.length} • {activeQuestion.type}
                 </span>
 
-                {isTimed ? (
-                  <div className="flex items-center gap-2 bg-navy-900 px-3 py-1 clip-slanted rounded-none border border-white/10 font-mono text-sm font-bold text-cyan-400">
-                    <Clock className="w-4 h-4" />
-                    <span>{timeLeft}s</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-1.5 bg-navy-900 px-3 py-1 clip-slanted rounded-none border border-white/10 font-mono text-xs font-bold text-slate-400">
-                    <span>♾️ Untimed</span>
-                  </div>
-                )}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setAutoAdvance(!autoAdvance)}
+                    className={`flex items-center gap-1.5 px-3 py-1 clip-slanted rounded-none border font-mono text-xs font-bold transition-colors ${
+                      autoAdvance
+                        ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300'
+                        : 'bg-white/5 border-white/10 text-slate-500 hover:text-slate-400'
+                    }`}
+                    title={autoAdvance ? 'Auto-Advance is ON (timer end automatically advances)' : 'Auto-Advance is OFF (manual control)'}
+                  >
+                    <Zap className="w-3.5 h-3.5" />
+                    <span>Auto-Advance {autoAdvance ? 'ON' : 'OFF'}</span>
+                  </button>
+
+                  {isTimed ? (
+                    <div className="flex items-center gap-2 bg-navy-900 px-3 py-1 clip-slanted rounded-none border border-white/10 font-mono text-sm font-bold text-cyan-400">
+                      <Clock className="w-4 h-4" />
+                      <span>{timeLeft}s</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 bg-navy-900 px-3 py-1 clip-slanted rounded-none border border-white/10 font-mono text-xs font-bold text-slate-400">
+                      <span>♾️ Untimed</span>
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {/* Auto-Advance Countdown Banner */}
+              {autoAdvanceSeconds !== null && (
+                <div className="max-w-md mx-auto mb-4 bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 px-4 py-2 clip-slanted rounded-none flex items-center justify-between font-mono text-xs font-bold animate-pulse shadow-lg">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-cyan-400" />
+                    <span>
+                      {session?.mode === 'COMPETITIVE' ? 'Next question in' : 'Moving to next round in'} {autoAdvanceSeconds}s...
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => { setAutoAdvanceSeconds(null); setAutoAdvance(false); }}
+                    className="px-2.5 py-0.5 bg-white/10 hover:bg-white/20 text-white rounded text-[10px] font-sans font-medium"
+                  >
+                    Pause
+                  </button>
+                </div>
+              )}
 
               {/* Progress timer bar - only if isTimed */}
               {isTimed && (

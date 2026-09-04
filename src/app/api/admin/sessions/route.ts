@@ -46,15 +46,23 @@ export async function POST(req: Request) {
     // If master admin creates a session, we need to map it to a user. 
     // Since master admin isn't in DB, let's create a placeholder host if needed.
     if (userId === 'master-admin-id') {
-      let masterUser = await prisma.user.findUnique({ where: { username: 'admin' } });
+      const adminUsername = (process.env.ADMIN_USERNAME || process.env.ADMIN_EMAIL || 'admin').trim();
+      let masterUser = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { role: 'ADMIN' },
+            { username: adminUsername },
+          ],
+        },
+      });
       if (!masterUser) {
         masterUser = await prisma.user.create({
           data: {
-            username: 'admin',
+            username: adminUsername,
             passwordHash: 'none',
             role: 'ADMIN',
             mustChangePass: false,
-          }
+          },
         });
       }
       actualHostId = masterUser.id;

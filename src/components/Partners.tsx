@@ -31,10 +31,25 @@ const organizers: PartnerData[] = [
   }
 ];
 
-const nationalPartner: PartnerData = {
-  name: 'Ministry of Digital Economy',
-  role: '',
-  image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/mode-logo',
+const nationalPartners: PartnerData[] = [
+  {
+    name: 'Ministry of Digital Economy',
+    role: '',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/mode-logo',
+    bgClass: 'bg-white',
+  },
+  {
+    name: 'SLASSCOM',
+    role: '',
+    image: '/partners/slasscom-logo.png',
+    bgClass: 'bg-white',
+  },
+];
+
+const connectivityPartner: PartnerData = {
+  name: 'Dialog Enterprise',
+  role: 'Official Connectivity Partner',
+  image: '/partners/dialog-enterprise-logo-v2.png',
   bgClass: 'bg-white',
 };
 
@@ -70,9 +85,9 @@ const partnersRow1: PartnerData[] = [
     bgClass: 'bg-white',
   },
   {
-    name: 'Dialog Enterprise',
-    role: 'Connectivity Partner',
-    image: '/partners/dialog-enterprise-logo-v2.png',
+    name: '99x',
+    role: 'Technology Partner',
+    image: '/partners/99x-logo.png',
     bgClass: 'bg-white',
   },
 ];
@@ -161,12 +176,22 @@ export default function Partners() {
           ))}
         </div>
 
-        {/* National Partner */}
+        {/* National Partners */}
         <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-10">
-          National Partner
+          National Partners
         </h3>
         <div className="flex flex-wrap justify-center gap-6 md:gap-8 max-w-5xl mx-auto items-stretch mb-24">
-          <PartnerCard key={nationalPartner.name} partner={nationalPartner} idx={0} />
+          {nationalPartners.map((partner, idx) => (
+            <PartnerCard key={partner.name} partner={partner} idx={idx} />
+          ))}
+        </div>
+
+        {/* Connectivity Partner */}
+        <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-10">
+          Connectivity Partner
+        </h3>
+        <div className="flex flex-wrap justify-center gap-6 md:gap-8 max-w-5xl mx-auto items-stretch mb-24">
+          <PartnerCard key={connectivityPartner.name} partner={connectivityPartner} idx={0} />
         </div>
 
         {/* Strategic & Community Partners */}
