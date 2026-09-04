@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { CldImage } from 'next-cloudinary';
+import { CLOUDINARY_CONFIG } from '@/lib/cloudinary';
 
 interface MemoriesGalleryProps {
   images: string[];
@@ -109,6 +110,7 @@ export default function MemoriesGallery({ images, eventTitle, onHoverImage, isOp
                     src={src}
                     alt={`${eventTitle} memory ${idx + 1}`}
                     fill
+                    config={CLOUDINARY_CONFIG}
                     className="text-transparent object-cover transition-transform duration-500 group-hover/img:scale-110"
                     sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
                   />
@@ -181,6 +183,7 @@ export default function MemoriesGallery({ images, eventTitle, onHoverImage, isOp
                     alt={`${eventTitle} memory ${lightboxIndex + 1}`}
                     width={1920}
                     height={1080}
+                    config={CLOUDINARY_CONFIG}
                     className="max-w-full max-h-[85vh] w-auto h-auto object-contain rounded-lg shadow-2xl"
                     priority
                   />
