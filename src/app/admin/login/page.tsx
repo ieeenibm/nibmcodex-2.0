@@ -66,6 +66,8 @@ export default function AdminLogin() {
                 <input
                   required
                   type="text"
+                  autoComplete="username"
+                  placeholder="admin or host username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   className="appearance-none block w-full px-3 py-2 border border-white/10 rounded-md shadow-sm placeholder-slate-500 bg-navy-950 text-white focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"
@@ -79,6 +81,8 @@ export default function AdminLogin() {
                 <input
                   required
                   type="password"
+                  autoComplete="current-password"
+                  placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="appearance-none block w-full px-3 py-2 border border-white/10 rounded-md shadow-sm placeholder-slate-500 bg-navy-950 text-white focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 sm:text-sm"

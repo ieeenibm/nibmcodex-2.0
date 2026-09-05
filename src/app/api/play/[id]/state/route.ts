@@ -42,6 +42,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       status: session.status,
       activeQuestion,
       questionStartedAt: session.questionStartedAt,
+      serverTime: new Date().toISOString(),
     });
   } catch (error) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
