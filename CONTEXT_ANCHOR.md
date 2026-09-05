@@ -1,4 +1,4 @@
-﻿# NIBM CodeX 2.0 — Context Anchor & Development Handover
+# NIBM CodeX 2.0 — Context Anchor & Development Handover
 
 > **Purpose**: This file serves as an active context anchor for any developer or AI assistant picking up work on this repository across different machines. It summarizes the architecture, active branch, configuration, solved issues, and outstanding tasks.
 
@@ -8,7 +8,7 @@
 
 ```powershell
 # 1. Clone & checkout active feature branch
-git clone git@github.com:chandisarandeni/nibmcodex-2.0.git
+git clone git@github.com:supunhg/nibmcodex-2.0.git
 cd nibmcodex-2.0
 git checkout feat/general-updates
 
@@ -32,7 +32,7 @@ npm run dev
 
 - **Active Development Branch**: `feat/general-updates`
 - **Main Branch**: `main`
-- **Remote Origin**: `git@github.com:chandisarandeni/nibmcodex-2.0.git`
+- **Remote Origin**: `git@github.com:supunhg/nibmcodex-2.0.git` (redirected from `chandisarandeni/nibmcodex-2.0`)
 - **Important Windows / PowerShell Notes**:
   - Windows PowerShell does **not** support `&&`. Always use `;` to chain commands (e.g. `git add . ; git commit -m "..."`).
   - If Git SSH gives `Could not resolve hostname github.com: Name or service not known`, simply retry the push/pull command 2–3 times; it succeeds on retry.
