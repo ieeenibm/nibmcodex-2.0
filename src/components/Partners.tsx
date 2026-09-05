@@ -31,20 +31,19 @@ const organizers: PartnerData[] = [
   }
 ];
 
-const nationalPartners: PartnerData[] = [
-  {
-    name: 'Ministry of Digital Economy',
-    role: '',
-    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/mode-logo',
-    bgClass: 'bg-white',
-  },
-  {
-    name: 'SLASSCOM',
-    role: '',
-    image: '/partners/slasscom-logo.png',
-    bgClass: 'bg-white',
-  },
-];
+const nationalPartner: PartnerData = {
+  name: 'Ministry of Digital Economy',
+  role: '',
+  image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/mode-logo',
+  bgClass: 'bg-white',
+};
+
+const ecosystemPartner: PartnerData = {
+  name: 'SLASSCOM',
+  role: '',
+  image: '/partners/slasscom-logo.png',
+  bgClass: 'bg-white',
+};
 
 const connectivityPartner: PartnerData = {
   name: 'Dialog Enterprise',
@@ -52,6 +51,21 @@ const connectivityPartner: PartnerData = {
   image: '/partners/dialog-enterprise-logo-v2.png',
   bgClass: 'bg-white',
 };
+
+const knowledgePartners: PartnerData[] = [
+  {
+    name: 'Dilexus',
+    role: '',
+    image: '/partners/dilexus-logo.png',
+    bgClass: 'bg-white',
+  },
+  {
+    name: '99x',
+    role: '',
+    image: '/partners/99x-logo.png',
+    bgClass: 'bg-white',
+  },
+];
 
 const partnersRow1: PartnerData[] = [
   {
@@ -77,18 +91,6 @@ const partnersRow1: PartnerData[] = [
     role: 'Event content production partner',
     image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/eventframe',
     bgClass: 'bg-[#842223]',
-  },
-  {
-    name: 'Dilexus',
-    role: 'Knowledge Partner',
-    image: '/partners/dilexus-logo.png',
-    bgClass: 'bg-white',
-  },
-  {
-    name: '99x',
-    role: 'Technology Partner',
-    image: '/partners/99x-logo.png',
-    bgClass: 'bg-white',
   },
 ];
 
@@ -176,14 +178,21 @@ export default function Partners() {
           ))}
         </div>
 
-        {/* National Partners */}
-        <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-10">
-          National Partners
-        </h3>
-        <div className="flex flex-wrap justify-center gap-6 md:gap-8 max-w-5xl mx-auto items-stretch mb-24">
-          {nationalPartners.map((partner, idx) => (
-            <PartnerCard key={partner.name} partner={partner} idx={idx} />
-          ))}
+        {/* National Partner & Ecosystem Partner (Side by Side) */}
+        <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-12 md:gap-16 max-w-4xl mx-auto mb-24">
+          <div className="flex flex-col items-center w-full max-w-[260px]">
+            <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-8 min-h-[1.5rem] flex items-center justify-center">
+              National Partner
+            </h3>
+            <PartnerCard partner={nationalPartner} idx={0} />
+          </div>
+
+          <div className="flex flex-col items-center w-full max-w-[260px]">
+            <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-8 min-h-[1.5rem] flex items-center justify-center">
+              Ecosystem Partner
+            </h3>
+            <PartnerCard partner={ecosystemPartner} idx={1} />
+          </div>
         </div>
 
         {/* Connectivity Partner */}
@@ -192,6 +201,16 @@ export default function Partners() {
         </h3>
         <div className="flex flex-wrap justify-center gap-6 md:gap-8 max-w-5xl mx-auto items-stretch mb-24">
           <PartnerCard key={connectivityPartner.name} partner={connectivityPartner} idx={0} />
+        </div>
+
+        {/* Knowledge Partners */}
+        <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-10">
+          Knowledge Partners
+        </h3>
+        <div className="flex flex-wrap justify-center gap-6 md:gap-8 max-w-5xl mx-auto items-stretch mb-24">
+          {knowledgePartners.map((partner, idx) => (
+            <PartnerCard key={partner.name} partner={partner} idx={idx} />
+          ))}
         </div>
 
         {/* Strategic & Community Partners */}

@@ -39,19 +39,23 @@ npm run dev
 
 ---
 
-## 3. Environment Variables Reference (`.env.local`)
+## 3. Environment Variables Reference (`.env.local` / `.env`)
 
-Create a `.env.local` file at the root:
+Create `.env` and `.env.local` at the root:
 
 ```env
 # Cloudinary (Cloud Name for all media, gallery, and committee assets)
 NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="jwuioa0d"
 
-# NeonDB PostgreSQL Connection String
-DATABASE_URL="postgresql://neondb_owner:npg_bu8WimPV7hze@ep-crimson-surf-ay2ubls5-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+# Local Development NeonDB PostgreSQL Connection String (30-day retention dev branch)
+DATABASE_URL="postgresql://neondb_owner:npg_uGF9Pgl3pKDc@ep-lucky-thunder-a5cco6tn-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+
+# Official Production NeonDB PostgreSQL Connection String (Used in Vercel Project Settings)
+# PRODUCTION_DATABASE_URL="postgresql://neondb_owner:npg_uGF9Pgl3pKDc@ep-aged-unit-a5caemwg-pooler.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+# Linked Neon Project ID: bitter-water-49125455
 
 # JWT Secret for Pulse Mini Admin/Host Auth Cookies
-JWT_SECRET="your-super-secret-jwt-key"
+JWT_SECRET="nibmcodex-pulse-mini-secret-jwt-key-2026"
 
 # Pulse Mini Master Admin Credentials (supports username or email)
 ADMIN_USERNAME="admin"
@@ -98,9 +102,10 @@ ADMIN_PASSWORD="codex2026"
 
 ### C. Partnership Logos & Branding
 - **Component**: `src/components/Partners.tsx`
-  - Ministry and SLASSCOM side by side.
-  - Dialog positioned right below national partners.
-  - Dilexus and 99x side by side.
+  - Ministry of Digital Economy (National Partner) and SLASSCOM (Ecosystem Partner) side by side with individual headings.
+  - Dialog positioned right below as Connectivity Partner.
+  - Dilexus and 99x side by side under dedicated "Knowledge Partners" section right after Dialog (without individual card titles).
+  - Strategic & Community Partners (LSIG, Gavel Club, AZEA, EventFrame) follow after Knowledge Partners.
 
 ---
 
@@ -123,5 +128,8 @@ ADMIN_PASSWORD="codex2026"
 - [x] Ministry + SLASSCOM and Dilexus + 99x updated logo layout.
 - [x] Cloudinary missing cloud name runtime error resolved with permanent fallbacks.
 - [x] Dynamic LAN origin authorization in `next.config.ts`.
+- [x] Migrated database to official Neon project (`bitter-water-49125455`), linked production and synced schema on both dev and prod branches.
+- [x] Neon agent tooling and Vercel AI plugin configured.
+- [ ] Complete DNS cutover for `nibmcodex.nibmieee.lk` from personal to official Vercel account.
 - [ ] Final end-to-end rehearsal of Pulse Mini live question timer switchover and zero-latency SSE connection under load.
 - [ ] Prepare merge request from `feat/general-updates` into `main` before deployment.
