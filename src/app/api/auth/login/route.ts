@@ -4,9 +4,14 @@ import bcrypt from 'bcryptjs';
 import { signToken } from '@/lib/auth';
 import { cookies } from 'next/headers';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
   try {
-    const { username, password } = await req.json();
+    const body = await req.json();
+    const rawUser = body.username || body.email || '';
+    const username = rawUser.toString().trim();
+    const password = (body.password || '').toString();
 
     if (!username || !password) {
       return NextResponse.json({ error: 'Username and password required' }, { status: 400 });
@@ -15,19 +20,34 @@ export async function POST(req: Request) {
     let payload: any = null;
 
     // 1. Check Master Admin from ENV
-    const masterUser = process.env.ADMIN_USERNAME || 'admin';
-    const masterPass = process.env.ADMIN_PASSWORD || 'codex2026';
+    // Accepts either ADMIN_USERNAME or ADMIN_EMAIL (or defaults to 'admin' / 'codex2026')
+    const configuredUser = (process.env.ADMIN_USERNAME || '').trim();
+    const configuredEmail = (process.env.ADMIN_EMAIL || '').trim();
+    const configuredPass = (process.env.ADMIN_PASSWORD || 'codex2026').trim();
 
-    if (username === masterUser && password === masterPass) {
+    const inputLower = username.toLowerCase();
+    const isMasterUser =
+      (configuredUser && inputLower === configuredUser.toLowerCase()) ||
+      (configuredEmail && inputLower === configuredEmail.toLowerCase()) ||
+      (!configuredUser && !configuredEmail && inputLower === 'admin');
+
+    if (isMasterUser && password === configuredPass) {
       payload = {
         id: 'master-admin-id',
-        username,
+        username: configuredUser || configuredEmail || 'admin',
         role: 'ADMIN',
         mustChangePass: false,
       };
     } else {
-      // 2. Check Database for Host users
-      const dbUser = await prisma.user.findUnique({ where: { username } });
+      // 2. Check Database for Host users (case-insensitive)
+      const dbUser = await prisma.user.findFirst({
+        where: {
+          username: {
+            equals: username,
+            mode: 'insensitive',
+          },
+        },
+      });
       if (!dbUser) {
         return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
       }

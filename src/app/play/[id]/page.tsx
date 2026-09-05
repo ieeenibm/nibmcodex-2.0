@@ -74,6 +74,8 @@ export default function AttendeeLivePlay() {
     };
   }, []);
 
+  const [serverOffset, setServerOffset] = useState<number>(0);
+
   // SSE Connection setup
   useEffect(() => {
     if (!id) return;
@@ -91,6 +93,10 @@ export default function AttendeeLivePlay() {
           const data = JSON.parse(event.data);
           if (data && !data.error) {
             setSseState(data);
+            setSseConnected(true);
+            if (data.serverTime) {
+              setServerOffset(Date.now() - new Date(data.serverTime).getTime());
+            }
           }
         } catch (e) {
           console.error('SSE JSON parse error', e);
@@ -109,8 +115,15 @@ export default function AttendeeLivePlay() {
     };
   }, [id]);
 
-  // Merge state from SSE or SWR
-  const sessionState = sseConnected && sseState ? sseState : swrState;
+  // Sync serverOffset from SWR poll as well
+  useEffect(() => {
+    if (swrState?.serverTime) {
+      setServerOffset(Date.now() - new Date(swrState.serverTime).getTime());
+    }
+  }, [swrState?.serverTime]);
+
+  // Keep latest available state between SSE and SWR
+  const sessionState = sseState || swrState;
 
   useEffect(() => {
     const incomingQ = sessionState?.activeQuestion;
@@ -118,7 +131,13 @@ export default function AttendeeLivePlay() {
       if (!incomingQ.unchanged) {
         setActiveQuestion((prev: any) => {
           if (prev?.id === incomingQ.id && prev?.text === incomingQ.text) return prev;
+          // New question arrived: reset answer input, submission lock and feedback
           setAnswerText('');
+          setSubmittedQuestionId(null);
+          setFeedback(null);
+          if (participantId && incomingQ.id) {
+            fetchFeedback(incomingQ.id);
+          }
           return incomingQ;
         });
       }
@@ -129,11 +148,11 @@ export default function AttendeeLivePlay() {
     if (sessionState?.questionStartedAt !== undefined) {
       setQuestionStartedAt((prev) => (prev === sessionState?.questionStartedAt ? prev : sessionState.questionStartedAt));
     }
-  }, [sessionState?.status, sessionState?.activeQuestion?.id, sessionState?.activeQuestion?.unchanged, sessionState?.questionStartedAt]);
+  }, [sessionState?.status, sessionState?.activeQuestion?.id, sessionState?.activeQuestion?.unchanged, sessionState?.questionStartedAt, participantId]);
 
   const isTimed = (activeQuestion?.timeLimit ?? 30) > 0;
 
-  // Timer countdown loop
+  // Timer countdown loop with server time clock-skew compensation
   useEffect(() => {
     if (!activeQuestion || !isTimed || !questionStartedAt) {
       setTimeLeft(activeQuestion?.timeLimit || 0);
@@ -142,8 +161,8 @@ export default function AttendeeLivePlay() {
 
     const interval = setInterval(() => {
       const start = new Date(questionStartedAt).getTime();
-      const now = Date.now();
-      const elapsed = (now - start) / 1000;
+      const synchronizedNow = Date.now() - serverOffset;
+      const elapsed = (synchronizedNow - start) / 1000;
       const remaining = Math.max(0, (activeQuestion.timeLimit || 30) - elapsed);
       setTimeLeft(Math.ceil(remaining));
 
@@ -153,7 +172,7 @@ export default function AttendeeLivePlay() {
     }, 250);
 
     return () => clearInterval(interval);
-  }, [activeQuestion?.id, activeQuestion?.timeLimit, isTimed, questionStartedAt]);
+  }, [activeQuestion?.id, activeQuestion?.timeLimit, isTimed, questionStartedAt, serverOffset]);
 
   // Fetch feedback when submitting or when question changes
   const fetchFeedback = async (qId: string) => {

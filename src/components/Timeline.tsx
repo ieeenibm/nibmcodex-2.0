@@ -7,6 +7,7 @@ import MemoriesGallery from './ui/MemoriesGallery';
 import Link from 'next/link';
 import Image from 'next/image';
 import { CldImage } from 'next-cloudinary';
+import { CLOUDINARY_CONFIG } from '@/lib/cloudinary';
 
 export default function Timeline() {
   const containerRef = useRef<HTMLElement>(null);
@@ -303,7 +304,7 @@ export default function Timeline() {
                           <div className="relative w-full h-full rounded-2xl overflow-hidden glass-panel-light shadow-[0_0_30px_rgba(34,211,238,0.15)] p-2">
                             <div className="relative w-full h-full rounded-xl overflow-hidden bg-navy-950/50">
                                <div className="absolute inset-0 bg-slate-800/80 overflow-hidden pointer-events-none"><div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" /></div>
-                               <CldImage src={hoveredPreview.src} fill className="text-transparent object-cover" alt="Memory preview" sizes="(max-width: 768px) 100vw, 50vw" />
+                               <CldImage src={hoveredPreview.src} fill config={CLOUDINARY_CONFIG} className="text-transparent object-cover" alt="Memory preview" sizes="(max-width: 768px) 100vw, 50vw" />
                                <div className="absolute inset-0 border border-cyan-400/20 rounded-xl" />
                             </div>
                           </div>

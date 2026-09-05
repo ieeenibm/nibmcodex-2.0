@@ -29,6 +29,7 @@ async function getSessionState(sessionId: string) {
     mode: session.mode,
     activeQuestion,
     questionStartedAt: session.questionStartedAt?.toISOString() ?? null,
+    serverTime: new Date().toISOString(),
   };
 }
 
@@ -46,6 +47,14 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         }
       };
 
+      const sendPing = () => {
+        try {
+          controller.enqueue(encoder.encode(`: ping\n\n`));
+        } catch {
+          // Closed
+        }
+      };
+
       // Always send current state immediately on connect
       const initial = await getSessionState(sessionId);
       if (!initial) {
@@ -60,29 +69,31 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         return;
       }
 
-      // Poll DB every 600ms and push only when state changes
-      let lastKey = `${initial.status}:${initial.activeQuestion?.id ?? 'null'}`;
-      const MAX_TICKS = 25; // ~15s — EventSource auto-reconnects after close
+      // Track status, activeQuestion id, and startedAt timestamp
+      let lastKey = `${initial.status}:${initial.activeQuestion?.id ?? 'null'}:${initial.questionStartedAt ?? 'null'}`;
+      const MAX_TICKS = 30; // ~15s lifetime before clean reconnect
 
       for (let tick = 0; tick < MAX_TICKS; tick++) {
-        await new Promise<void>(r => setTimeout(r, 600));
+        await new Promise<void>(r => setTimeout(r, 500));
 
         const state = await getSessionState(sessionId);
         if (!state) break;
 
-        const key = `${state.status}:${state.activeQuestion?.id ?? 'null'}`;
+        const key = `${state.status}:${state.activeQuestion?.id ?? 'null'}:${state.questionStartedAt ?? 'null'}`;
         if (key !== lastKey) {
           lastKey = key;
           send(state);
+        } else if (tick % 10 === 0) {
+          sendPing();
         }
 
         if (state.status === 'ENDED') break;
       }
 
-      controller.close(); // EventSource will auto-reconnect
+      controller.close(); // Browser EventSource will cleanly reconnect
     },
     cancel() {
-      // Client disconnected — loop will drain and exit naturally
+      // Client disconnected
     },
   });
 

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { CldImage, CldVideoPlayer } from 'next-cloudinary';
 import 'next-cloudinary/dist/cld-video-player.css';
 import { PlayCircle, LayoutGrid, Layers } from 'lucide-react';
+import { CLOUDINARY_CONFIG } from '@/lib/cloudinary';
 
 type EventGallery = {
   id: string;
@@ -246,6 +247,7 @@ export default function GalleryHub() {
                     src={realId}
                     alt={`Gallery image ${index + 1}`}
                     fill
+                    config={CLOUDINARY_CONFIG}
                     priority={index < 4}
                     className="text-transparent object-cover transition-transform duration-500 group-hover:scale-110 z-10"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -319,6 +321,7 @@ export default function GalleryHub() {
                     alt="Enlarged gallery image"
                     width={1920}
                     height={1080}
+                    config={CLOUDINARY_CONFIG}
                     className="max-w-full max-h-[85vh] w-auto h-auto object-contain rounded-lg shadow-2xl"
                     priority
                   />
