@@ -11,13 +11,18 @@ export async function GET(req: Request) {
 
   try {
     const { searchParams } = new URL(req.url);
+    const sessionId = searchParams.get('sessionId');
+    if (!sessionId) {
+      return NextResponse.json({ error: 'sessionId parameter is required' }, { status: 400 });
+    }
+
     const clientId = searchParams.get('clientId') || `user-${Math.random().toString(36).substring(2, 9)}`;
 
     const client = new Ably.Rest(apiKey);
     const tokenRequestData = await client.auth.createTokenRequest({
       clientId,
       capability: {
-        'session:*': ['subscribe', 'presence'],
+        [`session:${sessionId}`]: ['subscribe', 'presence'],
       },
     });
 

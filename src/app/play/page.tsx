@@ -96,7 +96,7 @@ function PlayForm() {
             <button
               type="submit"
               disabled={loading || !name.trim() || !code.trim()}
-              className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-2xl shadow-xl shadow-cyan-500/20 text-lg font-black text-navy-950 bg-cyan-400 hover:bg-cyan-300 active:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-40 transition-all transform active:scale-98 cursor-pointer"
+              className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-2xl shadow-xl shadow-cyan-500/20 text-lg font-black text-navy-950 bg-cyan-400 hover:bg-cyan-300 active:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-40 disabled:cursor-not-allowed enabled:cursor-pointer transition-all transform active:scale-98"
             >
               {loading ? (
                 <>

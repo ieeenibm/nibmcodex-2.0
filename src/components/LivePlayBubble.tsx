@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Gamepad2, Sparkles, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
-
-const PULSE_MINI_UNLOCK_DATE = new Date('2026-09-11T00:00:00+05:30');
+import { PULSE_MINI_UNLOCK_DATE } from '@/components/PulseCountdownOverlay';
 
 export default function LivePlayBubble() {
   const [mounted, setMounted] = useState(false);

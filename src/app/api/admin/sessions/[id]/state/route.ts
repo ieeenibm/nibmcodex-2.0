@@ -11,7 +11,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     // Verify session ownership
-    const session = await prisma.session.findUnique({ where: { id: sessionId }, select: { hostId: true } });
+    const session = await prisma.session.findUnique({
+      where: { id: sessionId },
+      select: { hostId: true, status: true },
+    });
     if (!session) return NextResponse.json({ error: 'Not found' }, { status: 404 });
     if (role !== 'ADMIN' && session.hostId !== userId) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
@@ -20,10 +23,23 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const body = await req.json();
     const dataToUpdate: Record<string, unknown> = {};
 
-    // Validate status transitions
-    const validStatuses = ['DRAFT', 'ACTIVE', 'ENDED'];
-    if (body.status && validStatuses.includes(body.status)) {
-      dataToUpdate.status = body.status;
+    // Validate status transitions using an explicit finite state machine
+    if (body.status !== undefined) {
+      if (body.status !== session.status) {
+        const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+          DRAFT: ['ACTIVE'],
+          ACTIVE: ['ENDED'],
+          ENDED: ['DRAFT'],
+        };
+        const allowed = ALLOWED_TRANSITIONS[session.status] || [];
+        if (!allowed.includes(body.status)) {
+          return NextResponse.json(
+            { error: `Invalid status transition from ${session.status} to ${body.status}` },
+            { status: 400 }
+          );
+        }
+        dataToUpdate.status = body.status;
+      }
     }
 
     if (body.activeQuestionId !== undefined) {

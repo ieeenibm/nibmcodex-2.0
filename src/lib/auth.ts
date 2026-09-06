@@ -25,10 +25,24 @@ export async function signToken(payload: Record<string, unknown>) {
     .sign(secret);
 }
 
+function isAuthPayload(payload: unknown): payload is AuthPayload {
+  if (typeof payload !== 'object' || payload === null) return false;
+  const p = payload as Record<string, unknown>;
+  return (
+    typeof p.id === 'string' &&
+    typeof p.username === 'string' &&
+    (p.role === 'ADMIN' || p.role === 'HOST') &&
+    typeof p.mustChangePass === 'boolean'
+  );
+}
+
 export async function verifyToken(token: string): Promise<AuthPayload | null> {
   try {
     const { payload } = await jwtVerify(token, secret);
-    return payload as AuthPayload;
+    if (!isAuthPayload(payload)) {
+      return null;
+    }
+    return payload;
   } catch {
     return null;
   }

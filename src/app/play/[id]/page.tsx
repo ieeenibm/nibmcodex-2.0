@@ -119,8 +119,10 @@ export default function AttendeeLivePlay() {
 
     const startAbly = async () => {
       try {
+        const encodedClient = encodeURIComponent(participantId || 'anon');
+        const encodedSession = encodeURIComponent(id as string);
         ablyClient = new Ably.Realtime({
-          authUrl: `/api/ably/auth?clientId=${participantId || 'anon'}`,
+          authUrl: `/api/ably/auth?clientId=${encodedClient}&sessionId=${encodedSession}`,
           autoConnect: true,
         });
 
