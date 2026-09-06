@@ -4,6 +4,8 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Gamepad2, Loader2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
+import { AnimatePresence } from 'framer-motion';
+import PulseCountdownOverlay, { PULSE_MINI_UNLOCK_DATE } from '@/components/PulseCountdownOverlay';
 
 function PlayForm() {
   const router = useRouter();
@@ -94,7 +96,7 @@ function PlayForm() {
             <button
               type="submit"
               disabled={loading || !name.trim() || !code.trim()}
-              className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-2xl shadow-xl shadow-cyan-500/20 text-lg font-black text-navy-950 bg-cyan-400 hover:bg-cyan-300 active:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-40 transition-all transform active:scale-98"
+              className="w-full flex justify-center items-center gap-2 py-4 px-4 border border-transparent rounded-2xl shadow-xl shadow-cyan-500/20 text-lg font-black text-navy-950 bg-cyan-400 hover:bg-cyan-300 active:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 disabled:opacity-40 transition-all transform active:scale-98 cursor-pointer"
             >
               {loading ? (
                 <>
@@ -115,42 +117,71 @@ function PlayForm() {
   );
 }
 
-export default function PlayPage() {
-  return (
-    <main className="min-h-screen bg-navy-950 flex flex-col justify-between py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
-      <div className="absolute top-6 left-6 z-10">
-        <Link
-          href="/"
-          className="text-slate-400 hover:text-cyan-300 font-bold font-mono tracking-tight text-xs flex items-center gap-1.5 transition-colors"
-        >
-          &larr; BACK TO NIBMCODEX
-        </Link>
-      </div>
+function PlayContent() {
+  const searchParams = useSearchParams();
+  const isPreview = searchParams.get('preview') === 'true' || searchParams.get('unlock') === 'true';
+  const [isUnlocked, setIsUnlocked] = useState(false);
 
-      <div className="my-auto">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center">
-          <div className="inline-flex p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl mb-4">
-            <Gamepad2 className="w-10 h-10 text-cyan-400" />
-          </div>
-          <h1 className="text-4xl font-black text-white tracking-tight">Pulse Mini</h1>
-          <p className="text-slate-400 text-sm mt-1">Live interactive arena</p>
+  useEffect(() => {
+    if (isPreview || Date.now() >= PULSE_MINI_UNLOCK_DATE.getTime()) {
+      setIsUnlocked(true);
+    }
+  }, [isPreview]);
+
+  return (
+    <>
+      <AnimatePresence>
+        {!isUnlocked && (
+          <PulseCountdownOverlay
+            onUnlocked={() => setIsUnlocked(true)}
+            isBypassed={isPreview}
+          />
+        )}
+      </AnimatePresence>
+
+      <main className="min-h-screen bg-navy-950 flex flex-col justify-between py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <div className="absolute top-6 left-6 z-10">
+          <Link
+            href="/"
+            className="text-slate-400 hover:text-cyan-300 font-bold font-mono tracking-tight text-xs flex items-center gap-1.5 transition-colors"
+          >
+            &larr; BACK TO NIBMCODEX
+          </Link>
         </div>
 
-        <Suspense fallback={
-          <div className="flex justify-center p-8">
-            <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+        <div className="my-auto">
+          <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10 text-center">
+            <div className="inline-flex p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-2xl mb-4">
+              <Gamepad2 className="w-10 h-10 text-cyan-400" />
+            </div>
+            <h1 className="text-4xl font-black text-white tracking-tight">Pulse Mini</h1>
+            <p className="text-slate-400 text-sm mt-1">Live interactive arena</p>
           </div>
-        }>
+
           <PlayForm />
-        </Suspense>
-      </div>
+        </div>
 
-      <div className="pb-2 text-center relative z-10">
-        <p className="text-slate-600 text-xs font-mono">POWERED BY PULSE MINI</p>
-      </div>
+        <div className="pb-2 text-center relative z-10">
+          <p className="text-slate-600 text-xs font-mono">POWERED BY PULSE MINI</p>
+        </div>
 
-      {/* Decorative Background Glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-900/20 via-navy-950 to-navy-950 pointer-events-none" />
-    </main>
+        {/* Decorative Background Glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-900/20 via-navy-950 to-navy-950 pointer-events-none" />
+      </main>
+    </>
+  );
+}
+
+export default function PlayPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-navy-950 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
+        </div>
+      }
+    >
+      <PlayContent />
+    </Suspense>
   );
 }
