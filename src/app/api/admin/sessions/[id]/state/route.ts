@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { publishSessionState } from '@/lib/ably';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -40,6 +41,28 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const updatedSession = await prisma.session.update({
       where: { id: sessionId },
       data: dataToUpdate,
+    });
+
+    // Broadcast real-time update to all connected attendees via Ably WebSockets
+    const sessionDetails = await prisma.session.findUnique({
+      where: { id: sessionId },
+      select: { status: true, mode: true, activeQuestionId: true, questionStartedAt: true },
+    });
+
+    let activeQuestion = null;
+    if (sessionDetails?.activeQuestionId) {
+      activeQuestion = await prisma.question.findUnique({
+        where: { id: sessionDetails.activeQuestionId },
+        select: { id: true, type: true, text: true, options: true, timeLimit: true, maxAnswers: true },
+      });
+    }
+
+    await publishSessionState(sessionId, {
+      status: sessionDetails?.status || updatedSession.status,
+      mode: sessionDetails?.mode || 'COMPETITIVE',
+      activeQuestion,
+      questionStartedAt: sessionDetails?.questionStartedAt?.toISOString() ?? null,
+      serverTime: new Date().toISOString(),
     });
 
     return NextResponse.json(updatedSession);

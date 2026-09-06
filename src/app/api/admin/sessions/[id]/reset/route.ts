@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { publishSessionState } from '@/lib/ably';
 
 export const dynamic = 'force-dynamic';
 
@@ -30,6 +31,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         activeQuestionId: null,
         questionStartedAt: null,
       }
+    });
+
+    await publishSessionState(id, {
+      status: 'DRAFT',
+      mode: session.mode,
+      activeQuestion: null,
+      questionStartedAt: null,
+      serverTime: new Date().toISOString(),
     });
 
     return NextResponse.json({ success: true });

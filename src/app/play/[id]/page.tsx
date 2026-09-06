@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useMemo } from 'react';
 import useSWR from 'swr';
 import { useParams, useRouter } from 'next/navigation';
 import { Loader2, CheckCircle2, Gamepad2, Flame, Trophy, AlertTriangle, Clock, Zap } from 'lucide-react';
+import * as Ably from 'ably';
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -76,21 +77,66 @@ export default function AttendeeLivePlay() {
 
   const [serverOffset, setServerOffset] = useState<number>(0);
 
-  // SSE Connection setup
+  // Realtime Connection (Ably WebSockets with SSE fallback)
   useEffect(() => {
     if (!id) return;
+
+    let isAblyActive = false;
+    let ablyClient: Ably.Realtime | null = null;
     let eventSource: EventSource | null = null;
 
-    try {
-      eventSource = new EventSource(`/api/play/${id}/stream`);
+    const fallbackToSSE = () => {
+      if (isAblyActive || eventSource) return;
+      try {
+        eventSource = new EventSource(`/api/play/${id}/stream`);
 
-      eventSource.onopen = () => {
-        setSseConnected(true);
-      };
+        eventSource.onopen = () => {
+          setSseConnected(true);
+        };
 
-      eventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
+        eventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data && !data.error) {
+              setSseState(data);
+              setSseConnected(true);
+              if (data.serverTime) {
+                setServerOffset(Date.now() - new Date(data.serverTime).getTime());
+              }
+            }
+          } catch (e) {
+            console.error('SSE JSON parse error', e);
+          }
+        };
+
+        eventSource.onerror = () => {
+          setSseConnected(false);
+        };
+      } catch {
+        setSseConnected(false);
+      }
+    };
+
+    const startAbly = async () => {
+      try {
+        ablyClient = new Ably.Realtime({
+          authUrl: `/api/ably/auth?clientId=${participantId || 'anon'}`,
+          autoConnect: true,
+        });
+
+        ablyClient.connection.on('connected', () => {
+          isAblyActive = true;
+          setSseConnected(true);
+        });
+
+        ablyClient.connection.on('failed', () => {
+          isAblyActive = false;
+          fallbackToSSE();
+        });
+
+        const channel = ablyClient.channels.get(`session:${id}`);
+        await channel.subscribe('state-change', (message) => {
+          const data = message.data;
           if (data && !data.error) {
             setSseState(data);
             setSseConnected(true);
@@ -98,22 +144,23 @@ export default function AttendeeLivePlay() {
               setServerOffset(Date.now() - new Date(data.serverTime).getTime());
             }
           }
-        } catch (e) {
-          console.error('SSE JSON parse error', e);
-        }
-      };
+        });
+      } catch {
+        fallbackToSSE();
+      }
+    };
 
-      eventSource.onerror = () => {
-        setSseConnected(false);
-      };
-    } catch (err) {
-      setSseConnected(false);
-    }
+    startAbly();
 
     return () => {
-      eventSource?.close();
+      if (ablyClient) {
+        ablyClient.close();
+      }
+      if (eventSource) {
+        eventSource.close();
+      }
     };
-  }, [id]);
+  }, [id, participantId]);
 
   // Sync serverOffset from SWR poll as well
   useEffect(() => {
