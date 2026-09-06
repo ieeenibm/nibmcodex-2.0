@@ -38,5 +38,8 @@ Disallow: /
 # Allow normal search engines (Google, Bing, etc.)
 User-agent: *
 Allow: /
+Disallow: /admin/
+Disallow: /play/
+Disallow: /api/
 
 Sitemap: https://nibmcodex.nibmieee.lk/sitemap.xml

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import SpotlightCard from '@/components/ui/SpotlightCard';
+import { getOptimizedCloudinaryUrl } from '@/lib/cloudinary';
 
 interface GalleryEvent {
   id: string;
@@ -138,11 +139,15 @@ export default function GalleryGrid() {
                 <SpotlightCard className="group h-full glass-panel-light clip-slanted overflow-hidden">
                 <div className="relative h-48 overflow-hidden">
                   <Image
-                    src={`https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/${event.images[0].replace(/\.[^/.]+$/, "")}`}
+                    src={getOptimizedCloudinaryUrl(
+                      `https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/${event.images[0].replace(/\.[^/.]+$/, "")}`,
+                      { width: 600 }
+                    )}
                     alt={event.title}
                     fill
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                     className="object-cover object-center transition-transform duration-700 group-hover:scale-110"
+                    unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/10 to-transparent"></div>
                   
@@ -209,10 +214,15 @@ export default function GalleryGrid() {
                     className="relative w-[90vw] h-[85vh] flex items-center justify-center"
                   >
                     <Image
-                      src={`https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/${activeEvent.images[activeIndex].replace(/\.[^/.]+$/, "")}`}
+                      src={getOptimizedCloudinaryUrl(
+                        `https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/${activeEvent.images[activeIndex].replace(/\.[^/.]+$/, "")}`,
+                        { width: 1400, quality: 85 }
+                      )}
                       alt={activeEvent.title}
                       fill
+                      sizes="90vw"
                       className="object-contain"
+                      unoptimized
                     />
                   </motion.div>
                 </AnimatePresence>

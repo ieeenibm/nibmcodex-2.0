@@ -28,10 +28,6 @@ html, body {
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  
-  /* Disable text selection */
-  user-select: none;
-  -webkit-user-select: none;
 }
 
 /* Allow text selection inside form inputs if they are ever re-enabled */

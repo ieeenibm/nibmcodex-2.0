@@ -2,6 +2,7 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import SpotlightCard from '@/components/ui/SpotlightCard';
+import { getOptimizedCloudinaryUrl } from '@/lib/cloudinary';
 
 const partnerGroups = [
   {
@@ -80,11 +81,12 @@ export default function Partners() {
                     <SpotlightCard className="bg-white/95 p-6 clip-slanted flex items-center justify-center h-24 group">
                       <div className="relative w-full h-full flex items-center justify-center">
                         <Image
-                          src={partner.image}
+                          src={getOptimizedCloudinaryUrl(partner.image, { width: 300, crop: 'limit' })}
                           alt={partner.name}
                           width={120}
                           height={60}
                           className="w-auto h-auto max-w-full max-h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                          unoptimized
                         />
                       </div>
                     </SpotlightCard>

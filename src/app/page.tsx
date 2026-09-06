@@ -15,6 +15,7 @@ import FAQ from '@/components/FAQ';
 import Footer from '@/components/Footer';
 import RegistrationPill from '@/components/ui/RegistrationPill';
 import LivePlayBubble from '@/components/LivePlayBubble';
+import WhatsAppBubble from '@/components/WhatsAppBubble';
 
 export default function Home() {
   return (
@@ -36,6 +37,7 @@ export default function Home() {
       <Footer />
       <RegistrationPill />
       <LivePlayBubble />
+      <WhatsAppBubble />
     </main>
   );
 }

@@ -3,12 +3,23 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const userId = req.headers.get('x-user-id');
+    const role = req.headers.get('x-user-role');
     const sessionId = (await params).id;
-    const body = await req.json();
 
-    // Verify session belongs to user (skipping detailed check for speed, handled by middleware route protection partially)
-    const session = await prisma.session.findUnique({ where: { id: sessionId }, include: { questions: true } });
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    // Verify session ownership
+    const session = await prisma.session.findUnique({
+      where: { id: sessionId },
+      select: { hostId: true, questions: { select: { id: true } } },
+    });
     if (!session) return NextResponse.json({ error: 'Session not found' }, { status: 404 });
+    if (role !== 'ADMIN' && session.hostId !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const body = await req.json();
 
     const nextOrder = session.questions.length + 1;
 

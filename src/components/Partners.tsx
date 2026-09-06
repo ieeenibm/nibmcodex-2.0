@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
@@ -41,7 +42,7 @@ const nationalPartner: PartnerData = {
 const ecosystemPartner: PartnerData = {
   name: 'SLASSCOM',
   role: '',
-  image: '/partners/slasscom-logo.png',
+  image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/slasscom-logo',
   bgClass: 'bg-white',
 };
 
@@ -111,6 +112,8 @@ const partnersRow2: PartnerData[] = [
 ];
 
 function PartnerCard({ partner, idx }: { partner: PartnerData, idx: number }) {
+  const [imgSrc, setImgSrc] = useState(partner.image);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -131,10 +134,15 @@ function PartnerCard({ partner, idx }: { partner: PartnerData, idx: number }) {
       )}
       <div className={`relative w-full aspect-[4/3] mb-3 rounded-xl flex items-center justify-center overflow-hidden shadow-inner ${partner.bgClass}`}>
         <Image
-          src={partner.image}
+          src={imgSrc}
           alt={partner.name}
           width={240}
           height={180}
+          onError={() => {
+            if (partner.name === 'SLASSCOM') setImgSrc('/partners/slasscom-logo.png');
+            if (partner.name === 'Dilexus') setImgSrc('/partners/dilexus-logo.png');
+            if (partner.name === 'Dialog Enterprise') setImgSrc('/partners/dialog-enterprise-logo-v2.png');
+          }}
           draggable={false}
           className={`${partner.imgClass || 'object-contain w-full h-full p-4 sm:p-6'} select-none pointer-events-none`}
         />

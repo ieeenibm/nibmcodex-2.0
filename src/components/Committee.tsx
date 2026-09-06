@@ -6,6 +6,7 @@ import { User } from 'lucide-react';
 import { FaLinkedin } from 'react-icons/fa';
 import SpotlightCard from './ui/SpotlightCard';
 import EasterEggGame from './EasterEggGame';
+import { getOptimizedCloudinaryUrl } from '@/lib/cloudinary';
 
 import committeeData from '@/data/committee.json';
 
@@ -48,12 +49,13 @@ function MemberCard({ member, idx, onMemberClick }: { member: Member; idx: numbe
           <div className="relative w-full h-full rounded-full flex items-center justify-center bg-navy-900 border-2 border-white/5 text-slate-500 overflow-hidden group-hover:border-cyan-400/40 group-hover:ring-4 group-hover:ring-cyan-400/10 transition-all duration-500">
             {member.image ? (
               <Image
-                src={member.image}
+                src={getOptimizedCloudinaryUrl(member.image, { width: 250, crop: 'fill', gravity: 'face' })}
                 alt={member.name}
                 fill
                 sizes="112px"
                 draggable={false}
                 className="object-cover transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none"
+                unoptimized
               />
             ) : (
               <User size={36} strokeWidth={1.5} className="group-hover:text-cyan-400 transition-colors duration-300" />
@@ -88,8 +90,10 @@ export default function Committee() {
   const [activeTeam, setActiveTeam] = useState(0);
   const [showEasterEgg, setShowEasterEgg] = useState(false);
   const clickCountRef = useRef(0);
+  const teamsRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isVisibleRef = useRef(false);
 
   const handleMemberClick = (name: string) => {
     if (name === 'Supun Hewagamage') {
@@ -110,32 +114,77 @@ export default function Committee() {
     }, 3000);
   }, []);
 
+  const stopAutoSwitch = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    if (pauseTimeoutRef.current) {
+      clearTimeout(pauseTimeoutRef.current);
+      pauseTimeoutRef.current = null;
+    }
+  }, []);
+
+  // Pause switching when section is not in viewport or tab is hidden
   useEffect(() => {
-    startAutoSwitch();
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-      if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    const el = teamsRef.current;
+    if (!el) return;
+
+    let inView = false;
+
+    const checkAndToggle = () => {
+      const isVisible = inView && document.visibilityState === 'visible';
+      isVisibleRef.current = isVisible;
+      if (isVisible) {
+        startAutoSwitch();
+      } else {
+        stopAutoSwitch();
+      }
     };
-  }, [startAutoSwitch]);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        inView = entry.isIntersecting;
+        checkAndToggle();
+      },
+      { rootMargin: '50px' }
+    );
+
+    observer.observe(el);
+
+    const handleVisibilityChange = () => {
+      checkAndToggle();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      stopAutoSwitch();
+    };
+  }, [startAutoSwitch, stopAutoSwitch]);
 
   const handleManualClick = (idx: number) => {
     setActiveTeam(idx);
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
+    stopAutoSwitch();
     pauseTimeoutRef.current = setTimeout(() => {
-      startAutoSwitch();
+      if (isVisibleRef.current) {
+        startAutoSwitch();
+      }
     }, 5000);
   };
 
   const handleHoverStart = useCallback(() => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
-  }, []);
+    stopAutoSwitch();
+  }, [stopAutoSwitch]);
 
   const handleHoverEnd = useCallback(() => {
     if (pauseTimeoutRef.current) clearTimeout(pauseTimeoutRef.current);
     pauseTimeoutRef.current = setTimeout(() => {
-      startAutoSwitch();
+      if (isVisibleRef.current) {
+        startAutoSwitch();
+      }
     }, 1500);
   }, [startAutoSwitch]);
 
@@ -188,7 +237,7 @@ export default function Committee() {
         </div>
 
         {/* OC Teams */}
-        <div>
+        <div ref={teamsRef}>
           <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-10">
             OC Teams
           </h3>
