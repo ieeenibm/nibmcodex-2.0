@@ -12,8 +12,8 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const sessionId = searchParams.get('sessionId');
-    if (!sessionId) {
-      return NextResponse.json({ error: 'sessionId parameter is required' }, { status: 400 });
+    if (!sessionId || !/^[a-zA-Z0-9_-]+$/.test(sessionId)) {
+      return NextResponse.json({ error: 'Invalid or missing sessionId parameter' }, { status: 400 });
     }
 
     const clientId = searchParams.get('clientId') || `user-${Math.random().toString(36).substring(2, 9)}`;

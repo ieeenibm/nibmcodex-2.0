@@ -132,6 +132,10 @@ export default function AttendeeLivePlay() {
         });
 
         ablyClient.connection.on('failed', () => {
+          if (ablyClient) {
+            ablyClient.close();
+            ablyClient = null;
+          }
           isAblyActive = false;
           fallbackToSSE();
         });

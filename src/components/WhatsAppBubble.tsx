@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -9,7 +9,15 @@ const WHATSAPP_CHANNEL_URL = 'https://whatsapp.com/channel/0029Vb5p4Uw6buMQ9aWCI
 export default function WhatsAppBubble() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
-  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+      }
+    };
+  }, []);
 
   if (isDismissed) return null;
 
@@ -22,6 +30,9 @@ export default function WhatsAppBubble() {
   };
 
   const handleMouseLeave = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+    }
     // Small delay ensures smooth transition if user cursor grazes the edge
     closeTimeoutRef.current = setTimeout(() => {
       setIsExpanded(false);

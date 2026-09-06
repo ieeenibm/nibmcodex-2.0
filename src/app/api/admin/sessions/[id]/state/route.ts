@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { publishSessionState } from '@/lib/ably';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -21,7 +22,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     const body = await req.json();
-    const dataToUpdate: Record<string, unknown> = {};
+    const dataToUpdate: Prisma.SessionUpdateInput = {};
 
     // Validate status transitions using an explicit finite state machine
     if (body.status !== undefined) {
