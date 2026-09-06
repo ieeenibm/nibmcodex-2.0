@@ -20,6 +20,13 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
+    if (question.session.activeQuestionId === id) {
+      await prisma.session.update({
+        where: { id: question.sessionId },
+        data: { activeQuestionId: null, questionStartedAt: null },
+      });
+    }
+
     await prisma.response.deleteMany({ where: { questionId: id } });
     await prisma.question.delete({ where: { id } });
 

@@ -22,7 +22,7 @@ model Session {
   mode             String        @default("COMPETITIVE") // "COMPETITIVE", "NON_COMPETITIVE"
   joinCode         String        @unique
   hostId           String
-  host             User          @relation(fields: [hostId], references: [id])
+  host             User          @relation(fields: [hostId], references: [id], onDelete: Cascade)
   activeQuestionId String?       // The question currently being shown
   questionStartedAt DateTime?    // When the active question was activated (for time-based scoring)
   createdAt        DateTime      @default(now())
