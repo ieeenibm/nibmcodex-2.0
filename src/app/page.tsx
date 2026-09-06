@@ -14,7 +14,7 @@ import FAQ from '@/components/FAQ';
 // import Registration from '@/components/Registration';
 import Footer from '@/components/Footer';
 import RegistrationPill from '@/components/ui/RegistrationPill';
-import LivePlayBubble from '@/components/LivePlayBubble';
+// import LivePlayBubble from '@/components/LivePlayBubble';
 import WhatsAppBubble from '@/components/WhatsAppBubble';
 
 export default function Home() {
@@ -36,7 +36,7 @@ export default function Home() {
       {/* <Registration /> */}
       <Footer />
       <RegistrationPill />
-      <LivePlayBubble />
+      {/* <LivePlayBubble /> */}
       <WhatsAppBubble />
     </main>
   );
