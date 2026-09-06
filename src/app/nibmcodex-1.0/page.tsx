@@ -7,7 +7,6 @@ import GalleryGrid from './GalleryGrid';
 import Committee from './Committee';
 import Partners from './Partners';
 import KeyMoments from './KeyMoments';
-import WhatWeProvided from './WhatWeProvided';
 import FAQ from './FAQ';
 
 export const metadata: Metadata = {
@@ -28,7 +27,6 @@ export default function NIBMCodeX10() {
       <Committee />
       <Partners />
       <KeyMoments />
-      <WhatWeProvided />
       <FAQ />
       <Footer />
     </main>
