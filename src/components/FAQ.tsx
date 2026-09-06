@@ -62,6 +62,8 @@ export default function FAQ() {
               <button 
                 className="w-full text-left p-6 md:p-8 flex justify-between items-center text-white hover:text-cyan-400 transition-colors"
                 onClick={() => setOpen(open === idx ? null : idx)}
+                aria-expanded={open === idx}
+                aria-controls={`faq-answer-${idx}`}
               >
                 <span className="text-lg md:text-xl font-bold tracking-tight">{faq.q}</span>
                 <motion.span 
@@ -80,7 +82,7 @@ export default function FAQ() {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ type: "spring", stiffness: 200, damping: 25 }}
                   >
-                    <div className="px-6 md:px-8 pb-8 text-slate-400 font-light leading-relaxed text-lg">
+                    <div id={`faq-answer-${idx}`} className="px-6 md:px-8 pb-8 text-slate-400 font-light leading-relaxed text-lg">
                       {faq.a}
                     </div>
                   </motion.div>

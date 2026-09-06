@@ -28,3 +28,21 @@ SCAN.md
 .windsurf/
 skills-lock.json
 .neon
+
+# Python virtualenvs & staging
+venv/
+Ready_For_Cloudinary/
+*.pyc
+__pycache__/
+
+# Orphaned scripts
+crop*.py
+extract.py
+process_logo.py
+patch_*.py
+patch_*.js
+test_unsigned.js
+test_db.ts
+test_session.*
+upload_to_cloudinary.js
+neon.ts

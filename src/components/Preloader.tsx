@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Preloader() {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [textIndex, setTextIndex] = useState(0);
 
   const texts = [
@@ -14,16 +14,25 @@ export default function Preloader() {
   ];
 
   useEffect(() => {
+    const hasSeen = sessionStorage.getItem('nibmcodex_has_seen_preloader');
+    if (hasSeen) {
+      return;
+    }
+    setLoading(true);
+
     const interval = setInterval(() => {
       setTextIndex(prev => {
         if (prev === texts.length - 1) {
           clearInterval(interval);
-          setTimeout(() => setLoading(false), 600);
+          setTimeout(() => {
+            setLoading(false);
+            sessionStorage.setItem('nibmcodex_has_seen_preloader', 'true');
+          }, 500);
           return prev;
         }
         return prev + 1;
       });
-    }, 450);
+    }, 400);
     return () => clearInterval(interval);
   }, [texts.length]);
 
