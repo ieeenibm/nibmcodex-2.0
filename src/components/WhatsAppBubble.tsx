@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -9,24 +9,44 @@ const WHATSAPP_CHANNEL_URL = 'https://whatsapp.com/channel/0029Vb5p4Uw6buMQ9aWCI
 export default function WhatsAppBubble() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
+  const closeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   if (isDismissed) return null;
 
+  const handleMouseEnter = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    setIsExpanded(true);
+  };
+
+  const handleMouseLeave = () => {
+    // Small delay ensures smooth transition if user cursor grazes the edge
+    closeTimeoutRef.current = setTimeout(() => {
+      setIsExpanded(false);
+    }, 200);
+  };
+
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <div
+      className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
       {/* Expanded Popup */}
       <AnimatePresence>
         {isExpanded && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, y: 15, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="bg-navy-900/95 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-2xl shadow-black/40 w-72"
+            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            className="bg-navy-900/95 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-2xl shadow-black/50 w-72 select-none"
           >
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-full bg-[#25D366] flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-full bg-[#25D366] flex items-center justify-center shrink-0 shadow-md shadow-[#25D366]/20">
                   <WhatsAppIcon className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -34,12 +54,17 @@ export default function WhatsAppBubble() {
                   <p className="text-slate-400 text-xs">WhatsApp Channel</p>
                 </div>
               </div>
+              {/* Close popup only */}
               <button
-                onClick={() => setIsDismissed(true)}
-                className="text-slate-500 hover:text-white transition-colors p-1"
-                aria-label="Dismiss"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsExpanded(false);
+                }}
+                className="text-slate-400 hover:text-white hover:bg-white/10 transition-colors p-1.5 rounded-lg"
+                aria-label="Close popup"
+                title="Close popup"
               >
-                <X size={14} />
+                <X size={15} />
               </button>
             </div>
             <p className="text-slate-300 text-xs leading-relaxed mb-4">
@@ -49,7 +74,7 @@ export default function WhatsAppBubble() {
               href={WHATSAPP_CHANNEL_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#25D366] hover:bg-[#20BD5A] text-white font-bold text-sm rounded-xl transition-colors"
+              className="w-full flex items-center justify-center gap-2 py-2.5 bg-[#25D366] hover:bg-[#20BD5A] text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-[#25D366]/20 active:scale-[0.98]"
             >
               <WhatsAppIcon className="w-4 h-4" />
               Follow Channel
@@ -58,19 +83,36 @@ export default function WhatsAppBubble() {
         )}
       </AnimatePresence>
 
-      {/* Floating Bubble Button */}
-      <motion.button
-        onHoverStart={() => setIsExpanded(true)}
-        onClick={() => setIsExpanded(!isExpanded)}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.95 }}
-        className="w-14 h-14 rounded-full bg-[#25D366] hover:bg-[#20BD5A] flex items-center justify-center shadow-lg shadow-[#25D366]/30 transition-colors relative"
-        aria-label="Open WhatsApp Channel"
-      >
-        <WhatsAppIcon className="w-7 h-7 text-white" />
-        {/* Ping indicator */}
-        <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-cyan-400 rounded-full border-2 border-navy-950 animate-pulse" />
-      </motion.button>
+      {/* Floating Bubble Container */}
+      <div className="relative group/bubble">
+        {/* Dismiss bubble button (persists for session, reload brings it back) */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsDismissed(true);
+          }}
+          className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-navy-900 border border-white/20 text-slate-400 hover:text-white hover:bg-red-500 hover:border-red-500 flex items-center justify-center transition-all shadow-md opacity-80 hover:opacity-100 z-10 cursor-pointer"
+          title="Dismiss button"
+          aria-label="Dismiss WhatsApp button"
+        >
+          <X size={11} strokeWidth={2.5} />
+        </button>
+
+        {/* Floating Bubble Button */}
+        <motion.button
+          onClick={() => setIsExpanded((prev) => !prev)}
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.94 }}
+          className="w-14 h-14 rounded-full bg-[#25D366] hover:bg-[#20BD5A] flex items-center justify-center shadow-lg shadow-[#25D366]/30 transition-colors relative cursor-pointer"
+          aria-label="Toggle WhatsApp Channel Popup"
+        >
+          <WhatsAppIcon className="w-7 h-7 text-white" />
+          {/* Ping indicator */}
+          {!isExpanded && (
+            <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-cyan-400 rounded-full border-2 border-navy-950 animate-pulse" />
+          )}
+        </motion.button>
+      </div>
     </div>
   );
 }
