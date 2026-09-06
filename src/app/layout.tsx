@@ -47,6 +47,9 @@ export const metadata: Metadata = {
       'LN5K-dbVc16qefWhvDw4NGYUlyRibg42pGNMwslGwC4',
     ],
   },
+  alternates: {
+    canonical: 'https://nibmcodex.nibmieee.lk',
+  },
 };
 
 export default function RootLayout({
@@ -69,12 +72,33 @@ export default function RootLayout({
             gtag('config', 'G-GP5FN2R0VN');
           `}
         </Script>
-        <Script id="disable-context-menu" strategy="afterInteractive">
-          {`
-            document.addEventListener('contextmenu', function(e) {
-              e.preventDefault();
-            });
-          `}
+        <Script id="structured-data" type="application/ld+json" strategy="afterInteractive">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Event',
+            name: 'NIBMCodeX 2.0',
+            description: 'A 24-hour hackathon bringing together the brightest minds to solve real-world challenges through innovation and technology.',
+            startDate: '2026-10-31',
+            endDate: '2026-11-01',
+            eventStatus: 'https://schema.org/EventScheduled',
+            eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+            location: {
+              '@type': 'Place',
+              name: 'NIBM Colombo',
+              address: {
+                '@type': 'PostalAddress',
+                streetAddress: 'Vidya Mawatha',
+                addressLocality: 'Colombo',
+                addressCountry: 'LK',
+              },
+            },
+            organizer: {
+              '@type': 'Organization',
+              name: 'IEEE Student Branch of NIBM',
+              url: 'https://nibmcodex.nibmieee.lk',
+            },
+            image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/misc/wide-cityscape',
+          })}
         </Script>
         <Preloader />
         <NoiseOverlay />

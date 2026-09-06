@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Gamepad2, LogOut, Users } from 'lucide-react';
+import { Gamepad2, LogOut, Users, BookOpen } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -38,6 +38,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           >
             <Users className="w-5 h-5" />
             <span className="font-medium text-sm">Manage Hosts</span>
+          </Link>
+          <Link
+            href="/admin/dashboard/docs"
+            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+          >
+            <BookOpen className="w-5 h-5" />
+            <span className="font-medium text-sm">Host Guide</span>
           </Link>
         </nav>
 
