@@ -9,7 +9,6 @@ import Partners from './Partners';
 import KeyMoments from './KeyMoments';
 import WhatWeProvided from './WhatWeProvided';
 import FAQ from './FAQ';
-import BackToMainCta from './BackToMainCta';
 
 export const metadata: Metadata = {
   title: 'NIBMCodeX 1.0 | The First Edition',
@@ -31,7 +30,6 @@ export default function NIBMCodeX10() {
       <KeyMoments />
       <WhatWeProvided />
       <FAQ />
-      <BackToMainCta />
       <Footer />
     </main>
   );
