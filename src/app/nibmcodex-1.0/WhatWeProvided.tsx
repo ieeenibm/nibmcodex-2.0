@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import SpotlightCard from '@/components/ui/SpotlightCard';
 import { Wifi, Users, Lightbulb, Moon } from 'lucide-react';
+import { getOptimizedCloudinaryUrl } from '@/lib/cloudinary';
 
 const provides = [
   {
@@ -86,12 +87,14 @@ export default function WhatWeProvided() {
                 transition={{ duration: 0.5, delay: idx * 0.1 }}
               >
                 <SpotlightCard className="group h-full glass-panel-light clip-slanted overflow-hidden flex flex-col md:flex-row">
-                  <div className="relative h-40 md:h-auto md:w-48 shrink-0 overflow-hidden">
+                  <div className="relative h-48 md:h-full md:min-h-[160px] md:w-48 shrink-0 overflow-hidden">
                     <Image
-                      src={item.image}
+                      src={getOptimizedCloudinaryUrl(item.image, { width: 500, crop: 'fill' })}
                       alt={item.title}
                       fill
+                      sizes="(max-width: 768px) 100vw, 192px"
                       className="object-cover transition-transform duration-700 group-hover:scale-110"
+                      unoptimized
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-navy-950/60 to-transparent"></div>
                   </div>

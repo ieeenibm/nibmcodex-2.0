@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { ExternalLink } from 'lucide-react';
 import SpotlightCard from '@/components/ui/SpotlightCard';
+import { getOptimizedCloudinaryUrl } from '@/lib/cloudinary';
 
 const execBoard = [
   {
@@ -230,11 +231,12 @@ export default function Committee() {
             <SpotlightCard className="group h-full glass-panel-light clip-slanted overflow-hidden">
               <div className="relative h-64 overflow-hidden">
                 <Image
-                  src={ambassador.image}
+                  src={getOptimizedCloudinaryUrl(ambassador.image, { width: 500, crop: 'fill', gravity: 'face' })}
                   alt={ambassador.name}
                   fill
                   sizes="(max-width: 768px) 100vw, 384px"
                   className="object-cover object-[center_25%] transition-transform duration-700 group-hover:scale-110"
+                  unoptimized
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/10 to-transparent"></div>
               </div>
@@ -270,11 +272,12 @@ export default function Committee() {
               <SpotlightCard className="group h-full glass-panel-light clip-slanted overflow-hidden">
                 <div className="relative h-64 overflow-hidden">
                   <Image
-                    src={member.image}
+                    src={getOptimizedCloudinaryUrl(member.image, { width: 500, crop: 'fill', gravity: 'face' })}
                     alt={member.name}
                     fill
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover object-[center_25%] transition-transform duration-700 group-hover:scale-110"
+                    unoptimized
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/10 to-transparent"></div>
                 </div>
@@ -325,11 +328,12 @@ export default function Committee() {
           <SpotlightCard className="group glass-panel-light clip-slanted overflow-hidden">
             <div className="relative h-72 overflow-hidden">
               <Image
-                src={proctor.image}
+                src={getOptimizedCloudinaryUrl(proctor.image, { width: 500, crop: 'fill', gravity: 'face' })}
                 alt={proctor.name}
                 fill
                 sizes="(max-width: 768px) 100vw, 384px"
                 className="object-cover object-[center_30%] transition-transform duration-700 group-hover:scale-110"
+                unoptimized
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy-950/90 via-navy-950/10 to-transparent"></div>
             </div>
@@ -402,7 +406,7 @@ export default function Committee() {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-6xl mx-auto justify-items-center">
                 {teamsData[activeTeam].members.map((member, idx) => (
                   <motion.div
-                    key={idx}
+                    key={`${activeTeam}-${idx}-${member.first}-${member.last}`}
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: idx * 0.03 }}
@@ -411,11 +415,15 @@ export default function Committee() {
                       <div className="relative h-28 sm:h-32 overflow-hidden">
                         <div className="absolute inset-0 bg-navy-900" />
                         <Image
-                          src={`https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/${member.img.replace(/\.[^/.]+$/, "")}`}
+                          src={getOptimizedCloudinaryUrl(
+                            `https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/1.0/${member.img.replace(/\.[^/.]+$/, "")}`,
+                            { width: 320, crop: 'fill', gravity: 'face' }
+                          )}
                           alt={`${member.first} ${member.last}`}
                           fill
                           sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 16vw"
                           className="object-cover object-[center_20%] transition-transform duration-500 group-hover:scale-110"
+                          unoptimized
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-navy-950/10 to-transparent"></div>
                       </div>

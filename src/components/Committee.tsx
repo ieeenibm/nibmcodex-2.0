@@ -6,6 +6,7 @@ import { User } from 'lucide-react';
 import { FaLinkedin } from 'react-icons/fa';
 import SpotlightCard from './ui/SpotlightCard';
 import EasterEggGame from './EasterEggGame';
+import { getOptimizedCloudinaryUrl } from '@/lib/cloudinary';
 
 import committeeData from '@/data/committee.json';
 
@@ -48,12 +49,13 @@ function MemberCard({ member, idx, onMemberClick }: { member: Member; idx: numbe
           <div className="relative w-full h-full rounded-full flex items-center justify-center bg-navy-900 border-2 border-white/5 text-slate-500 overflow-hidden group-hover:border-cyan-400/40 group-hover:ring-4 group-hover:ring-cyan-400/10 transition-all duration-500">
             {member.image ? (
               <Image
-                src={member.image}
+                src={getOptimizedCloudinaryUrl(member.image, { width: 250, crop: 'fill', gravity: 'face' })}
                 alt={member.name}
                 fill
                 sizes="112px"
                 draggable={false}
                 className="object-cover transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none"
+                unoptimized
               />
             ) : (
               <User size={36} strokeWidth={1.5} className="group-hover:text-cyan-400 transition-colors duration-300" />
