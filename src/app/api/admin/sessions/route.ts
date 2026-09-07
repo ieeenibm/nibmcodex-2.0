@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { prisma, ensureDatabaseSchema } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 
 function generateJoinCode() {
@@ -8,6 +8,8 @@ function generateJoinCode() {
 
 export async function GET(req: Request) {
   try {
+    await ensureDatabaseSchema();
+
     const authUser = await getAuthUser(req);
     if (!authUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -16,23 +18,51 @@ export async function GET(req: Request) {
     const { id: userId, role } = authUser;
 
     let sessions;
-    if (role === 'ADMIN') {
-      sessions = await prisma.session.findMany({
-        orderBy: { createdAt: 'desc' },
-        include: {
-          questions: { select: { id: true } },
-          participants: { select: { id: true } },
-        },
-      });
-    } else {
-      sessions = await prisma.session.findMany({
-        where: { hostId: userId },
-        orderBy: { createdAt: 'desc' },
-        include: {
-          questions: { select: { id: true } },
-          participants: { select: { id: true } },
-        },
-      });
+    try {
+      if (role === 'ADMIN') {
+        sessions = await prisma.session.findMany({
+          orderBy: { createdAt: 'desc' },
+          include: {
+            questions: { select: { id: true } },
+            participants: { select: { id: true } },
+          },
+        });
+      } else {
+        sessions = await prisma.session.findMany({
+          where: { hostId: userId },
+          orderBy: { createdAt: 'desc' },
+          include: {
+            questions: { select: { id: true } },
+            participants: { select: { id: true } },
+          },
+        });
+      }
+    } catch (queryErr: any) {
+      // Auto-recover from P2022 (ColumnNotFound e.g. Session.gameType) by forcing schema sync and retrying
+      if (queryErr?.code === 'P2022') {
+        console.warn('[Prisma] Missing column detected, applying auto-migration...');
+        await ensureDatabaseSchema();
+        if (role === 'ADMIN') {
+          sessions = await prisma.session.findMany({
+            orderBy: { createdAt: 'desc' },
+            include: {
+              questions: { select: { id: true } },
+              participants: { select: { id: true } },
+            },
+          });
+        } else {
+          sessions = await prisma.session.findMany({
+            where: { hostId: userId },
+            orderBy: { createdAt: 'desc' },
+            include: {
+              questions: { select: { id: true } },
+              participants: { select: { id: true } },
+            },
+          });
+        }
+      } else {
+        throw queryErr;
+      }
     }
 
     return NextResponse.json(sessions);
@@ -44,6 +74,8 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    await ensureDatabaseSchema();
+
     const authUser = await getAuthUser(req);
     if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     const userId = authUser.id;
