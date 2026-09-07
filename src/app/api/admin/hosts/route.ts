@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { getAuthUser } from '@/lib/auth';
 
 // GET — list all HOST users (admin only)
 export async function GET(req: Request) {
-  const role = req.headers.get('x-user-role');
-  if (role !== 'ADMIN') {
+  const authUser = await getAuthUser(req);
+  if (!authUser || authUser.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
@@ -20,8 +21,8 @@ export async function GET(req: Request) {
 
 // POST — create a new host account (admin only)
 export async function POST(req: Request) {
-  const role = req.headers.get('x-user-role');
-  if (role !== 'ADMIN') {
+  const authUser = await getAuthUser(req);
+  if (!authUser || authUser.role !== 'ADMIN') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 

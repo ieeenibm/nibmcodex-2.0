@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getAuthUser } from '@/lib/auth';
 
 function generateJoinCode() {
   return Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -7,21 +8,31 @@ function generateJoinCode() {
 
 export async function GET(req: Request) {
   try {
-    const userId = req.headers.get('x-user-id');
-    const role = req.headers.get('x-user-role');
-    
+    const authUser = await getAuthUser(req);
+    if (!authUser) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { id: userId, role } = authUser;
+
     let sessions;
     if (role === 'ADMIN') {
       sessions = await prisma.session.findMany({
-        orderBy: { id: 'desc' },
-      });
-    } else if (userId) {
-      sessions = await prisma.session.findMany({
-        where: { hostId: userId },
-        orderBy: { id: 'desc' },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          questions: { select: { id: true } },
+          participants: { select: { id: true } },
+        },
       });
     } else {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      sessions = await prisma.session.findMany({
+        where: { hostId: userId },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          questions: { select: { id: true } },
+          participants: { select: { id: true } },
+        },
+      });
     }
 
     return NextResponse.json(sessions);
@@ -33,8 +44,9 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const userId = req.headers.get('x-user-id');
-    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const authUser = await getAuthUser(req);
+    if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const userId = authUser.id;
 
     const { name, gameType } = await req.json();
     if (!name) return NextResponse.json({ error: 'Session name is required' }, { status: 400 });

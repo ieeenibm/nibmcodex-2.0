@@ -73,8 +73,24 @@ export default function DashboardPage() {
         </button>
       </div>
 
-      {isLoading && <div className="text-cyan-400 flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Loading sessions...</div>}
-      {error && <div className="text-red-400">Failed to load sessions.</div>}
+      {isLoading && (
+        <div className="text-cyan-400 flex items-center gap-2 mb-6 font-mono text-sm">
+          <Loader2 className="w-5 h-5 animate-spin" /> Loading sessions...
+        </div>
+      )}
+      {error && (
+        <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mb-6 flex items-center justify-between">
+          <div className="text-red-400 text-sm">
+            <strong>Failed to load sessions:</strong> {error.message || 'An unexpected error occurred.'}
+          </div>
+          <button
+            onClick={() => mutate()}
+            className="px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 text-xs font-bold rounded-lg transition-colors shrink-0 ml-4"
+          >
+            Retry
+          </button>
+        </div>
+      )}
 
       {sessions && sessions.length === 0 && (
         <div className="text-center py-20 border-2 border-dashed border-white/10 rounded-xl">

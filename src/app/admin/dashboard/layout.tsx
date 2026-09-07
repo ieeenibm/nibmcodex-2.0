@@ -1,16 +1,22 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Gamepad2, LogOut, Users, BookOpen } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleSignOut = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     router.push('/admin/login');
   };
+
+  const isSessionsActive =
+    pathname === '/admin/dashboard' || pathname.startsWith('/admin/dashboard/session');
+  const isHostsActive = pathname.startsWith('/admin/dashboard/hosts');
+  const isDocsActive = pathname.startsWith('/admin/dashboard/docs');
 
   return (
     <div className="min-h-screen bg-navy-950 text-slate-300 font-sans selection:bg-cyan-400/30">
@@ -27,21 +33,33 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <nav className="flex-1 px-4 space-y-1 mt-4">
           <Link
             href="/admin/dashboard"
-            className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/5 text-cyan-400 border border-cyan-500/20"
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+              isSessionsActive
+                ? 'bg-white/5 text-cyan-400 border border-cyan-500/20 font-semibold'
+                : 'hover:bg-white/5 text-slate-400 hover:text-white'
+            }`}
           >
             <Gamepad2 className="w-5 h-5" />
             <span className="font-medium text-sm">Sessions</span>
           </Link>
           <Link
             href="/admin/dashboard/hosts"
-            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+              isHostsActive
+                ? 'bg-white/5 text-cyan-400 border border-cyan-500/20 font-semibold'
+                : 'hover:bg-white/5 text-slate-400 hover:text-white'
+            }`}
           >
             <Users className="w-5 h-5" />
             <span className="font-medium text-sm">Manage Hosts</span>
           </Link>
           <Link
             href="/admin/dashboard/docs"
-            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+              isDocsActive
+                ? 'bg-white/5 text-cyan-400 border border-cyan-500/20 font-semibold'
+                : 'hover:bg-white/5 text-slate-400 hover:text-white'
+            }`}
           >
             <BookOpen className="w-5 h-5" />
             <span className="font-medium text-sm">Host Guide</span>

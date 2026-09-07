@@ -48,3 +48,39 @@ export async function verifyToken(token: string): Promise<AuthPayload | null> {
   }
 }
 
+/**
+ * Robust authentication resolver for Route Handlers.
+ * Checks request headers (from middleware) and safely falls back to reading
+ * and verifying the HTTP-only JWT token directly from cookies.
+ */
+export async function getAuthUser(req?: Request): Promise<AuthPayload | null> {
+  // 1. Check custom headers forwarded from middleware
+  if (req) {
+    const id = req.headers.get('x-user-id');
+    const role = req.headers.get('x-user-role') as 'ADMIN' | 'HOST' | null;
+    if (id && (role === 'ADMIN' || role === 'HOST')) {
+      return {
+        id,
+        role,
+        username: req.headers.get('x-user-name') || '',
+        mustChangePass: false,
+      };
+    }
+  }
+
+  // 2. Direct cookie fallback if headers are stripped by reverse proxy or edge middleware
+  try {
+    const { cookies } = await import('next/headers');
+    const cookieStore = await cookies();
+    const token = cookieStore.get('token')?.value;
+    if (token) {
+      return await verifyToken(token);
+    }
+  } catch {
+    // Ignore error if outside request context
+  }
+
+  return null;
+}
+
+

@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getAuthUser } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const userId = req.headers.get('x-user-id');
-    const role = req.headers.get('x-user-role');
-    const id = (await params).id;
+    const authUser = await getAuthUser(req);
+    if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { id: userId, role } = authUser;
+    const id = (await params).id;
 
     const session = await prisma.session.findUnique({
       where: { id },
@@ -32,11 +33,11 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const userId = req.headers.get('x-user-id');
-    const role = req.headers.get('x-user-role');
-    const id = (await params).id;
+    const authUser = await getAuthUser(req);
+    if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { id: userId, role } = authUser;
+    const id = (await params).id;
 
     const session = await prisma.session.findUnique({ where: { id } });
     if (!session) return NextResponse.json({ error: 'Not found' }, { status: 404 });
