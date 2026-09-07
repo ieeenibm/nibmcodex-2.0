@@ -4,8 +4,6 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Gamepad2, Loader2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import { AnimatePresence } from 'framer-motion';
-import PulseCountdownOverlay, { PULSE_MINI_UNLOCK_DATE } from '@/components/PulseCountdownOverlay';
 
 function PlayForm() {
   const router = useRouter();
@@ -118,28 +116,8 @@ function PlayForm() {
 }
 
 function PlayContent() {
-  const searchParams = useSearchParams();
-  const isPreview = searchParams.get('preview') === 'true' || searchParams.get('unlock') === 'true';
-  const [isUnlocked, setIsUnlocked] = useState(false);
-
-  useEffect(() => {
-    if (isPreview || Date.now() >= PULSE_MINI_UNLOCK_DATE.getTime()) {
-      setIsUnlocked(true);
-    }
-  }, [isPreview]);
-
   return (
-    <>
-      <AnimatePresence>
-        {!isUnlocked && (
-          <PulseCountdownOverlay
-            onUnlocked={() => setIsUnlocked(true)}
-            isBypassed={isPreview}
-          />
-        )}
-      </AnimatePresence>
-
-      <main className="min-h-screen bg-navy-950 flex flex-col justify-between py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <main className="min-h-screen bg-navy-950 flex flex-col justify-between py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         <div className="absolute top-6 left-6 z-10">
           <Link
             href="/"
@@ -168,7 +146,6 @@ function PlayContent() {
         {/* Decorative Background Glow */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-900/20 via-navy-950 to-navy-950 pointer-events-none" />
       </main>
-    </>
   );
 }
 
