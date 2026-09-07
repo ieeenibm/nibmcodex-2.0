@@ -55,6 +55,11 @@ export default function ResponseBoard({ questionId }: { questionId: string }) {
 
   const [renderedIds, setRenderedIds] = useState<Set<string>>(new Set());
 
+  // Reset rendered IDs when question changes to prevent memory leak
+  useEffect(() => {
+    setRenderedIds(new Set());
+  }, [questionId]);
+
   useEffect(() => {
     if (!containerRef.current) return;
 

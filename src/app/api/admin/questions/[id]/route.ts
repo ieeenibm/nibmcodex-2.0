@@ -36,3 +36,45 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
+export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const userId = req.headers.get('x-user-id');
+    const role = req.headers.get('x-user-role');
+    const id = (await params).id;
+
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const question = await prisma.question.findUnique({
+      where: { id },
+      include: { session: true }
+    });
+
+    if (!question) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+    if (role !== 'ADMIN' && question.session.hostId !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+
+    const body = await req.json();
+    const { text, type, options, correctAnswer, timeLimit, maxAnswers } = body;
+
+    const updated = await prisma.question.update({
+      where: { id },
+      data: {
+        ...(text !== undefined && { text }),
+        ...(type !== undefined && { type }),
+        ...(options !== undefined && { options }),
+        ...(correctAnswer !== undefined && { correctAnswer }),
+        ...(timeLimit !== undefined && { timeLimit }),
+        ...(maxAnswers !== undefined && { maxAnswers }),
+      }
+    });
+
+    return NextResponse.json(updated);
+  } catch (error) {
+    console.error('Update question error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
