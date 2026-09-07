@@ -36,7 +36,7 @@ export async function POST(req: Request) {
     const userId = req.headers.get('x-user-id');
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { name, mode } = await req.json();
+    const { name, gameType } = await req.json();
     if (!name) return NextResponse.json({ error: 'Session name is required' }, { status: 400 });
 
     const joinCode = generateJoinCode();
@@ -71,7 +71,8 @@ export async function POST(req: Request) {
     const newSession = await prisma.session.create({
       data: {
         name,
-        mode: mode || 'COMPETITIVE',
+        mode: 'COMPETITIVE',
+        gameType: gameType || 'QUIZ',
         joinCode,
         hostId: actualHostId,
       },

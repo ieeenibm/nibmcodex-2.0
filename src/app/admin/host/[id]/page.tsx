@@ -3,29 +3,25 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import useSWR from 'swr';
 import { useParams } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import QRCode from 'qrcode';
 import * as Ably from 'ably';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Play,
   ChevronRight,
   Users,
   CheckCircle2,
   ArrowLeft,
-  Eye,
   QrCode as QrIcon,
   Flame,
   Clock,
   Sparkles,
   Zap,
   Trophy,
-  XCircle,
   Crown,
   TrendingUp,
 } from 'lucide-react';
-
-const ResponseBoard = dynamic(() => import('./ResponseBoard'), { ssr: false });
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -34,42 +30,45 @@ const fetcher = async (url: string) => {
   return data;
 };
 
-type GamePhase = 'lobby' | 'get-ready' | 'question' | 'reveal' | 'leaderboard' | 'ended';
+type GamePhase = 'lobby' | 'question' | 'reveal' | 'ended';
+
+const OPTION_COLORS = [
+  { bg: 'bg-red-600/20', border: 'border-red-500/50', text: 'text-red-300', tagBg: 'bg-red-500', label: 'A' },
+  { bg: 'bg-blue-600/20', border: 'border-blue-500/50', text: 'text-blue-300', tagBg: 'bg-blue-500', label: 'B' },
+  { bg: 'bg-yellow-600/20', border: 'border-yellow-500/50', text: 'text-yellow-300', tagBg: 'bg-yellow-500', label: 'C' },
+  { bg: 'bg-emerald-600/20', border: 'border-emerald-500/50', text: 'text-emerald-300', tagBg: 'bg-emerald-500', label: 'D' },
+];
 
 export default function HostView() {
   const { id } = useParams();
 
-  // Poll for overall session state (reduced to 5s as Ably handles real-time)
+  // Passive reconciliation polling
   const { data: session, mutate: mutateSession } = useSWR(`/api/admin/sessions/${id}`, fetcher, { refreshInterval: 5000 });
+  const { data: liveStats, mutate: mutateLiveStats } = useSWR(`/api/admin/sessions/${id}/live-stats`, fetcher, { refreshInterval: 4000 });
 
-  // Poll for live stats (reduced to 5s fallback, Ably provides instant updates)
-  const { data: liveStats, mutate: mutateLiveStats } = useSWR(`/api/admin/sessions/${id}/live-stats`, fetcher, { refreshInterval: 5000 });
-
-  // Real-time stats from Ably (override SWR polling data)
+  // Real-time state from Ably
   const [realtimeResponseCount, setRealtimeResponseCount] = useState<number | null>(null);
   const [realtimeCorrectCount, setRealtimeCorrectCount] = useState<number | null>(null);
   const [realtimeDistribution, setRealtimeDistribution] = useState<Record<string, number> | null>(null);
   const [realtimeParticipantCount, setRealtimeParticipantCount] = useState<number | null>(null);
+  const [realtimeLeaderboard, setRealtimeLeaderboard] = useState<any[] | null>(null);
 
-  // Game phase state machine
+  // Game phase
   const [gamePhase, setGamePhase] = useState<GamePhase>('lobby');
-  const [getReadyCountdown, setGetReadyCountdown] = useState<number>(3);
-
-  // Track "show answer" state PER question ID to prevent resets on SWR re-poll
-  const [revealedQuestions, setRevealedQuestions] = useState<Set<string>>(new Set());
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
   const [timeLeft, setTimeLeft] = useState<number>(30);
   const [displayHost, setDisplayHost] = useState<string>('nibmcodex.nibmieee.lk/play');
 
-  // Auto-advance configuration
+  // Auto-advance
   const [autoAdvance, setAutoAdvance] = useState<boolean>(true);
-  const [autoAdvanceSeconds, setAutoAdvanceSeconds] = useState<number | null>(null);
-  const [autoAdvanceReason, setAutoAdvanceReason] = useState<'TIME_UP' | 'ALL_ANSWERED' | null>(null);
+  const [revealCountdown, setRevealCountdown] = useState<number | null>(null);
   const [serverOffset, setServerOffset] = useState<number>(0);
   const [isStarting, setIsStarting] = useState<boolean>(false);
   const [isAdvancing, setIsAdvancing] = useState<boolean>(false);
-  const hasAutoAdvancedRef = useRef<string | null>(null);
+  const hasTriggeredAdvanceRef = useRef<string | null>(null);
   const ablyClientRef = useRef<Ably.Realtime | null>(null);
+
+  const gameType = session?.gameType || 'QUIZ';
 
   // Ably Realtime Connection for Host
   useEffect(() => {
@@ -86,7 +85,7 @@ export default function HostView() {
 
         const channel = client.channels.get(`session:${id}`);
 
-        // Listen for real-time answer submissions
+        // Live answer submissions: update count, distribution, and trigger leaderboard re-rank
         await channel.subscribe('answer-submitted', (message) => {
           const data = message.data;
           if (data) {
@@ -96,23 +95,24 @@ export default function HostView() {
               setRealtimeDistribution(data.mcqDistribution);
             }
           }
+          mutateLiveStats();
         });
 
-        // Listen for participant joins
+        // Attendee joined
         await channel.subscribe('participant-joined', (message) => {
           const data = message.data;
           if (data?.totalParticipants) {
             setRealtimeParticipantCount(data.totalParticipants);
           }
+          mutateLiveStats();
         });
 
-        // Listen for leaderboard updates
-        await channel.subscribe('leaderboard-update', (message) => {
-          // Trigger SWR revalidation to get fresh leaderboard
+        // Live Leaderboard rank updates
+        await channel.subscribe('leaderboard-update', () => {
           mutateLiveStats();
         });
       } catch (err) {
-        console.error('[Host] Ably connection failed, relying on SWR polling:', err);
+        console.error('[Host] Ably connection failed, falling back to polling:', err);
       }
     };
 
@@ -126,25 +126,19 @@ export default function HostView() {
     };
   }, [id, mutateLiveStats]);
 
-  // Effective counts: prefer realtime Ably data, fall back to SWR polling
-  const effectiveResponseCount = realtimeResponseCount ?? liveStats?.activeQuestionResponsesCount ?? 0;
-  const effectiveCorrectCount = realtimeCorrectCount ?? liveStats?.correctCount ?? 0;
-  const effectiveDistribution = realtimeDistribution ?? liveStats?.mcqDistribution ?? {};
-  const effectiveParticipantCount = realtimeParticipantCount ?? liveStats?.totalParticipants ?? 0;
-
-  // Reset realtime counters when active question changes
-  useEffect(() => {
-    setRealtimeResponseCount(null);
-    setRealtimeCorrectCount(null);
-    setRealtimeDistribution(null);
-  }, [session?.activeQuestionId]);
-
   // Sync serverOffset from session.serverTime
   useEffect(() => {
     if (session?.serverTime) {
       setServerOffset(Date.now() - new Date(session.serverTime).getTime());
     }
   }, [session?.serverTime]);
+
+  // Sync leaderboard from SWR
+  useEffect(() => {
+    if (liveStats?.leaderboard) {
+      setRealtimeLeaderboard(liveStats.leaderboard);
+    }
+  }, [liveStats?.leaderboard]);
 
   // Generate QR code for instant join
   useEffect(() => {
@@ -160,7 +154,7 @@ export default function HostView() {
         margin: 2,
         color: {
           dark: '#06b6d4', // Cyan-500
-          light: '#0a0f1d', // Dark Navy background
+          light: '#0a0f1d', // Dark Navy
         },
       })
         .then((url) => setQrDataUrl(url))
@@ -168,10 +162,8 @@ export default function HostView() {
     }
   }, [session?.joinCode]);
 
-  // Host Countdown Timer
   const activeQuestionIndex = session?.questions?.findIndex((q: any) => q.id === session.activeQuestionId) ?? -1;
   const activeQuestion = activeQuestionIndex !== -1 ? session.questions[activeQuestionIndex] : null;
-  const showAnswer = activeQuestion ? revealedQuestions.has(activeQuestion.id) : false;
   const isTimed = (activeQuestion?.timeLimit ?? 30) > 0;
 
   const calculateRemaining = useCallback(() => {
@@ -190,47 +182,26 @@ export default function HostView() {
       setGamePhase('lobby');
     } else if (session?.status === 'ENDED') {
       setGamePhase('ended');
+    } else if (session?.status === 'ACTIVE') {
+      setGamePhase('question');
     }
   }, [session?.status]);
 
-  // Reset auto-advance countdown and initialize timer when active question changes
+  // Reset counters & flags on activeQuestion change
   useEffect(() => {
-    setAutoAdvanceSeconds(null);
-    setAutoAdvanceReason(null);
-    hasAutoAdvancedRef.current = null;
+    setRevealCountdown(null);
+    hasTriggeredAdvanceRef.current = null;
+    setRealtimeResponseCount(null);
+    setRealtimeCorrectCount(null);
+    setRealtimeDistribution(null);
+
     if (activeQuestion && session?.status === 'ACTIVE') {
-      // Enter "Get Ready" phase for each new question
-      setGamePhase('get-ready');
-      setGetReadyCountdown(3);
-      setTimeLeft(Math.ceil(calculateRemaining()));
-    } else {
-      setTimeLeft(activeQuestion?.timeLimit ?? 30);
-    }
-  }, [session?.activeQuestionId, session?.status]);
-
-  // Get Ready countdown
-  useEffect(() => {
-    if (gamePhase !== 'get-ready') return;
-
-    if (getReadyCountdown <= 0) {
       setGamePhase('question');
-      // Broadcast 'question' phase to players
-      fetch(`/api/admin/sessions/${id}/state`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phase: 'question' }),
-      }).catch(() => {});
-      return;
+      setTimeLeft(Math.ceil(calculateRemaining()));
     }
+  }, [session?.activeQuestionId, session?.status, calculateRemaining, activeQuestion]);
 
-    const timer = setTimeout(() => {
-      setGetReadyCountdown(prev => prev - 1);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, [gamePhase, getReadyCountdown, id]);
-
-  // Question countdown timer
+  // Question countdown interval
   useEffect(() => {
     if (gamePhase !== 'question' || !activeQuestion || !isTimed || !session?.questionStartedAt || session?.status !== 'ACTIVE') {
       return;
@@ -243,50 +214,30 @@ export default function HostView() {
 
     updateTimer();
     const interval = setInterval(updateTimer, 250);
-
     return () => clearInterval(interval);
-  }, [gamePhase, activeQuestion?.id, activeQuestion?.timeLimit, isTimed, session?.questionStartedAt, session?.status, serverOffset, calculateRemaining]);
+  }, [gamePhase, activeQuestion?.id, activeQuestion?.timeLimit, isTimed, session?.questionStartedAt, session?.status, calculateRemaining]);
 
-  const handleReveal = useCallback(() => {
-    if (activeQuestion) {
-      setRevealedQuestions((prev) => new Set([...prev, activeQuestion.id]));
-      setGamePhase('reveal');
-      // Broadcast reveal phase to players
-      fetch(`/api/admin/sessions/${id}/state`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phase: 'reveal' }),
-      }).catch(() => {});
-    }
-  }, [activeQuestion, id]);
+  const effectiveResponseCount = realtimeResponseCount ?? liveStats?.activeQuestionResponsesCount ?? 0;
+  const effectiveParticipantCount = realtimeParticipantCount ?? liveStats?.totalParticipants ?? 0;
+  const effectiveDistribution = realtimeDistribution ?? liveStats?.mcqDistribution ?? {};
+  const currentLeaderboard = realtimeLeaderboard || liveStats?.leaderboard || [];
 
-  const handleShowLeaderboard = useCallback(() => {
-    setGamePhase('leaderboard');
-    mutateLiveStats(); // Refresh leaderboard data
-    // Broadcast leaderboard phase to players
-    fetch(`/api/admin/sessions/${id}/state`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phase: 'leaderboard' }),
-    }).catch(() => {});
-  }, [id, mutateLiveStats]);
-
-  const handleNext = useCallback(async () => {
+  const handleAdvanceNext = useCallback(async () => {
     if (isAdvancing) return;
     setIsAdvancing(true);
-    setAutoAdvanceSeconds(null);
-    setAutoAdvanceReason(null);
+    setRevealCountdown(null);
+
     try {
       const nextIdx = activeQuestionIndex + 1;
       if (nextIdx >= session.questions.length) {
+        // Last question finished: End arena
         await fetch(`/api/admin/sessions/${id}/state`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: 'ENDED' }),
         });
       } else {
-        setGamePhase('get-ready');
-        setGetReadyCountdown(3);
+        // Transition to next question
         await fetch(`/api/admin/sessions/${id}/state`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -300,11 +251,11 @@ export default function HostView() {
     }
   }, [isAdvancing, activeQuestionIndex, session, id, mutateSession, mutateLiveStats]);
 
-  // Trigger auto-advance when timer ends OR when all participants have answered
+  // Auto-advance detector: timer expired or everyone answered
   useEffect(() => {
     if (gamePhase !== 'question' || !activeQuestion || session?.status !== 'ACTIVE' || !autoAdvance) return;
-    if (autoAdvanceSeconds !== null) return; // already in countdown
-    if (hasAutoAdvancedRef.current === activeQuestion.id) return; // already triggered for this question
+    if (revealCountdown !== null) return; // already counting down reveal
+    if (hasTriggeredAdvanceRef.current === activeQuestion.id) return;
 
     const totalPlayers = effectiveParticipantCount;
     const responseCount = effectiveResponseCount;
@@ -313,69 +264,41 @@ export default function HostView() {
 
     if (!allAnswered && !timeExpired) return;
 
-    // Mark question as triggered so it cannot re-fire
-    hasAutoAdvancedRef.current = activeQuestion.id;
+    hasTriggeredAdvanceRef.current = activeQuestion.id;
+    setGamePhase('reveal');
 
-    if (allAnswered) {
-      setAutoAdvanceReason('ALL_ANSWERED');
-      handleReveal();
-      setAutoAdvanceSeconds(3); // 3s grace when everyone answered
-    } else if (timeExpired) {
-      setAutoAdvanceReason('TIME_UP');
-      handleReveal();
-      setAutoAdvanceSeconds(5);
-    }
-  }, [
-    gamePhase,
-    timeLeft,
-    isTimed,
-    autoAdvance,
-    activeQuestion?.id,
-    session?.status,
-    autoAdvanceSeconds,
-    effectiveParticipantCount,
-    effectiveResponseCount,
-    handleReveal,
-  ]);
+    // Broadcast reveal phase to player devices
+    fetch(`/api/admin/sessions/${id}/state`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phase: 'reveal' }),
+    }).catch(() => {});
 
-  // Handle auto-advance countdown tick
+    // 3 seconds reveal countdown, then auto-advance
+    setRevealCountdown(3);
+  }, [gamePhase, timeLeft, isTimed, autoAdvance, activeQuestion?.id, session?.status, revealCountdown, effectiveParticipantCount, effectiveResponseCount, id]);
+
+  // Reveal countdown tick
   useEffect(() => {
-    if (autoAdvanceSeconds === null) return;
+    if (revealCountdown === null) return;
 
-    if (autoAdvanceSeconds <= 0) {
-      setAutoAdvanceSeconds(null);
-      setAutoAdvanceReason(null);
-      // Go to leaderboard before next question
-      handleShowLeaderboard();
-      // Auto-advance to next question after showing leaderboard for 4s
-      setTimeout(() => {
-        handleNext();
-      }, 4000);
+    if (revealCountdown <= 0) {
+      setRevealCountdown(null);
+      handleAdvanceNext();
       return;
     }
 
     const timer = setTimeout(() => {
-      setAutoAdvanceSeconds((prev) => (prev !== null ? prev - 1 : null));
+      setRevealCountdown((prev) => (prev !== null ? prev - 1 : null));
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [autoAdvanceSeconds, handleShowLeaderboard, handleNext]);
-
-  if (!session) {
-    return (
-      <div className="min-h-screen bg-navy-950 flex flex-col items-center justify-center text-cyan-400 font-bold gap-3">
-        <div className="w-10 h-10 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" />
-        <span className="tracking-widest font-mono text-sm">INITIALIZING PULSE ARENA...</span>
-      </div>
-    );
-  }
+  }, [revealCountdown, handleAdvanceNext]);
 
   const handleStart = async () => {
     if (isStarting || !session?.questions?.length) return;
     setIsStarting(true);
     try {
-      setGamePhase('get-ready');
-      setGetReadyCountdown(3);
       await fetch(`/api/admin/sessions/${id}/state`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -388,92 +311,85 @@ export default function HostView() {
     }
   };
 
+  const handleEndEarly = async () => {
+    if (!confirm('Are you sure you want to end this arena early?')) return;
+    await fetch(`/api/admin/sessions/${id}/state`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: 'ENDED' }),
+    });
+    await mutateSession();
+    await mutateLiveStats();
+  };
+
   const timeProgress = activeQuestion?.timeLimit ? (timeLeft / activeQuestion.timeLimit) * 100 : 100;
 
-  const handleEndEarly = async () => {
-    if (!confirm("Are you sure you want to end this session early?")) return;
-    await fetch(`/api/admin/sessions/${id}/state`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "ENDED" }),
-    });
-    await mutateSession();
-    await mutateLiveStats();
-  };
-
-  const handleRestart = async () => {
-    if (!confirm("Are you sure you want to restart this session? ALL participant data and scores will be permanently deleted.")) return;
-    await fetch(`/api/admin/sessions/${id}/reset`, {
-      method: "POST",
-    });
-    setGamePhase('lobby');
-    setRealtimeResponseCount(null);
-    setRealtimeCorrectCount(null);
-    setRealtimeDistribution(null);
-    setRealtimeParticipantCount(null);
-    await mutateSession();
-    await mutateLiveStats();
-  };
-
+  if (!session) {
+    return (
+      <div className="min-h-screen bg-navy-950 flex flex-col items-center justify-center text-cyan-400 font-bold gap-3">
+        <div className="w-10 h-10 border-4 border-cyan-500/20 border-t-cyan-500 rounded-full animate-spin" />
+        <span className="tracking-widest font-mono text-sm">INITIALIZING PULSE ARENA...</span>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-navy-950 flex flex-col relative overflow-hidden select-none">
-      {/* Header */}
-      <header className="p-6 flex justify-between items-center z-10 border-b border-white/10 bg-navy-900/60 backdrop-blur-md">
-        <div>
-          <h1 className="text-2xl font-black text-white tracking-tight flex items-center gap-2.5">
-            Pulse Mini <span className="text-xs font-mono bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 px-2 py-0.5 rounded-md">HOST ARENA</span>
-          </h1>
-          <p className="text-slate-400 text-xs mt-1 flex items-center gap-2">
-            {session.name}
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-white/10 text-slate-300">
-              {session.mode}
-            </span>
-          </p>
+    <div className="min-h-screen bg-navy-950 text-white flex flex-col relative overflow-hidden select-none">
+      {/* Top Universal HUD */}
+      <header className="px-6 py-4 flex justify-between items-center z-10 border-b border-white/10 bg-navy-900/70 backdrop-blur-md">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin/dashboard"
+            className="p-2 bg-white/5 hover:bg-white/10 border border-white/10 clip-slanted rounded-none text-slate-300 transition-colors"
+            title="Back to dashboard"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Link>
+          <div>
+            <h1 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
+              Pulse Mini{' '}
+              <span className="text-[10px] font-mono bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 px-2 py-0.5 rounded-md">
+                {gameType === 'AI_VS_HUMAN' ? 'AI VS HUMAN' : 'LIVE ARENA'}
+              </span>
+            </h1>
+            <p className="text-slate-400 text-xs font-mono">{session.name}</p>
+          </div>
         </div>
 
-        <div className="flex items-center gap-8">
-          {/* Persistent Join PIN badge */}
+        <div className="flex items-center gap-6">
           <div className="text-right">
-            <p className="text-[11px] text-slate-400 uppercase tracking-widest font-mono font-bold">JOIN AT {displayHost}</p>
-            <div className="text-3xl font-black font-mono tracking-[0.25em] text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.6)]">
+            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-mono font-bold">JOIN AT {displayHost}</p>
+            <div className="text-2xl font-black font-mono tracking-[0.2em] text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]">
               {session.joinCode}
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 bg-navy-900/90 px-4 py-2 clip-slanted rounded-none border border-white/10 shadow-lg">
-            <Users className="w-5 h-5 text-cyan-400" />
-            <span className="text-xl font-black text-white font-mono">{effectiveParticipantCount}</span>
+          <div className="flex items-center gap-2 bg-navy-900/90 px-3.5 py-1.5 clip-slanted rounded-none border border-white/10 shadow-lg">
+            <Users className="w-4 h-4 text-cyan-400" />
+            <span className="text-lg font-black text-white font-mono">{effectiveParticipantCount}</span>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col relative z-10 p-6 sm:p-10">
-        {/* DRAFT STATE / LOBBY WITH QR CODE */}
+      {/* Main Screen Layout */}
+      <main className="flex-1 flex flex-col relative z-10 p-6">
+        {/* 1. LOBBY STATE */}
         {gamePhase === 'lobby' && session.status === 'DRAFT' && (
           <div className="m-auto max-w-2xl w-full text-center flex flex-col items-center">
-            <div className="mb-6">
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono font-bold tracking-wider mb-4">
-                <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
-                LOBBY OPEN FOR PLAYERS
-              </span>
-              <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-2">
-                Scan or Enter Code
-              </h2>
-              <p className="text-slate-400 text-lg">
-                Point your phone camera at the QR code to join instantly.
-              </p>
-            </div>
+            <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 text-xs font-mono font-bold tracking-wider mb-4">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+              LOBBY OPEN FOR PLAYERS
+            </span>
+            <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight mb-2">
+              Scan or Enter Code
+            </h2>
+            <p className="text-slate-400 text-base mb-6">
+              Connect your phone to enter the live arena competition!
+            </p>
 
-            {/* QR Code Container */}
             {qrDataUrl && (
-              <div className="bg-navy-900 p-5 clip-slanted rounded-none border-2 border-cyan-500/30 shadow-2xl shadow-cyan-500/10 mb-8 relative group">
-                <img
-                  src={qrDataUrl}
-                  alt="Join QR Code"
-                  className="w-56 h-56 sm:w-64 sm:h-64 clip-slanted rounded-none mx-auto"
-                />
+              <div className="bg-navy-900 p-5 clip-slanted rounded-none border-2 border-cyan-500/30 shadow-2xl shadow-cyan-500/10 mb-8">
+                <img src={qrDataUrl} alt="Join QR Code" className="w-56 h-56 clip-slanted rounded-none mx-auto" />
                 <div className="mt-3 flex items-center justify-center gap-2 text-cyan-400 font-mono font-bold text-xs">
                   <QrIcon className="w-4 h-4" />
                   <span>{displayHost}</span>
@@ -489,474 +405,329 @@ export default function HostView() {
               <Play className="w-7 h-7 fill-current" /> {isStarting ? 'Starting Arena...' : 'Start Arena'}
             </button>
             {session.questions.length === 0 && (
-              <p className="text-slate-500 text-sm mt-4">Add at least one question in session editor to start</p>
+              <p className="text-slate-500 text-xs mt-4">Add at least one question in session editor to start</p>
             )}
           </div>
         )}
 
-        {/* GET READY PHASE */}
-        {gamePhase === 'get-ready' && activeQuestion && (
-          <div className="m-auto text-center animate-in zoom-in-95 duration-500">
-            <div className="mb-6">
-              <span className="text-cyan-400 font-bold tracking-widest uppercase text-sm font-mono">
-                QUESTION {activeQuestionIndex + 1} OF {session.questions.length}
-              </span>
-            </div>
-            <div className="w-40 h-40 mx-auto mb-8 relative">
-              <div className="absolute inset-0 bg-cyan-500/20 rounded-full blur-2xl animate-pulse" />
-              <div className="relative w-40 h-40 bg-navy-900 border-4 border-cyan-400 rounded-full flex items-center justify-center shadow-2xl shadow-cyan-500/30">
-                <span className="text-7xl font-black text-cyan-400 font-mono animate-bounce">
-                  {getReadyCountdown || 'GO!'}
-                </span>
-              </div>
-            </div>
-            <h2 className="text-4xl sm:text-5xl font-black text-white mb-3 tracking-tight">Get Ready!</h2>
-            <p className="text-slate-400 text-lg">
-              {activeQuestion.type === 'POLL' ? '📊 Live Poll' : activeQuestion.type === 'TEXT' ? '✏️ Open Response' : '🎯 Multiple Choice'}
-            </p>
-          </div>
-        )}
+        {/* 2. ACTIVE ARENA: SPLIT VIEW (QUESTION HUD + PERSISTENT LIVE LEADERBOARD) */}
+        {(gamePhase === 'question' || gamePhase === 'reveal') && session.status === 'ACTIVE' && activeQuestion && (
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full flex-1">
+            {/* LEFT PANEL (5 Cols): Question Text, Timer, Candidates/Options */}
+            <div className="lg:col-span-6 flex flex-col justify-between bg-navy-900/60 border border-white/10 p-6 clip-slanted rounded-none backdrop-blur-md">
+              <div>
+                {/* Question Progress & Timer Bar */}
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-cyan-400 font-bold tracking-widest uppercase text-xs font-mono">
+                    QUESTION {activeQuestionIndex + 1} OF {session.questions.length}
+                  </span>
 
-        {/* ACTIVE QUESTION PHASE */}
-        {gamePhase === 'question' && session.status === 'ACTIVE' && activeQuestion && (
-          <div className="flex flex-col h-full justify-between">
-            {/* Top Question HUD with Countdown Bar */}
-            <div className="text-center mb-4">
-              <div className="flex items-center justify-between max-w-4xl mx-auto mb-3">
-                <span className="text-cyan-400 font-bold tracking-widest uppercase text-xs font-mono">
-                  QUESTION {activeQuestionIndex + 1} OF {session.questions.length} • {activeQuestion.type}
-                </span>
-
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setAutoAdvance(!autoAdvance)}
-                    className={`flex items-center gap-1.5 px-3 py-1 clip-slanted rounded-none border font-mono text-xs font-bold transition-colors ${
-                      autoAdvance
-                        ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300'
-                        : 'bg-white/5 border-white/10 text-slate-500 hover:text-slate-400'
-                    }`}
-                    title={autoAdvance ? 'Auto-Advance is ON (timer end automatically advances)' : 'Auto-Advance is OFF (manual control)'}
-                  >
-                    <Zap className="w-3.5 h-3.5" />
-                    <span>Auto-Advance {autoAdvance ? 'ON' : 'OFF'}</span>
-                  </button>
-
-                  {isTimed ? (
-                    <div className="flex items-center gap-2 bg-navy-900 px-3 py-1 clip-slanted rounded-none border border-white/10 font-mono text-sm font-bold text-cyan-400">
-                      <Clock className="w-4 h-4" />
-                      <span>{timeLeft}s</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-1.5 bg-navy-900 px-3 py-1 clip-slanted rounded-none border border-white/10 font-mono text-xs font-bold text-slate-400">
-                      <span>♾️ Untimed</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Auto-Advance Countdown Banner */}
-              {autoAdvanceSeconds !== null && (
-                <div className="max-w-md mx-auto mb-4 bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 px-4 py-2 clip-slanted rounded-none flex items-center justify-between font-mono text-xs font-bold animate-pulse shadow-lg">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-cyan-400" />
-                    <span>
-                      {autoAdvanceReason === 'ALL_ANSWERED'
-                        ? 'All players answered! Showing results in'
-                        : 'Time\'s up! Showing results in'}{' '}
-                      {autoAdvanceSeconds}s...
-                    </span>
+                    <button
+                      onClick={() => setAutoAdvance(!autoAdvance)}
+                      className={`flex items-center gap-1 px-2.5 py-1 clip-slanted rounded-none border font-mono text-[11px] font-bold ${
+                        autoAdvance ? 'bg-cyan-500/20 border-cyan-500/40 text-cyan-300' : 'bg-white/5 text-slate-500'
+                      }`}
+                    >
+                      <Zap className="w-3 h-3" /> Auto-Advance {autoAdvance ? 'ON' : 'OFF'}
+                    </button>
+
+                    {isTimed && (
+                      <div
+                        className={`flex items-center gap-1.5 px-3 py-1 clip-slanted rounded-none font-mono text-sm font-black border ${
+                          timeLeft <= 5 ? 'bg-red-500/20 border-red-500/40 text-red-400 animate-bounce' : 'bg-navy-950 text-cyan-400 border-white/10'
+                        }`}
+                      >
+                        <Clock className="w-3.5 h-3.5" />
+                        <span>{timeLeft}s</span>
+                      </div>
+                    )}
                   </div>
-                  <button
-                    onClick={() => {
-                      setAutoAdvanceSeconds(null);
-                      setAutoAdvanceReason(null);
-                      setAutoAdvance(false);
-                    }}
-                    className="px-2.5 py-0.5 bg-white/10 hover:bg-white/20 text-white rounded text-[10px] font-sans font-medium"
-                  >
-                    Pause
-                  </button>
                 </div>
-              )}
 
-              {/* Progress timer bar - only if isTimed */}
-              {isTimed && (
-                <div className="max-w-4xl mx-auto h-2 bg-navy-900 rounded-full overflow-hidden border border-white/5 mb-6">
-                  <div
-                    className={`h-full transition-all duration-300 ease-linear ${
-                      timeLeft <= 5 ? 'bg-red-500' : timeLeft <= 10 ? 'bg-yellow-400' : 'bg-cyan-400'
-                    }`}
-                    style={{ width: `${Math.max(0, timeProgress)}%` }}
-                  />
-                </div>
-              )}
+                {/* Progress Bar */}
+                {isTimed && (
+                  <div className="w-full h-2 bg-navy-950 rounded-full overflow-hidden border border-white/5 mb-4">
+                    <div
+                      className={`h-full transition-all duration-300 ease-linear ${
+                        timeLeft <= 5 ? 'bg-red-500' : timeLeft <= 10 ? 'bg-yellow-400' : 'bg-cyan-400'
+                      }`}
+                      style={{ width: `${Math.max(0, timeProgress)}%` }}
+                    />
+                  </div>
+                )}
 
-              <h2 className="text-3xl sm:text-5xl font-black text-white leading-tight drop-shadow-lg max-w-4xl mx-auto">
-                {activeQuestion.text}
-              </h2>
-
-              {/* Show MCQ options on host screen during countdown */}
-              {activeQuestion.type === 'MCQ' && !showAnswer && (
-                <div className="max-w-4xl mx-auto grid grid-cols-2 gap-3 mt-6">
-                  {activeQuestion.options?.map((opt: string, i: number) => (
-                    <div key={i} className="p-4 bg-navy-900/60 border border-white/10 clip-slanted rounded-none text-white font-bold text-lg text-center">
-                      {opt}
+                {/* Reveal Alert */}
+                {gamePhase === 'reveal' && (
+                  <div className="bg-green-500/20 border border-green-500/40 text-green-300 px-4 py-2 clip-slanted rounded-none font-mono text-xs font-bold flex items-center justify-between mb-4 animate-pulse">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-green-400" />
+                      <span>Round Concluded! Next question in {revealCountdown}s...</span>
                     </div>
-                  ))}
-                </div>
-              )}
+                  </div>
+                )}
 
-              <div className="inline-flex items-center gap-2 bg-navy-900/90 px-6 py-2 rounded-full border border-white/15 mt-4 shadow-lg">
-                <span className="text-cyan-400 font-black font-mono text-lg">{effectiveResponseCount}</span>
-                <span className="text-slate-400 text-sm">of</span>
-                <span className="text-white font-bold font-mono text-lg">{effectiveParticipantCount}</span>
-                <span className="text-slate-400 text-sm">Submissions</span>
-              </div>
-            </div>
+                {/* Question Prompt */}
+                <h2 className="text-2xl sm:text-3xl font-black text-white leading-tight mb-6">
+                  {activeQuestion.text}
+                </h2>
 
-            {/* Arena Canvas / Visualizers */}
-            <div className="flex-1 clip-slanted rounded-none overflow-hidden relative flex flex-col my-4">
-              {/* POLL TYPE: Always render live distribution bars */}
-              {activeQuestion.type === 'POLL' && (
-                <div className="flex-1 clip-slanted rounded-none overflow-hidden border-2 border-white/10 relative bg-navy-900/30 backdrop-blur-sm h-full w-full flex flex-col items-center justify-center p-8 sm:p-12">
-                  <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    {activeQuestion.options?.map((opt: string, i: number) => {
-                      const count = effectiveDistribution[opt] || 0;
-                      const maxCount = Math.max(1, effectiveResponseCount || 1);
-                      const heightPercentage = Math.max(8, (count / maxCount) * 100);
+                {/* GAME 2: AI VS HUMAN IMAGE CANDIDATES */}
+                {gameType === 'AI_VS_HUMAN' && activeQuestion.images && (
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    {activeQuestion.images.map((img: any, idx: number) => {
+                      const isCorrect = img.isTarget || img.id === activeQuestion.correctAnswer;
+                      const showHighlight = gamePhase === 'reveal' && isCorrect;
 
                       return (
-                        <div key={i} className="flex flex-col gap-2">
-                          <div className="w-full bg-navy-950 border border-white/10 clip-slanted rounded-none p-6 text-center shadow-xl relative overflow-hidden">
-                            <div
-                              className="absolute bottom-0 left-0 right-0 bg-cyan-500/25 transition-all duration-700 ease-out z-0"
-                              style={{ height: `${heightPercentage}%` }}
-                            />
-                            <div className="relative z-10">
-                              <h3 className="text-xl font-bold text-white mb-2">{opt}</h3>
-                              <p className="text-4xl font-black text-cyan-400 font-mono">{count}</p>
-                            </div>
+                        <div
+                          key={img.id || idx}
+                          className={`relative rounded-xl overflow-hidden border-2 transition-all group ${
+                            showHighlight
+                              ? 'border-green-400 shadow-2xl shadow-green-500/30 scale-[1.02]'
+                              : gamePhase === 'reveal'
+                              ? 'border-white/10 opacity-40'
+                              : 'border-white/15 hover:border-cyan-400'
+                          }`}
+                        >
+                          <img src={img.url} alt={img.label} className="w-full h-44 object-cover" />
+                          <div className="absolute top-2 left-2 bg-navy-950/80 px-2.5 py-1 rounded text-xs font-mono font-bold text-white border border-white/20">
+                            {OPTION_COLORS[idx]?.label || idx + 1}
                           </div>
+
+                          {showHighlight && (
+                            <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center backdrop-blur-[2px]">
+                              <span className="bg-green-500 text-navy-950 px-3 py-1 font-mono font-black text-xs rounded-full flex items-center gap-1 shadow-lg">
+                                <CheckCircle2 className="w-4 h-4" /> OFFICIAL TARGET
+                              </span>
+                            </div>
+                          )}
                         </div>
                       );
                     })}
                   </div>
-                </div>
-              )}
-
-              {/* TEXT TYPE: Always render floating physics ResponseBoard */}
-              {activeQuestion.type === 'TEXT' && (
-                <div className="flex-1 clip-slanted rounded-none overflow-hidden border-2 border-white/10 relative bg-navy-900/30 backdrop-blur-sm">
-                  <ResponseBoard key={activeQuestion.id} questionId={activeQuestion.id} />
-                </div>
-              )}
-
-              {/* MCQ TYPE: Spinner while collecting answers */}
-              {activeQuestion.type === 'MCQ' && !showAnswer && (
-                <div className="flex-1 flex flex-col items-center justify-center p-4">
-                  <div className="relative w-64 h-64 flex items-center justify-center">
-                    <div className="w-64 h-64 border-8 border-cyan-500/15 border-t-cyan-400 rounded-full animate-spin" />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-                      <span className="text-4xl font-black font-mono text-cyan-400 block mb-1">
-                        {effectiveResponseCount}
-                      </span>
-                      <span className="text-slate-400 text-xs uppercase tracking-widest font-mono font-bold">RESPONSES</span>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Bottom Controls */}
-            <div className="flex justify-between items-center px-4 pt-2">
-              <div className="flex gap-3">
-                {activeQuestion.type === 'MCQ' && !showAnswer && (
-                  <button
-                    onClick={handleReveal}
-                    className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold clip-slanted rounded-none flex items-center gap-2.5 transition-all border border-white/10 text-base"
-                  >
-                    <Eye className="w-5 h-5" /> Reveal Answer
-                  </button>
                 )}
-                <button
-                  onClick={handleEndEarly}
-                  className="px-6 py-3.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold clip-slanted rounded-none flex items-center transition-all border border-red-500/30 text-sm"
-                >
-                  End Early
-                </button>
-              </div>
-              <button
-                onClick={() => {
-                  handleReveal();
-                  // Short delay then show leaderboard
-                  setTimeout(() => handleShowLeaderboard(), 3000);
-                }}
-                disabled={isAdvancing}
-                className="px-8 py-3.5 bg-cyan-400 hover:bg-cyan-300 disabled:opacity-50 text-navy-950 font-black clip-slanted rounded-none flex items-center gap-2.5 transition-all shadow-xl shadow-cyan-500/20 text-base"
-              >
-                {showAnswer ? 'Show Leaderboard' : 'Reveal & Continue'}
-                <ChevronRight className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
-        )}
 
-        {/* REVEAL PHASE */}
-        {gamePhase === 'reveal' && activeQuestion && (
-          <div className="m-auto max-w-4xl w-full animate-in zoom-in-95 duration-300">
-            <div className="text-center mb-8">
-              <span className="text-cyan-400 font-bold tracking-widest uppercase text-xs font-mono">
-                QUESTION {activeQuestionIndex + 1} OF {session.questions.length}
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-black text-white mt-2">{activeQuestion.text}</h2>
-            </div>
+                {/* GAME 1: CLASSIC MCQ 4 OPTION TILES */}
+                {gameType !== 'AI_VS_HUMAN' && activeQuestion.options && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+                    {activeQuestion.options.map((opt: string, idx: number) => {
+                      const color = OPTION_COLORS[idx % OPTION_COLORS.length];
+                      const isCorrect = opt === activeQuestion.correctAnswer;
+                      const showHighlight = gamePhase === 'reveal' && isCorrect;
+                      const count = effectiveDistribution[opt] || 0;
+                      const pct = Math.round((count / Math.max(1, effectiveResponseCount)) * 100);
 
-            {activeQuestion.type === 'MCQ' && (
-              <div className="w-full flex flex-col items-center gap-6">
-                <div className="bg-green-500/10 border-2 border-green-500/40 p-8 clip-slanted rounded-none text-center w-full backdrop-blur-md shadow-2xl">
-                  <p className="text-green-400 font-bold uppercase tracking-widest mb-2 text-xs font-mono">
-                    CORRECT ANSWER
-                  </p>
-                  <p className="text-3xl sm:text-5xl font-black text-white mb-3">
-                    {activeQuestion.correctAnswer || 'All Answers Recorded'}
-                  </p>
-                  <div className="inline-flex items-center gap-2 bg-green-500/20 border border-green-500/30 px-4 py-1 rounded-full text-green-300 font-mono text-sm font-bold">
-                    <Sparkles className="w-4 h-4" />
-                    {effectiveCorrectCount} / {effectiveResponseCount} Players Scored Points
+                      return (
+                        <div
+                          key={idx}
+                          className={`p-4 border-2 clip-slanted rounded-none flex items-center justify-between transition-all ${
+                            showHighlight
+                              ? 'bg-green-500/20 border-green-400 text-green-200 shadow-xl'
+                              : gamePhase === 'reveal'
+                              ? 'bg-navy-950/40 border-white/5 opacity-50'
+                              : `${color.bg} ${color.border} text-white`
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className={`w-7 h-7 rounded flex items-center justify-center font-mono font-black text-sm ${color.tagBg} text-navy-950`}>
+                              {color.label}
+                            </span>
+                            <span className="font-bold text-base">{opt}</span>
+                          </div>
+
+                          {gamePhase === 'reveal' && (
+                            <span className="font-mono text-xs font-bold">
+                              {count} ({pct}%)
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
+                )}
+              </div>
+
+              {/* Submissions Badge & Controls */}
+              <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                <div className="flex items-center gap-2 bg-navy-950 px-4 py-2 clip-slanted rounded-none border border-white/10">
+                  <span className="text-cyan-400 font-mono font-black text-lg">{effectiveResponseCount}</span>
+                  <span className="text-slate-500 text-xs">/</span>
+                  <span className="text-white font-mono font-bold text-lg">{effectiveParticipantCount}</span>
+                  <span className="text-slate-400 text-xs font-mono ml-1">Answered</span>
                 </div>
 
-                {/* Option distribution breakdown */}
-                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {activeQuestion.options?.map((opt: string, i: number) => {
-                    const count = effectiveDistribution[opt] || 0;
-                    const isCorrect = opt === activeQuestion.correctAnswer;
-                    const maxCount = Math.max(1, effectiveResponseCount || 1);
-                    const pct = Math.round((count / maxCount) * 100);
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleEndEarly}
+                    className="px-3.5 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-mono font-bold clip-slanted rounded-none"
+                  >
+                    End Arena
+                  </button>
+                  <button
+                    onClick={handleAdvanceNext}
+                    disabled={isAdvancing}
+                    className="px-5 py-2 bg-cyan-400 hover:bg-cyan-300 disabled:opacity-50 text-navy-950 font-black text-xs font-mono clip-slanted rounded-none flex items-center gap-1.5"
+                  >
+                    <span>{activeQuestionIndex + 1 === session.questions.length ? 'Finish' : 'Next Question'}</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* RIGHT PANEL (7 Cols): PERSISTENT LIVE LEADERBOARD WITH REALTIME POSITION REORDERING */}
+            <div className="lg:col-span-6 flex flex-col bg-navy-900/80 border border-white/10 p-6 clip-slanted rounded-none backdrop-blur-md shadow-2xl h-full max-h-[750px] overflow-hidden">
+              <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
+                <div className="flex items-center gap-2">
+                  <Trophy className="w-5 h-5 text-yellow-400" />
+                  <h2 className="text-base font-black text-white font-mono tracking-wider">
+                    LIVE ARENA LEADERBOARD
+                  </h2>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-mono text-cyan-400 font-bold">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                  <span>REAL-TIME SCORING</span>
+                </div>
+              </div>
+
+              {/* Animated Leaderboard Cards */}
+              <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
+                <AnimatePresence>
+                  {currentLeaderboard.map((p: any, idx: number) => {
+                    const isFirst = idx === 0;
+                    const isSecond = idx === 1;
+                    const isThird = idx === 2;
 
                     return (
-                      <div
-                        key={i}
-                        className={`p-4 clip-slanted rounded-none border flex items-center justify-between transition-all ${
-                          isCorrect
-                            ? 'bg-green-500/20 border-green-500/50 text-green-200'
-                            : 'bg-navy-900/60 border-white/10 text-slate-300'
+                      <motion.div
+                        key={p.id}
+                        layout
+                        initial={{ opacity: 0, y: 15 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                        className={`flex items-center justify-between p-3.5 clip-slanted rounded-none border transition-colors ${
+                          isFirst
+                            ? 'bg-yellow-500/15 border-yellow-500/50 shadow-lg shadow-yellow-500/5'
+                            : isSecond
+                            ? 'bg-slate-300/10 border-slate-300/40'
+                            : isThird
+                            ? 'bg-amber-700/15 border-amber-700/40'
+                            : 'bg-navy-950 border-white/5'
                         }`}
                       >
-                        <div className="flex items-center gap-2 font-bold text-base">
-                          <span>{opt}</span>
-                          {isCorrect && <CheckCircle2 className="w-4 h-4 text-green-400" />}
+                        <div className="flex items-center gap-3.5">
+                          {/* Rank Pill */}
+                          <div
+                            className={`w-8 h-8 clip-slanted rounded-none flex items-center justify-center font-mono font-black text-sm shrink-0 ${
+                              isFirst
+                                ? 'bg-yellow-500 text-navy-950'
+                                : isSecond
+                                ? 'bg-slate-300 text-navy-950'
+                                : isThird
+                                ? 'bg-amber-700 text-white'
+                                : 'bg-white/5 text-slate-400'
+                            }`}
+                          >
+                            {idx + 1}
+                          </div>
+
+                          <div>
+                            <div className="flex items-center gap-2 font-bold text-white text-base">
+                              <span>{p.name}</span>
+                              {isFirst && <Crown className="w-4 h-4 text-yellow-400 fill-yellow-400" />}
+                            </div>
+
+                            {p.streak > 1 && (
+                              <span className="text-[11px] text-orange-400 font-mono font-bold flex items-center gap-1">
+                                <Flame className="w-3 h-3 fill-orange-400" />
+                                {p.streak} in a row
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <span className="font-mono font-bold text-lg">
-                          {count} <span className="text-xs text-slate-400 font-normal">({pct}%)</span>
-                        </span>
-                      </div>
+
+                        <div className="text-right">
+                          <span className="text-2xl font-black font-mono text-cyan-400">{p.score}</span>
+                          <span className="text-slate-500 text-[10px] font-mono block">pts</span>
+                        </div>
+                      </motion.div>
                     );
                   })}
-                </div>
-              </div>
-            )}
+                </AnimatePresence>
 
-            {activeQuestion.type === 'POLL' && (
-              <div className="w-full max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {activeQuestion.options?.map((opt: string, i: number) => {
-                  const count = effectiveDistribution[opt] || 0;
-                  const maxCount = Math.max(1, effectiveResponseCount || 1);
-                  const heightPercentage = Math.max(8, (count / maxCount) * 100);
-                  return (
-                    <div key={i} className="w-full bg-navy-950 border border-white/10 clip-slanted rounded-none p-6 text-center shadow-xl relative overflow-hidden">
-                      <div className="absolute bottom-0 left-0 right-0 bg-cyan-500/25 transition-all duration-700 ease-out z-0" style={{ height: `${heightPercentage}%` }} />
-                      <div className="relative z-10">
-                        <h3 className="text-xl font-bold text-white mb-2">{opt}</h3>
-                        <p className="text-4xl font-black text-cyan-400 font-mono">{count}</p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            {activeQuestion.type === 'TEXT' && (
-              <div className="text-center py-8">
-                <p className="text-2xl font-bold text-white mb-2">{effectiveResponseCount} Responses Collected</p>
-                <p className="text-slate-400">Open-ended responses have been recorded.</p>
-              </div>
-            )}
-
-            {/* Controls */}
-            <div className="flex justify-center gap-4 mt-8">
-              <button
-                onClick={handleShowLeaderboard}
-                className="px-8 py-3.5 bg-cyan-400 hover:bg-cyan-300 text-navy-950 font-black clip-slanted rounded-none flex items-center gap-2.5 transition-all shadow-xl shadow-cyan-500/20 text-base"
-              >
-                <Trophy className="w-5 h-5" /> Show Leaderboard
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* INTERMEDIATE LEADERBOARD PHASE */}
-        {gamePhase === 'leaderboard' && session.status === 'ACTIVE' && (
-          <div className="max-w-3xl w-full mx-auto animate-in slide-in-from-bottom-4 duration-500">
-            <div className="text-center mb-8">
-              <Trophy className="w-12 h-12 text-yellow-400 mx-auto mb-3" />
-              <h2 className="text-3xl sm:text-4xl font-black text-white mb-1">Leaderboard</h2>
-              <p className="text-slate-400 text-sm">After Question {activeQuestionIndex + 1} of {session.questions.length}</p>
-            </div>
-
-            <div className="bg-navy-900/90 border border-white/10 clip-slanted rounded-none p-6 backdrop-blur-md shadow-2xl">
-              <div className="space-y-3">
-                {liveStats?.leaderboard?.slice(0, 5).map((p: any, i: number) => (
-                  <div
-                    key={p.id}
-                    className={`flex items-center gap-4 p-4 clip-slanted rounded-none border transition-all animate-in slide-in-from-left duration-300 ${
-                      i === 0
-                        ? 'bg-yellow-500/10 border-yellow-500/40 shadow-lg shadow-yellow-500/5'
-                        : 'bg-white/5 border-white/5'
-                    }`}
-                    style={{ animationDelay: `${i * 150}ms` }}
-                  >
-                    <div
-                      className={`w-12 h-12 clip-slanted rounded-none flex items-center justify-center font-black text-xl shrink-0 font-mono shadow-inner ${
-                        i === 0
-                          ? 'bg-yellow-500 text-navy-950'
-                          : i === 1
-                          ? 'bg-slate-300 text-navy-950'
-                          : i === 2
-                          ? 'bg-amber-700 text-white'
-                          : 'bg-navy-950 text-slate-400 border border-white/10'
-                      }`}
-                    >
-                      {i + 1}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="text-lg font-bold text-white flex items-center gap-2">
-                        {p.name}
-                        {i === 0 && <Crown className="w-4 h-4 text-yellow-400 fill-yellow-400" />}
-                      </h4>
-                      {p.streak > 1 && (
-                        <p className="text-xs text-orange-400 font-bold flex items-center gap-1 mt-0.5">
-                          <Flame className="w-3.5 h-3.5 fill-orange-400" />
-                          {p.streak} streak
-                        </p>
-                      )}
-                    </div>
-                    <div className="text-right">
-                      <span className="text-2xl font-black text-cyan-400 font-mono">{p.score}</span>
-                      <span className="text-slate-500 text-xs block font-mono">pts</span>
-                    </div>
+                {currentLeaderboard.length === 0 && (
+                  <div className="text-center py-24 text-slate-500 font-mono text-sm">
+                    No participants yet. Connect with Game PIN to join!
                   </div>
-                ))}
+                )}
               </div>
-            </div>
-
-            {/* Controls */}
-            <div className="flex justify-center gap-4 mt-8">
-              <button
-                onClick={handleNext}
-                disabled={isAdvancing}
-                className="px-10 py-4 bg-cyan-400 hover:bg-cyan-300 disabled:opacity-50 text-navy-950 font-black text-lg clip-slanted rounded-none flex items-center gap-3 shadow-2xl shadow-cyan-500/30 transition-all transform hover:scale-105 active:scale-95"
-              >
-                {activeQuestionIndex + 1 === session.questions.length ? 'Finish Arena' : 'Next Question'}
-                <ChevronRight className="w-6 h-6" />
-              </button>
             </div>
           </div>
         )}
 
-        {/* ENDED STATE / FINAL LEADERBOARD */}
-        {(gamePhase === 'ended' || session.status === 'ENDED') && (
-          <div className="max-w-4xl w-full mx-auto flex flex-col h-full justify-between py-6">
-            <div className="text-center mb-8">
-              <CheckCircle2 className="w-16 h-16 text-green-400 mx-auto mb-4" />
+        {/* 3. FINAL ENDED PODIUM CELEBRATION */}
+        {gamePhase === 'ended' && (
+          <div className="max-w-4xl w-full mx-auto flex flex-col h-full justify-between py-6 animate-in zoom-in-95 duration-500">
+            <div className="text-center mb-6">
+              <Trophy className="w-16 h-16 text-yellow-400 mx-auto mb-3 animate-bounce" />
               <h2 className="text-4xl sm:text-5xl font-black text-white mb-2">Arena Completed!</h2>
-              <p className="text-slate-400 text-base">
-                {session.mode === 'COMPETITIVE' 
-                  ? 'Here are the final standings for this session.' 
-                  : 'Thank you for hosting this collaborative session!'}
-              </p>
+              <p className="text-slate-400 font-mono text-sm">Official Final Standings</p>
             </div>
 
-            {session.mode === 'COMPETITIVE' ? (
-              <div className="bg-navy-900/90 border border-white/10 clip-slanted rounded-none p-6 sm:p-8 flex-1 overflow-y-auto backdrop-blur-md shadow-2xl max-h-[550px]">
-                <h3 className="text-xl font-bold text-white mb-6 flex items-center justify-center gap-2 font-mono">
-                  🏆 TOP ARENA LEADERBOARD
-                </h3>
-                <div className="space-y-3">
-                  {liveStats?.leaderboard?.map((p: any, i: number) => (
-                    <div
-                      key={p.id}
-                      className={`flex items-center gap-4 sm:gap-6 p-4 clip-slanted rounded-none border transition-all ${
-                        i === 0
-                          ? 'bg-yellow-500/10 border-yellow-500/40 shadow-lg shadow-yellow-500/5'
-                          : 'bg-white/5 border-white/5'
-                      }`}
-                    >
-                      <div
-                        className={`w-12 h-12 clip-slanted rounded-none flex items-center justify-center font-black text-xl shrink-0 font-mono shadow-inner ${
-                          i === 0
-                            ? 'bg-yellow-500 text-navy-950'
-                            : i === 1
-                            ? 'bg-slate-300 text-navy-950'
-                            : i === 2
-                            ? 'bg-amber-700 text-white'
-                            : 'bg-navy-950 text-slate-400 border border-white/10'
-                        }`}
-                      >
-                        {i + 1}
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                          {p.name}
-                          {i === 0 && <span className="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-md font-mono">WINNER</span>}
-                        </h4>
-                        {p.streak > 1 && (
-                          <p className="text-xs text-orange-400 font-bold flex items-center gap-1 mt-0.5">
-                            <Flame className="w-3.5 h-3.5 fill-orange-400" />
-                            {p.streak} Consecutive Correct
-                          </p>
-                        )}
-                      </div>
-                      <div className="text-right">
-                        <span className="text-2xl sm:text-3xl font-black text-cyan-400 font-mono">{p.score}</span>
-                        <span className="text-slate-500 text-xs block font-mono">pts</span>
-                      </div>
-                    </div>
-                  ))}
-                  {(!liveStats?.leaderboard || liveStats.leaderboard.length === 0) && (
-                    <div className="text-center py-12 text-slate-500">No participants recorded.</div>
-                  )}
+            {/* Podium */}
+            <div className="bg-navy-900/90 border border-white/10 p-6 clip-slanted rounded-none backdrop-blur-md shadow-2xl mb-6">
+              <div className="grid grid-cols-3 gap-4 text-center items-end pt-4">
+                {/* 2nd Place */}
+                <div className="bg-white/5 border border-white/10 p-5 clip-slanted rounded-none order-1">
+                  <div className="w-12 h-12 bg-slate-300 text-navy-950 font-black text-xl rounded-full flex items-center justify-center mx-auto mb-2 font-mono">
+                    2
+                  </div>
+                  <h3 className="font-bold text-white text-lg truncate">{currentLeaderboard[1]?.name || '---'}</h3>
+                  <p className="text-cyan-400 font-mono font-black text-2xl">{currentLeaderboard[1]?.score || 0}</p>
+                  <span className="text-xs text-slate-500 font-mono">points</span>
+                </div>
+
+                {/* 1st Place Champion */}
+                <div className="bg-yellow-500/10 border-2 border-yellow-500/50 p-8 clip-slanted rounded-none order-2 shadow-2xl shadow-yellow-500/20 relative -top-4">
+                  <div className="w-16 h-16 bg-yellow-500 text-navy-950 font-black text-2xl rounded-full flex items-center justify-center mx-auto mb-3 font-mono shadow-lg">
+                    1
+                  </div>
+                  <h3 className="font-bold text-white text-2xl truncate flex items-center justify-center gap-1.5">
+                    {currentLeaderboard[0]?.name || '---'}
+                    <Crown className="w-5 h-5 text-yellow-400 fill-yellow-400" />
+                  </h3>
+                  <p className="text-yellow-400 font-mono font-black text-4xl mt-1">{currentLeaderboard[0]?.score || 0}</p>
+                  <span className="text-xs text-yellow-300 font-mono font-bold">CHAMPION</span>
+                </div>
+
+                {/* 3rd Place */}
+                <div className="bg-white/5 border border-white/10 p-5 clip-slanted rounded-none order-3">
+                  <div className="w-12 h-12 bg-amber-700 text-white font-black text-xl rounded-full flex items-center justify-center mx-auto mb-2 font-mono">
+                    3
+                  </div>
+                  <h3 className="font-bold text-white text-lg truncate">{currentLeaderboard[2]?.name || '---'}</h3>
+                  <p className="text-cyan-400 font-mono font-black text-2xl">{currentLeaderboard[2]?.score || 0}</p>
+                  <span className="text-xs text-slate-500 font-mono">points</span>
                 </div>
               </div>
-            ) : (
-              <div className="text-center py-16 bg-navy-900/90 border border-white/10 clip-slanted rounded-none backdrop-blur-md">
-                <p className="text-3xl font-bold text-white mb-2 font-mono">
-                  {effectiveParticipantCount} TOTAL PARTICIPANTS
-                </p>
-                <p className="text-slate-400">Collaborative non-competitive session ended.</p>
-              </div>
-            )}
+            </div>
 
-                        <div className="mt-8 flex justify-center gap-4">
+            <div className="flex justify-center gap-4">
               <Link
                 href="/admin/dashboard"
-                className="px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold clip-slanted rounded-none flex items-center gap-2 transition-colors border border-white/10"
+                className="px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold clip-slanted rounded-none flex items-center gap-2 font-mono text-sm"
               >
-                <ArrowLeft className="w-5 h-5" /> Return to Host Dashboard
+                <ArrowLeft className="w-4 h-4" /> Back to Dashboard
               </Link>
-              <button
-                onClick={handleRestart}
-                className="px-8 py-3.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 font-bold clip-slanted rounded-none flex items-center gap-2 transition-colors border border-cyan-500/30"
-              >
-                Restart Session
-              </button>
             </div>
           </div>
         )}
       </main>
 
-      {/* Decorative Background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-900/20 via-navy-950 to-navy-950 pointer-events-none" />
+      {/* Decorative Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-900/15 via-navy-950 to-navy-950 pointer-events-none" />
     </div>
   );
 }

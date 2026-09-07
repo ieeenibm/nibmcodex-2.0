@@ -58,10 +58,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       }
     }
 
-    // Sorted leaderboard — only compute when session is ENDED or for display
+    // Sorted leaderboard
     const leaderboard = [...session.participants]
       .sort((a, b) => b.score - a.score)
-      .slice(0, 10);
+      .slice(0, 50);
 
     return NextResponse.json({
       totalParticipants,

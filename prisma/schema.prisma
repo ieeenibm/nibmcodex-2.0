@@ -16,30 +16,35 @@ model User {
 }
 
 model Session {
-  id               String        @id @default(cuid())
-  name             String
-  status           String        @default("DRAFT") // "DRAFT", "ACTIVE", "ENDED"
-  mode             String        @default("COMPETITIVE") // "COMPETITIVE", "NON_COMPETITIVE"
-  joinCode         String        @unique
-  hostId           String
-  host             User          @relation(fields: [hostId], references: [id], onDelete: Cascade)
-  activeQuestionId String?       // The question currently being shown
-  questionStartedAt DateTime?    // When the active question was activated (for time-based scoring)
-  createdAt        DateTime      @default(now())
-  questions        Question[]
-  participants     Participant[]
+  id                String        @id @default(cuid())
+  name              String
+  status            String        @default("DRAFT") // "DRAFT", "ACTIVE", "ENDED"
+  mode              String        @default("COMPETITIVE") // "COMPETITIVE"
+  gameType          String        @default("QUIZ") // "QUIZ", "AI_VS_HUMAN", "GOLDEN_TICKET"
+  joinCode          String        @unique
+  hostId            String
+  host              User          @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  activeQuestionId  String?       // The question currently being shown
+  questionStartedAt DateTime?     // When the active question was activated (for time-based scoring)
+  createdAt         DateTime      @default(now())
+  questions         Question[]
+  participants      Participant[]
+  tickets           QrTicket[]
+  qrScans           QrScan[]
 
   @@index([hostId])
   @@index([status])
+  @@index([gameType])
 }
 
 model Question {
   id            String     @id @default(cuid())
   sessionId     String
   session       Session    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  type          String     // "MCQ", "TEXT", "POLL"
+  type          String     @default("MCQ") // "MCQ" or "IMAGE_SELECT"
   text          String
-  options       Json?      // Array of options if MCQ or POLL
+  options       Json?      // Array of options if MCQ
+  images        Json?      // Array of { id, url, isTarget, label } if AI_VS_HUMAN
   correctAnswer String?
   timeLimit     Int        @default(30)
   maxAnswers    Int        @default(1)
@@ -57,6 +62,7 @@ model Participant {
   score     Int        @default(0)
   streak    Int        @default(0) // consecutive correct answers
   responses Response[]
+  qrScans   QrScan[]
 
   @@index([sessionId])
 }
@@ -73,5 +79,39 @@ model Response {
   answeredAt    DateTime    @default(now())
 
   @@index([questionId])
+  @@index([participantId])
+}
+
+model QrTicket {
+  id           String      @id @default(cuid())
+  sessionId    String
+  session      Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  ticketNumber Int
+  code         String      @unique // Secure random string in QR URL
+  isWinning    Boolean     @default(false)
+  basePoints   Int         @default(500)
+  maxScans     Int?        // null = unlimited
+  scanCount    Int         @default(0)
+  isExpired    Boolean     @default(false)
+  scans        QrScan[]
+  createdAt    DateTime    @default(now())
+
+  @@index([sessionId])
+  @@index([code])
+}
+
+model QrScan {
+  id            String      @id @default(cuid())
+  ticketId      String
+  ticket        QrTicket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  participantId String
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  sessionId     String
+  session       Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  pointsEarned  Int
+  scannedAt     DateTime    @default(now())
+
+  @@unique([ticketId, participantId]) // Enforces single-scan per participant per QR
+  @@index([sessionId])
   @@index([participantId])
 }

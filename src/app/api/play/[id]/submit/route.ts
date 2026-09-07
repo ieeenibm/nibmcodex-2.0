@@ -53,18 +53,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     let isCorrect = false;
     const hasCorrectAnswer = !!question.correctAnswer && question.correctAnswer.trim() !== '' && question.correctAnswer !== 'null';
 
-    if (question.type === 'MCQ') {
+    if (question.type === 'MCQ' || question.type === 'IMAGE_SELECT') {
       isCorrect = answer.trim().toLowerCase() === (question.correctAnswer || '').trim().toLowerCase();
-    } else if (question.type === 'TEXT') {
-      if (hasCorrectAnswer) {
-        isCorrect = answer.trim().toLowerCase() === question.correctAnswer!.trim().toLowerCase();
-      } else {
-        // Open-ended response prompt: any non-empty submission is accepted and rewarded
-        isCorrect = true;
-      }
-    } else if (question.type === 'POLL') {
-      // Poll submissions count as valid participation in competitive quizzes
-      isCorrect = true;
+    } else {
+      isCorrect = answer.trim().toLowerCase() === (question.correctAnswer || '').trim().toLowerCase();
     }
 
     // Time-based scoring: faster = more points (only for competitive sessions)

@@ -63,25 +63,26 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     // Broadcast real-time update to all connected attendees via Ably WebSockets
     const sessionDetails = await prisma.session.findUnique({
       where: { id: sessionId },
-      select: { status: true, mode: true, activeQuestionId: true, questionStartedAt: true },
+      select: { status: true, mode: true, gameType: true, activeQuestionId: true, questionStartedAt: true },
     });
 
     let activeQuestion = null;
     if (sessionDetails?.activeQuestionId) {
       activeQuestion = await prisma.question.findUnique({
         where: { id: sessionDetails.activeQuestionId },
-        select: { id: true, type: true, text: true, options: true, timeLimit: true, maxAnswers: true },
+        select: { id: true, type: true, text: true, options: true, images: true, timeLimit: true, maxAnswers: true },
       });
     }
 
     // Include sub-phase in the broadcast for game flow phases
-    // phase: 'get-ready' | 'question' | 'reveal' | 'leaderboard' | null
+    // phase: 'get-ready' | 'question' | 'reveal' | null
     const phase = body.phase || (body.activeQuestionId ? 'get-ready' : null);
 
     try {
       await publishSessionState(sessionId, {
         status: sessionDetails?.status || updatedSession.status,
-        mode: sessionDetails?.mode || 'COMPETITIVE',
+        mode: 'COMPETITIVE',
+        gameType: sessionDetails?.gameType || updatedSession.gameType || 'QUIZ',
         activeQuestion,
         questionStartedAt: sessionDetails?.questionStartedAt?.toISOString() ?? null,
         serverTime: new Date().toISOString(),

@@ -593,14 +593,14 @@ export default function AttendeeLivePlay() {
       <div className="my-auto py-6 flex flex-col justify-center">
         <div className="mb-6 text-center">
           <span className="inline-block text-[11px] font-mono font-bold tracking-widest text-cyan-400/80 uppercase bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20 mb-3">
-            {activeQ?.type === 'POLL' ? 'Live Poll' : activeQ?.type === 'TEXT' ? 'Open Response' : 'Multiple Choice'}
+            {activeQ?.type === 'IMAGE_SELECT' ? 'Spot AI / Human' : 'Multiple Choice'}
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white leading-snug tracking-tight">
             {activeQ?.text || 'Waiting for the next question...'}
           </h2>
         </div>
 
-        {/* Input Form / MCQ Buttons */}
+        {/* Input Form / MCQ Buttons / Image Tiles */}
         {isLockedOut ? (
           <div className="bg-navy-900/90 border border-cyan-500/30 clip-slanted rounded-none p-8 text-center backdrop-blur-md shadow-2xl flex flex-col items-center justify-center animate-in zoom-in-95 duration-300">
             <div className="w-16 h-16 bg-cyan-500/20 rounded-full flex items-center justify-center mb-4">
@@ -628,7 +628,26 @@ export default function AttendeeLivePlay() {
           </div>
         ) : (
           <div className="w-full">
-            {activeQ?.type === 'MCQ' || activeQ?.type === 'POLL' ? (
+            {activeQ?.type === 'IMAGE_SELECT' || activeQ?.images ? (
+              <div className="grid grid-cols-2 gap-3.5">
+                {activeQ?.images?.map((img: any, i: number) => {
+                  const labels = ['A', 'B', 'C', 'D'];
+                  return (
+                    <button
+                      key={img.id || i}
+                      onClick={() => handleSubmit(img.id)}
+                      disabled={submitting}
+                      className="w-full relative bg-navy-900 hover:border-cyan-400 border-2 border-white/15 clip-slanted rounded-none p-2.5 transition-all transform active:scale-95 shadow-lg group overflow-hidden flex flex-col items-center"
+                    >
+                      <img src={img.url} alt={img.label} className="w-full h-36 sm:h-44 object-cover rounded-lg mb-2" />
+                      <span className="font-mono font-black text-sm text-white group-hover:text-cyan-300">
+                        {labels[i] || img.label || `Option ${i + 1}`}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 {shuffledOptions.map((opt: string, i: number) => (
                   <button
@@ -641,23 +660,6 @@ export default function AttendeeLivePlay() {
                     <span className="w-3 h-3 rounded-full border-2 border-white/20 group-hover:border-cyan-400 group-hover:bg-cyan-400 shrink-0 ml-3 transition-colors" />
                   </button>
                 ))}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                <textarea
-                  value={answerText}
-                  onChange={(e) => setAnswerText(e.target.value)}
-                  placeholder="Type your response here..."
-                  maxLength={150}
-                  className="w-full h-36 bg-navy-900 border-2 border-white/10 focus:border-cyan-400 clip-slanted rounded-none p-5 text-lg text-white resize-none outline-none transition-colors shadow-inner"
-                />
-                <button
-                  onClick={() => handleSubmit(answerText)}
-                  disabled={!answerText.trim() || submitting}
-                  className="w-full py-4 bg-cyan-400 hover:bg-cyan-300 active:bg-cyan-500 disabled:opacity-40 clip-slanted rounded-none text-navy-950 font-black text-lg shadow-xl shadow-cyan-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                >
-                  {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Submit Response'}
-                </button>
               </div>
             )}
           </div>
