@@ -42,10 +42,7 @@ export const metadata: Metadata = {
     images: ['https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/misc/wide-cityscape'],
   },
   verification: {
-    google: [
-      'v1RPsCzsvEyW6qNOTK-ULZ46tYmZVG37giMPMYRVR4Q',
-      'LN5K-dbVc16qefWhvDw4NGYUlyRibg42pGNMwslGwC4',
-    ],
+    google: 'v1RPsCzsvEyW6qNOTK-ULZ46tYmZVG37giMPMYRVR4Q',
   },
   alternates: {
     canonical: 'https://nibmcodex.nibmieee.lk',
