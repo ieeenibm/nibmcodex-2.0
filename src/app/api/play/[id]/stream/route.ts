@@ -71,10 +71,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
       // Track status, activeQuestion id, and startedAt timestamp
       let lastKey = `${initial.status}:${initial.activeQuestion?.id ?? 'null'}:${initial.questionStartedAt ?? 'null'}`;
-      const MAX_TICKS = 30; // ~15s lifetime before clean reconnect
+      const MAX_TICKS = 20; // ~20s lifetime before clean reconnect
 
       for (let tick = 0; tick < MAX_TICKS; tick++) {
-        await new Promise<void>(r => setTimeout(r, 500));
+        await new Promise<void>(r => setTimeout(r, 1000));
 
         const state = await getSessionState(sessionId);
         if (!state) break;
@@ -83,7 +83,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         if (key !== lastKey) {
           lastKey = key;
           send(state);
-        } else if (tick % 10 === 0) {
+        } else if (tick % 5 === 0) {
           sendPing();
         }
 

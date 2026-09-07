@@ -9,6 +9,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       where: { id: sessionId },
       select: {
         status: true,
+        gameType: true,
         activeQuestionId: true,
         questionStartedAt: true,
       }
@@ -29,6 +30,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
           type: true,
           text: true,
           options: true,
+          images: true,
           timeLimit: true,
           maxAnswers: true,
         }
@@ -40,6 +42,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
     return NextResponse.json({
       status: session.status,
+      gameType: session.gameType,
       activeQuestion,
       questionStartedAt: session.questionStartedAt,
       serverTime: new Date().toISOString(),

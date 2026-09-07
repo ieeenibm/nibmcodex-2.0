@@ -17,13 +17,20 @@ export async function GET(req: Request) {
     }
 
     const clientId = searchParams.get('clientId') || `user-${Math.random().toString(36).substring(2, 9)}`;
+    const role = searchParams.get('role'); // 'host' for admin host console
 
     const client = new Ably.Rest(apiKey);
+
+    // Host gets publish + subscribe + presence; participants get subscribe + presence
+    const capabilities = role === 'host'
+      ? ['publish', 'subscribe', 'presence'] as const
+      : ['subscribe', 'presence'] as const;
+
     const tokenRequestData = await client.auth.createTokenRequest({
       clientId,
       capability: {
-        [`session:${sessionId}`]: ['subscribe', 'presence'],
-      },
+        [`session:${sessionId}`]: [...capabilities],
+      } as Record<string, Ably.capabilityOp[]>,
     });
 
     return NextResponse.json(tokenRequestData);

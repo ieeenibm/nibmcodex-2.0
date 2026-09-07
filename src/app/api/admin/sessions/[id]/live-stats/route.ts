@@ -47,23 +47,21 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       activeQuestionResponsesCount = Number(responseCounts.total);
       correctCount = Number(responseCounts.correct);
 
-      // Distribution for Non-Competitive bar charts
-      if (session.mode === 'NON_COMPETITIVE') {
-        const dist = await prisma.response.groupBy({
-          by: ['answer'],
-          where: { questionId: session.activeQuestionId },
-          _count: { answer: true },
-        });
-        for (const row of dist) {
-          mcqDistribution[row.answer] = row._count.answer;
-        }
+      // Distribution for MCQ and POLL bar charts
+      const dist = await prisma.response.groupBy({
+        by: ['answer'],
+        where: { questionId: session.activeQuestionId },
+        _count: { answer: true },
+      });
+      for (const row of dist) {
+        mcqDistribution[row.answer] = row._count.answer;
       }
     }
 
-    // Sorted leaderboard — only compute when session is ENDED or for display
+    // Sorted leaderboard
     const leaderboard = [...session.participants]
       .sort((a, b) => b.score - a.score)
-      .slice(0, 10);
+      .slice(0, 50);
 
     return NextResponse.json({
       totalParticipants,

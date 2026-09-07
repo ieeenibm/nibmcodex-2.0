@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState, useRef, useMemo } from 'react';
+import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import useSWR from 'swr';
 import { useParams, useRouter } from 'next/navigation';
-import { Loader2, CheckCircle2, Gamepad2, Flame, Trophy, AlertTriangle, Clock, Zap } from 'lucide-react';
+import { Loader2, CheckCircle2, Gamepad2, Flame, Trophy, AlertTriangle, Clock, Zap, XCircle } from 'lucide-react';
 import * as Ably from 'ably';
 
 const fetcher = async (url: string) => {
@@ -30,6 +30,10 @@ export default function AttendeeLivePlay() {
   const [questionStartedAt, setQuestionStartedAt] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(30);
 
+  // Game flow phase: get-ready | question | reveal | leaderboard | null
+  const [phase, setPhase] = useState<string | null>(null);
+  const [getReadyCountdown, setGetReadyCountdown] = useState<number>(3);
+
   // Participant live stats from feedback
   const [feedback, setFeedback] = useState<{
     hasSubmitted: boolean;
@@ -40,6 +44,11 @@ export default function AttendeeLivePlay() {
     currentStreak: number;
     rank: number;
   } | null>(null);
+
+  // Refs for connection cleanup
+  const ablyClientRef = useRef<Ably.Realtime | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
+  const isAblyActiveRef = useRef(false);
 
   // SWR Fallback Polling (only active if SSE is disconnected)
   const { data: swrState, error: swrError } = useSWR(
@@ -77,24 +86,29 @@ export default function AttendeeLivePlay() {
 
   const [serverOffset, setServerOffset] = useState<number>(0);
 
+  // Close SSE connection helper
+  const closeSSE = useCallback(() => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close();
+      eventSourceRef.current = null;
+    }
+  }, []);
+
   // Realtime Connection (Ably WebSockets with SSE fallback)
   useEffect(() => {
     if (!id) return;
 
-    let isAblyActive = false;
-    let ablyClient: Ably.Realtime | null = null;
-    let eventSource: EventSource | null = null;
-
     const fallbackToSSE = () => {
-      if (isAblyActive || eventSource) return;
+      if (isAblyActiveRef.current || eventSourceRef.current) return;
       try {
-        eventSource = new EventSource(`/api/play/${id}/stream`);
+        const es = new EventSource(`/api/play/${id}/stream`);
+        eventSourceRef.current = es;
 
-        eventSource.onopen = () => {
+        es.onopen = () => {
           setSseConnected(true);
         };
 
-        eventSource.onmessage = (event) => {
+        es.onmessage = (event) => {
           try {
             const data = JSON.parse(event.data);
             if (data && !data.error) {
@@ -109,7 +123,7 @@ export default function AttendeeLivePlay() {
           }
         };
 
-        eventSource.onerror = () => {
+        es.onerror = () => {
           setSseConnected(false);
         };
       } catch {
@@ -121,26 +135,33 @@ export default function AttendeeLivePlay() {
       try {
         const encodedClient = encodeURIComponent(participantId || 'anon');
         const encodedSession = encodeURIComponent(id as string);
-        ablyClient = new Ably.Realtime({
+        const client = new Ably.Realtime({
           authUrl: `/api/ably/auth?clientId=${encodedClient}&sessionId=${encodedSession}`,
           autoConnect: true,
         });
+        ablyClientRef.current = client;
 
-        ablyClient.connection.on('connected', () => {
-          isAblyActive = true;
+        client.connection.on('connected', () => {
+          isAblyActiveRef.current = true;
           setSseConnected(true);
+          // Tear down SSE if Ably reconnects (fixes dual connection leak)
+          closeSSE();
         });
 
-        ablyClient.connection.on('failed', () => {
-          if (ablyClient) {
-            ablyClient.close();
-            ablyClient = null;
+        client.connection.on('disconnected', () => {
+          isAblyActiveRef.current = false;
+        });
+
+        client.connection.on('failed', () => {
+          if (ablyClientRef.current) {
+            ablyClientRef.current.close();
+            ablyClientRef.current = null;
           }
-          isAblyActive = false;
+          isAblyActiveRef.current = false;
           fallbackToSSE();
         });
 
-        const channel = ablyClient.channels.get(`session:${id}`);
+        const channel = client.channels.get(`session:${id}`);
         await channel.subscribe('state-change', (message) => {
           const data = message.data;
           if (data && !data.error) {
@@ -159,14 +180,14 @@ export default function AttendeeLivePlay() {
     startAbly();
 
     return () => {
-      if (ablyClient) {
-        ablyClient.close();
+      if (ablyClientRef.current) {
+        ablyClientRef.current.close();
+        ablyClientRef.current = null;
       }
-      if (eventSource) {
-        eventSource.close();
-      }
+      closeSSE();
+      isAblyActiveRef.current = false;
     };
-  }, [id, participantId]);
+  }, [id, participantId, closeSSE]);
 
   // Sync serverOffset from SWR poll as well
   useEffect(() => {
@@ -201,7 +222,31 @@ export default function AttendeeLivePlay() {
     if (sessionState?.questionStartedAt !== undefined) {
       setQuestionStartedAt((prev) => (prev === sessionState?.questionStartedAt ? prev : sessionState.questionStartedAt));
     }
-  }, [sessionState?.status, sessionState?.activeQuestion?.id, sessionState?.activeQuestion?.unchanged, sessionState?.questionStartedAt, participantId]);
+
+    // Handle game flow phases
+    if (sessionState?.phase) {
+      setPhase(sessionState.phase);
+      if (sessionState.phase === 'get-ready') {
+        setGetReadyCountdown(3);
+      }
+    }
+  }, [sessionState?.status, sessionState?.activeQuestion?.id, sessionState?.activeQuestion?.unchanged, sessionState?.questionStartedAt, sessionState?.phase, participantId]);
+
+  // Get Ready countdown timer
+  useEffect(() => {
+    if (phase !== 'get-ready') return;
+
+    if (getReadyCountdown <= 0) {
+      setPhase('question');
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setGetReadyCountdown(prev => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [phase, getReadyCountdown]);
 
   const isTimed = (activeQuestion?.timeLimit ?? 30) > 0;
 
@@ -212,17 +257,16 @@ export default function AttendeeLivePlay() {
       return;
     }
 
-    const interval = setInterval(() => {
+    const updateTimer = () => {
       const start = new Date(questionStartedAt).getTime();
       const synchronizedNow = Date.now() - serverOffset;
-      const elapsed = (synchronizedNow - start) / 1000;
+      const elapsed = Math.max(0, (synchronizedNow - start) / 1000);
       const remaining = Math.max(0, (activeQuestion.timeLimit || 30) - elapsed);
       setTimeLeft(Math.ceil(remaining));
+    };
 
-      if (remaining <= 0) {
-        clearInterval(interval);
-      }
-    }, 250);
+    updateTimer();
+    const interval = setInterval(updateTimer, 250);
 
     return () => clearInterval(interval);
   }, [activeQuestion?.id, activeQuestion?.timeLimit, isTimed, questionStartedAt, serverOffset]);
@@ -269,7 +313,6 @@ export default function AttendeeLivePlay() {
         await fetchFeedback(activeQuestion.id);
       } else {
         console.error('Submit failed:', data.error);
-        // Fallback for user UX: could toast here in a real app
       }
     } catch (err) {
       console.error('Submit error', err);
@@ -284,11 +327,31 @@ export default function AttendeeLivePlay() {
     }
   }, [activeQuestion?.id]);
 
-  // Deterministically shuffle MCQ options based on participantId so layout is stable
+  // Deterministically shuffle MCQ options using participantId as seed
   const shuffledOptions = useMemo(() => {
     if (!activeQuestion?.options || !Array.isArray(activeQuestion.options)) return [];
-    return [...activeQuestion.options];
-  }, [activeQuestion]);
+    const opts = [...activeQuestion.options];
+    if (!participantId) return opts;
+
+    // Simple deterministic shuffle using participantId hash as seed
+    let seed = 0;
+    for (let i = 0; i < participantId.length; i++) {
+      seed = ((seed << 5) - seed + participantId.charCodeAt(i)) | 0;
+    }
+
+    // Fisher-Yates shuffle with seeded PRNG
+    const seededRandom = () => {
+      seed = (seed * 1664525 + 1013904223) & 0x7fffffff;
+      return seed / 0x7fffffff;
+    };
+
+    for (let i = opts.length - 1; i > 0; i--) {
+      const j = Math.floor(seededRandom() * (i + 1));
+      [opts[i], opts[j]] = [opts[j], opts[i]];
+    }
+
+    return opts;
+  }, [activeQuestion, participantId]);
 
   if (swrError && !sseConnected) {
     return (
@@ -378,6 +441,89 @@ export default function AttendeeLivePlay() {
     );
   }
 
+  // === GET READY PHASE ===
+  if (phase === 'get-ready' && activeQuestion) {
+    return (
+      <div className="min-h-screen bg-navy-950 flex flex-col items-center justify-center p-6 select-none">
+        <div className="text-center animate-in zoom-in-95 duration-500">
+          <div className="w-32 h-32 mx-auto mb-8 relative">
+            <div className="absolute inset-0 bg-cyan-500/20 rounded-full blur-2xl animate-pulse" />
+            <div className="relative w-32 h-32 bg-navy-900 border-4 border-cyan-400 rounded-full flex items-center justify-center shadow-2xl shadow-cyan-500/20">
+              <span className="text-6xl font-black text-cyan-400 font-mono animate-bounce">
+                {getReadyCountdown || 'GO!'}
+              </span>
+            </div>
+          </div>
+          <h2 className="text-2xl font-black text-white mb-2 tracking-tight">Get Ready!</h2>
+          <p className="text-cyan-400 font-mono text-sm font-bold uppercase tracking-widest">
+            {activeQuestion.type === 'POLL' ? 'Live Poll' : activeQuestion.type === 'TEXT' ? 'Open Response' : 'Multiple Choice'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // === REVEAL PHASE ===
+  if (phase === 'reveal' && feedback) {
+    const isCorrectAnswer = feedback.isCorrect;
+    return (
+      <div className={`min-h-screen flex flex-col items-center justify-center p-6 select-none transition-colors duration-500 ${
+        isCorrectAnswer ? 'bg-green-950' : 'bg-red-950'
+      }`}>
+        <div className="text-center animate-in zoom-in-95 duration-300">
+          {isCorrectAnswer ? (
+            <>
+              <CheckCircle2 className="w-20 h-20 text-green-400 mx-auto mb-4 animate-bounce" />
+              <h2 className="text-4xl font-black text-green-300 mb-2">Correct!</h2>
+              {feedback.scoreEarned > 0 && (
+                <div className="inline-flex items-center gap-2 bg-green-500/20 border border-green-500/40 text-green-300 px-6 py-3 clip-slanted rounded-none font-mono text-xl font-black mt-4 animate-bounce">
+                  +{feedback.scoreEarned} PTS
+                </div>
+              )}
+            </>
+          ) : (
+            <>
+              <XCircle className="w-20 h-20 text-red-400 mx-auto mb-4" />
+              <h2 className="text-4xl font-black text-red-300 mb-2">Incorrect</h2>
+              <p className="text-red-400/80 text-sm">Better luck on the next one!</p>
+            </>
+          )}
+
+          {feedback.currentStreak > 1 && (
+            <div className="mt-4 flex items-center justify-center gap-2 text-orange-400 font-mono font-bold">
+              <Flame className="w-5 h-5 fill-orange-400" />
+              <span>{feedback.currentStreak} streak!</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // === LEADERBOARD PHASE ===
+  if (phase === 'leaderboard' && feedback) {
+    return (
+      <div className="min-h-screen bg-navy-950 flex flex-col items-center justify-center p-6 select-none">
+        <div className="text-center animate-in slide-in-from-bottom-4 duration-500">
+          <span className="text-xs font-mono uppercase tracking-widest text-cyan-400 mb-4 block">YOUR STANDING</span>
+          <div className="w-24 h-24 mx-auto mb-4 bg-navy-900 border-2 border-cyan-400 clip-slanted rounded-none flex items-center justify-center shadow-xl">
+            <span className="text-4xl font-black text-cyan-400 font-mono">#{feedback.rank}</span>
+          </div>
+          <p className="text-2xl font-black text-white mb-1">{feedback.currentScore} pts</p>
+          {feedback.currentStreak > 1 && (
+            <p className="text-orange-400 font-bold text-sm flex items-center justify-center gap-1 mt-2">
+              <Flame className="w-4 h-4 fill-orange-400" />
+              {feedback.currentStreak} in a row!
+            </p>
+          )}
+          <div className="mt-6 flex items-center justify-center gap-2 text-slate-400 text-xs font-mono animate-pulse">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" /> NEXT QUESTION COMING UP...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const activeQ = activeQuestion;
   const maxAnswers = activeQ?.maxAnswers ?? 1;
   const isLockedOut = (feedback?.submittedCount ?? 0) >= maxAnswers;
@@ -447,14 +593,14 @@ export default function AttendeeLivePlay() {
       <div className="my-auto py-6 flex flex-col justify-center">
         <div className="mb-6 text-center">
           <span className="inline-block text-[11px] font-mono font-bold tracking-widest text-cyan-400/80 uppercase bg-cyan-500/10 px-3 py-1 rounded-full border border-cyan-500/20 mb-3">
-            {activeQ?.type === 'POLL' ? 'Live Poll' : activeQ?.type === 'TEXT' ? 'Open Response' : 'Multiple Choice'}
+            {activeQ?.type === 'IMAGE_SELECT' ? 'Spot AI / Human' : 'Multiple Choice'}
           </span>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-white leading-snug tracking-tight">
             {activeQ?.text || 'Waiting for the next question...'}
           </h2>
         </div>
 
-        {/* Input Form / MCQ Buttons */}
+        {/* Input Form / MCQ Buttons / Image Tiles */}
         {isLockedOut ? (
           <div className="bg-navy-900/90 border border-cyan-500/30 clip-slanted rounded-none p-8 text-center backdrop-blur-md shadow-2xl flex flex-col items-center justify-center animate-in zoom-in-95 duration-300">
             <div className="w-16 h-16 bg-cyan-500/20 rounded-full flex items-center justify-center mb-4">
@@ -482,7 +628,26 @@ export default function AttendeeLivePlay() {
           </div>
         ) : (
           <div className="w-full">
-            {activeQ?.type === 'MCQ' || activeQ?.type === 'POLL' ? (
+            {activeQ?.type === 'IMAGE_SELECT' || activeQ?.images ? (
+              <div className="grid grid-cols-2 gap-3.5">
+                {activeQ?.images?.map((img: any, i: number) => {
+                  const labels = ['A', 'B', 'C', 'D'];
+                  return (
+                    <button
+                      key={img.id || i}
+                      onClick={() => handleSubmit(img.id)}
+                      disabled={submitting}
+                      className="w-full relative bg-navy-900 hover:border-cyan-400 border-2 border-white/15 clip-slanted rounded-none p-2.5 transition-all transform active:scale-95 shadow-lg group overflow-hidden flex flex-col items-center"
+                    >
+                      <img src={img.url} alt={img.label} className="w-full h-36 sm:h-44 object-cover rounded-lg mb-2" />
+                      <span className="font-mono font-black text-sm text-white group-hover:text-cyan-300">
+                        {labels[i] || img.label || `Option ${i + 1}`}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 {shuffledOptions.map((opt: string, i: number) => (
                   <button
@@ -495,23 +660,6 @@ export default function AttendeeLivePlay() {
                     <span className="w-3 h-3 rounded-full border-2 border-white/20 group-hover:border-cyan-400 group-hover:bg-cyan-400 shrink-0 ml-3 transition-colors" />
                   </button>
                 ))}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                <textarea
-                  value={answerText}
-                  onChange={(e) => setAnswerText(e.target.value)}
-                  placeholder="Type your response here..."
-                  maxLength={150}
-                  className="w-full h-36 bg-navy-900 border-2 border-white/10 focus:border-cyan-400 clip-slanted rounded-none p-5 text-lg text-white resize-none outline-none transition-colors shadow-inner"
-                />
-                <button
-                  onClick={() => handleSubmit(answerText)}
-                  disabled={!answerText.trim() || submitting}
-                  className="w-full py-4 bg-cyan-400 hover:bg-cyan-300 active:bg-cyan-500 disabled:opacity-40 clip-slanted rounded-none text-navy-950 font-black text-lg shadow-xl shadow-cyan-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                >
-                  {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Submit Response'}
-                </button>
               </div>
             )}
           </div>
