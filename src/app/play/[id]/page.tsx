@@ -212,17 +212,16 @@ export default function AttendeeLivePlay() {
       return;
     }
 
-    const interval = setInterval(() => {
+    const updateTimer = () => {
       const start = new Date(questionStartedAt).getTime();
       const synchronizedNow = Date.now() - serverOffset;
-      const elapsed = (synchronizedNow - start) / 1000;
+      const elapsed = Math.max(0, (synchronizedNow - start) / 1000);
       const remaining = Math.max(0, (activeQuestion.timeLimit || 30) - elapsed);
       setTimeLeft(Math.ceil(remaining));
+    };
 
-      if (remaining <= 0) {
-        clearInterval(interval);
-      }
-    }, 250);
+    updateTimer();
+    const interval = setInterval(updateTimer, 250);
 
     return () => clearInterval(interval);
   }, [activeQuestion?.id, activeQuestion?.timeLimit, isTimed, questionStartedAt, serverOffset]);

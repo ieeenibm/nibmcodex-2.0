@@ -48,6 +48,7 @@ export default function SessionEditorPage() {
   const [newQuestionMaxAnswers, setNewQuestionMaxAnswers] = useState<number>(1);
   const [newOptions, setNewOptions] = useState(['', '', '', '']);
   const [correctOptionIndex, setCorrectOptionIndex] = useState(0);
+  const [newCorrectText, setNewCorrectText] = useState('');
 
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -71,7 +72,12 @@ export default function SessionEditorPage() {
           text: newQuestionText.trim(),
           type: newQuestionType,
           options: newQuestionType === 'MCQ' || newQuestionType === 'POLL' ? newOptions : null,
-          correctAnswer: newQuestionType === 'MCQ' ? newOptions[correctOptionIndex] : '',
+          correctAnswer:
+            newQuestionType === 'MCQ'
+              ? newOptions[correctOptionIndex]
+              : newQuestionType === 'TEXT'
+              ? newCorrectText.trim() || null
+              : null,
           timeLimit: newTimeLimit,
           maxAnswers: newQuestionMaxAnswers,
         }),
@@ -79,6 +85,7 @@ export default function SessionEditorPage() {
       setNewQuestionText('');
       setNewOptions(['', '', '', '']);
       setCorrectOptionIndex(0);
+      setNewCorrectText('');
       mutate();
     } catch (error) {
       alert('Failed to save question');
@@ -276,18 +283,32 @@ export default function SessionEditorPage() {
         </div>
 
         {newQuestionType === 'TEXT' && (
-          <div className="mb-6">
-            <label className="block text-xs uppercase tracking-widest font-bold text-slate-400 mb-2">
-              Max Answers Per Participant
-            </label>
-            <input
-              type="number"
-              min="1"
-              max="100"
-              value={newQuestionMaxAnswers}
-              onChange={(e) => setNewQuestionMaxAnswers(Math.max(1, parseInt(e.target.value) || 1))}
-              className="w-full bg-navy-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-medium focus:outline-none focus:border-cyan-500"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+            <div>
+              <label className="block text-xs uppercase tracking-widest font-bold text-slate-400 mb-2">
+                Accepted Answer <span className="text-slate-500 font-normal lowercase">(optional — leave blank if any answer earns points)</span>
+              </label>
+              <input
+                type="text"
+                value={newCorrectText}
+                onChange={(e) => setNewCorrectText(e.target.value)}
+                placeholder="e.g. Colombo (or blank for any answer)"
+                className="w-full bg-navy-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-medium focus:outline-none focus:border-cyan-500"
+              />
+            </div>
+            <div>
+              <label className="block text-xs uppercase tracking-widest font-bold text-slate-400 mb-2">
+                Max Answers Per Participant
+              </label>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                value={newQuestionMaxAnswers}
+                onChange={(e) => setNewQuestionMaxAnswers(Math.max(1, parseInt(e.target.value) || 1))}
+                className="w-full bg-navy-950 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-medium focus:outline-none focus:border-cyan-500"
+              />
+            </div>
           </div>
         )}
 

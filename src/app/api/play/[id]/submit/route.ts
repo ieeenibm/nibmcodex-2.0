@@ -59,19 +59,27 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
 
     // Determine correctness
     let isCorrect = false;
+    const hasCorrectAnswer = !!question.correctAnswer && question.correctAnswer.trim() !== '' && question.correctAnswer !== 'null';
+
     if (question.type === 'MCQ') {
-      isCorrect = answer === question.correctAnswer;
+      isCorrect = answer.trim().toLowerCase() === (question.correctAnswer || '').trim().toLowerCase();
     } else if (question.type === 'TEXT') {
-      isCorrect = !!question.correctAnswer &&
-        answer.trim().toLowerCase() === question.correctAnswer.trim().toLowerCase();
+      if (hasCorrectAnswer) {
+        isCorrect = answer.trim().toLowerCase() === question.correctAnswer!.trim().toLowerCase();
+      } else {
+        // Open-ended response prompt: any non-empty submission is accepted and rewarded
+        isCorrect = true;
+      }
+    } else if (question.type === 'POLL') {
+      // Poll submissions count as valid participation in competitive quizzes
+      isCorrect = true;
     }
-    // POLL type: isCorrect stays false, no points
 
     // Time-based scoring: faster = more points (only for competitive sessions)
     let scoreEarned = 0;
     if (isCorrect && session.mode === 'COMPETITIVE') {
       if (question.timeLimit > 0 && session.questionStartedAt) {
-        const timeTaken = (Date.now() - new Date(session.questionStartedAt).getTime()) / 1000;
+        const timeTaken = Math.max(0, (Date.now() - new Date(session.questionStartedAt).getTime()) / 1000);
         const timeFraction = Math.max(0, 1 - timeTaken / question.timeLimit);
         // Base 500 + up to 500 time bonus = max 1000 pts
         scoreEarned = Math.round(500 + 500 * timeFraction);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import useSWR from 'swr';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
@@ -47,7 +47,11 @@ export default function HostView() {
   // Auto-advance configuration
   const [autoAdvance, setAutoAdvance] = useState<boolean>(true);
   const [autoAdvanceSeconds, setAutoAdvanceSeconds] = useState<number | null>(null);
+  const [autoAdvanceReason, setAutoAdvanceReason] = useState<'TIME_UP' | 'ALL_ANSWERED' | null>(null);
   const [serverOffset, setServerOffset] = useState<number>(0);
+  const [isStarting, setIsStarting] = useState<boolean>(false);
+  const [isAdvancing, setIsAdvancing] = useState<boolean>(false);
+  const hasAutoAdvancedRef = useRef<string | null>(null);
 
   // Sync serverOffset from session.serverTime
   useEffect(() => {
@@ -84,31 +88,44 @@ export default function HostView() {
   const showAnswer = activeQuestion ? revealedQuestions.has(activeQuestion.id) : false;
   const isTimed = (activeQuestion?.timeLimit ?? 30) > 0;
 
-  // Reset auto-advance countdown when active question changes
+  const calculateRemaining = () => {
+    if (!activeQuestion || !isTimed || !session?.questionStartedAt || session?.status !== 'ACTIVE') {
+      return activeQuestion?.timeLimit ?? 30;
+    }
+    const start = new Date(session.questionStartedAt).getTime();
+    const synchronizedNow = Date.now() - serverOffset;
+    const elapsed = Math.max(0, (synchronizedNow - start) / 1000);
+    return Math.max(0, (activeQuestion.timeLimit || 30) - elapsed);
+  };
+
+  // Reset auto-advance countdown and initialize timer synchronously when active question or status changes
   useEffect(() => {
     setAutoAdvanceSeconds(null);
-  }, [session?.activeQuestionId]);
+    setAutoAdvanceReason(null);
+    hasAutoAdvancedRef.current = null;
+    if (activeQuestion && session?.status === 'ACTIVE') {
+      setTimeLeft(Math.ceil(calculateRemaining()));
+    } else {
+      setTimeLeft(activeQuestion?.timeLimit ?? 30);
+    }
+  }, [session?.activeQuestionId, session?.status]);
 
   useEffect(() => {
-    if (!activeQuestion || !isTimed || !session?.questionStartedAt) {
-      setTimeLeft(activeQuestion?.timeLimit || 0);
+    if (!activeQuestion || !isTimed || !session?.questionStartedAt || session?.status !== 'ACTIVE') {
+      setTimeLeft(activeQuestion?.timeLimit ?? 30);
       return;
     }
 
-    const interval = setInterval(() => {
-      const start = new Date(session.questionStartedAt).getTime();
-      const synchronizedNow = Date.now() - serverOffset;
-      const elapsed = (synchronizedNow - start) / 1000;
-      const remaining = Math.max(0, (activeQuestion.timeLimit || 30) - elapsed);
+    const updateTimer = () => {
+      const remaining = calculateRemaining();
       setTimeLeft(Math.ceil(remaining));
+    };
 
-      if (remaining <= 0) {
-        clearInterval(interval);
-      }
-    }, 250);
+    updateTimer();
+    const interval = setInterval(updateTimer, 250);
 
     return () => clearInterval(interval);
-  }, [activeQuestion?.id, activeQuestion?.timeLimit, isTimed, session?.questionStartedAt, serverOffset]);
+  }, [activeQuestion?.id, activeQuestion?.timeLimit, isTimed, session?.questionStartedAt, session?.status, serverOffset]);
 
   const handleReveal = () => {
     if (activeQuestion) {
@@ -117,39 +134,74 @@ export default function HostView() {
   };
 
   const handleNext = async () => {
+    if (isAdvancing) return;
+    setIsAdvancing(true);
     setAutoAdvanceSeconds(null);
-    const nextIdx = activeQuestionIndex + 1;
-    if (nextIdx >= session.questions.length) {
-      await fetch(`/api/admin/sessions/${id}/state`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'ENDED' }),
-      });
-    } else {
-      await fetch(`/api/admin/sessions/${id}/state`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ activeQuestionId: session.questions[nextIdx]?.id }),
-      });
+    setAutoAdvanceReason(null);
+    try {
+      const nextIdx = activeQuestionIndex + 1;
+      if (nextIdx >= session.questions.length) {
+        await fetch(`/api/admin/sessions/${id}/state`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'ENDED' }),
+        });
+      } else {
+        await fetch(`/api/admin/sessions/${id}/state`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ activeQuestionId: session.questions[nextIdx]?.id }),
+        });
+      }
+      await mutateSession();
+      await mutateLiveStats();
+    } finally {
+      setIsAdvancing(false);
     }
-    await mutateSession();
-    await mutateLiveStats();
   };
 
-  // Trigger auto-advance when timer ends
+  // Trigger auto-advance when timer ends OR when all participants have answered
   useEffect(() => {
-    if (!activeQuestion || !isTimed || timeLeft > 0 || !autoAdvance) return;
+    if (!activeQuestion || session?.status !== 'ACTIVE' || !autoAdvance) return;
     if (autoAdvanceSeconds !== null) return; // already in countdown
+    if (hasAutoAdvancedRef.current === activeQuestion.id) return; // already triggered for this question
 
-    if (session?.mode === 'COMPETITIVE') {
-      // Reveal answer first, then countdown 5s before advancing
-      handleReveal();
-      setAutoAdvanceSeconds(5);
-    } else {
-      // Non-competitive (Polls/Text): give 3s grace before advancing
-      setAutoAdvanceSeconds(3);
+    const totalPlayers = liveStats?.totalParticipants || 0;
+    const responseCount = liveStats?.activeQuestionResponsesCount || 0;
+    const allAnswered = totalPlayers > 0 && responseCount >= totalPlayers;
+    const timeExpired = isTimed && timeLeft <= 0;
+
+    if (!allAnswered && !timeExpired) return;
+
+    // Mark question as triggered so it cannot re-fire
+    hasAutoAdvancedRef.current = activeQuestion.id;
+
+    if (allAnswered) {
+      setAutoAdvanceReason('ALL_ANSWERED');
+      if (session?.mode === 'COMPETITIVE' && activeQuestion.type === 'MCQ') {
+        handleReveal();
+      }
+      setAutoAdvanceSeconds(3); // 3s grace when everyone answered
+    } else if (timeExpired) {
+      setAutoAdvanceReason('TIME_UP');
+      if (session?.mode === 'COMPETITIVE' && activeQuestion.type === 'MCQ') {
+        handleReveal();
+        setAutoAdvanceSeconds(5);
+      } else {
+        setAutoAdvanceSeconds(3);
+      }
     }
-  }, [timeLeft, isTimed, autoAdvance, activeQuestion?.id, session?.mode, autoAdvanceSeconds]);
+  }, [
+    timeLeft,
+    isTimed,
+    autoAdvance,
+    activeQuestion?.id,
+    session?.status,
+    session?.mode,
+    autoAdvanceSeconds,
+    liveStats?.totalParticipants,
+    liveStats?.activeQuestionResponsesCount,
+  ]);
 
   // Handle countdown tick
   useEffect(() => {
@@ -157,6 +209,7 @@ export default function HostView() {
 
     if (autoAdvanceSeconds <= 0) {
       setAutoAdvanceSeconds(null);
+      setAutoAdvanceReason(null);
       handleNext();
       return;
     }
@@ -178,13 +231,19 @@ export default function HostView() {
   }
 
   const handleStart = async () => {
-    await fetch(`/api/admin/sessions/${id}/state`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'ACTIVE', activeQuestionId: session.questions[0]?.id }),
-    });
-    await mutateSession();
-    await mutateLiveStats();
+    if (isStarting || !session?.questions?.length) return;
+    setIsStarting(true);
+    try {
+      await fetch(`/api/admin/sessions/${id}/state`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'ACTIVE', activeQuestionId: session.questions[0]?.id }),
+      });
+      await mutateSession();
+      await mutateLiveStats();
+    } finally {
+      setIsStarting(false);
+    }
   };
 
   const timeProgress = activeQuestion?.timeLimit ? (timeLeft / activeQuestion.timeLimit) * 100 : 100;
@@ -275,10 +334,10 @@ export default function HostView() {
 
             <button
               onClick={handleStart}
-              disabled={session.questions.length === 0}
+              disabled={isStarting || session.questions.length === 0}
               className="px-10 py-5 bg-cyan-400 hover:bg-cyan-300 disabled:opacity-40 text-navy-950 font-black text-2xl clip-slanted rounded-none flex items-center gap-3 shadow-2xl shadow-cyan-500/30 transition-all transform hover:scale-105 active:scale-95"
             >
-              <Play className="w-7 h-7 fill-current" /> Start Arena
+              <Play className="w-7 h-7 fill-current" /> {isStarting ? 'Starting Arena...' : 'Start Arena'}
             </button>
             {session.questions.length === 0 && (
               <p className="text-slate-500 text-sm mt-4">Add at least one question in session editor to start</p>
@@ -329,11 +388,20 @@ export default function HostView() {
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-cyan-400" />
                     <span>
-                      {session?.mode === 'COMPETITIVE' ? 'Next question in' : 'Moving to next round in'} {autoAdvanceSeconds}s...
+                      {autoAdvanceReason === 'ALL_ANSWERED'
+                        ? 'All players answered! Moving to next round in'
+                        : session?.mode === 'COMPETITIVE' && activeQuestion.type === 'MCQ'
+                        ? 'Next question in'
+                        : 'Moving to next round in'}{' '}
+                      {autoAdvanceSeconds}s...
                     </span>
                   </div>
                   <button
-                    onClick={() => { setAutoAdvanceSeconds(null); setAutoAdvance(false); }}
+                    onClick={() => {
+                      setAutoAdvanceSeconds(null);
+                      setAutoAdvanceReason(null);
+                      setAutoAdvance(false);
+                    }}
                     className="px-2.5 py-0.5 bg-white/10 hover:bg-white/20 text-white rounded text-[10px] font-sans font-medium"
                   >
                     Pause
@@ -357,32 +425,96 @@ export default function HostView() {
                 {activeQuestion.text}
               </h2>
 
-              {session.mode === 'COMPETITIVE' && (
-                <div className="inline-flex items-center gap-2 bg-navy-900/90 px-6 py-2 rounded-full border border-white/15 mt-4 shadow-lg">
-                  <span className="text-cyan-400 font-black font-mono text-lg">{liveStats?.activeQuestionResponsesCount || 0}</span>
-                  <span className="text-slate-400 text-sm">of</span>
-                  <span className="text-white font-bold font-mono text-lg">{liveStats?.totalParticipants || 0}</span>
-                  <span className="text-slate-400 text-sm">Submissions</span>
-                </div>
-              )}
+              <div className="inline-flex items-center gap-2 bg-navy-900/90 px-6 py-2 rounded-full border border-white/15 mt-4 shadow-lg">
+                <span className="text-cyan-400 font-black font-mono text-lg">{liveStats?.activeQuestionResponsesCount || 0}</span>
+                <span className="text-slate-400 text-sm">of</span>
+                <span className="text-white font-bold font-mono text-lg">{liveStats?.totalParticipants || 0}</span>
+                <span className="text-slate-400 text-sm">Submissions</span>
+              </div>
             </div>
 
             {/* Arena Canvas / Visualizers */}
             <div className="flex-1 clip-slanted rounded-none overflow-hidden relative flex flex-col my-4">
-              {/* COMPETITIVE MODE */}
-              {session.mode === 'COMPETITIVE' && (
-                <div className="flex-1 flex flex-col items-center justify-center">
+              {/* POLL TYPE: Always render live distribution bars */}
+              {activeQuestion.type === 'POLL' && (
+                <div className="flex-1 clip-slanted rounded-none overflow-hidden border-2 border-white/10 relative bg-navy-900/30 backdrop-blur-sm h-full w-full flex flex-col items-center justify-center p-8 sm:p-12">
+                  <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {activeQuestion.options?.map((opt: string, i: number) => {
+                      const count = liveStats?.mcqDistribution?.[opt] || 0;
+                      const maxCount = Math.max(1, liveStats?.activeQuestionResponsesCount || 1);
+                      const heightPercentage = Math.max(8, (count / maxCount) * 100);
+
+                      return (
+                        <div key={i} className="flex flex-col gap-2">
+                          <div className="w-full bg-navy-950 border border-white/10 clip-slanted rounded-none p-6 text-center shadow-xl relative overflow-hidden">
+                            <div
+                              className="absolute bottom-0 left-0 right-0 bg-cyan-500/25 transition-all duration-700 ease-out z-0"
+                              style={{ height: `${heightPercentage}%` }}
+                            />
+                            <div className="relative z-10">
+                              <h3 className="text-xl font-bold text-white mb-2">{opt}</h3>
+                              <p className="text-4xl font-black text-cyan-400 font-mono">{count}</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* TEXT TYPE: Always render floating physics ResponseBoard */}
+              {activeQuestion.type === 'TEXT' && (
+                <div className="flex-1 clip-slanted rounded-none overflow-hidden border-2 border-white/10 relative bg-navy-900/30 backdrop-blur-sm">
+                  <ResponseBoard key={activeQuestion.id} questionId={activeQuestion.id} />
+                </div>
+              )}
+
+              {/* MCQ TYPE */}
+              {activeQuestion.type === 'MCQ' && (
+                <div className="flex-1 flex flex-col items-center justify-center p-4">
                   {showAnswer ? (
-                    <div className="bg-green-500/10 border-2 border-green-500/40 p-10 clip-slanted rounded-none text-center max-w-2xl w-full mx-4 backdrop-blur-md shadow-2xl animate-in zoom-in-95 duration-300">
-                      <p className="text-green-400 font-bold uppercase tracking-widest mb-3 text-xs font-mono">
-                        OFFICIAL CORRECT ANSWER
-                      </p>
-                      <p className="text-4xl sm:text-5xl font-black text-white mb-4">
-                        {activeQuestion.correctAnswer || 'All Answers Recorded'}
-                      </p>
-                      <div className="inline-flex items-center gap-2 bg-green-500/20 border border-green-500/30 px-4 py-1.5 rounded-full text-green-300 font-mono text-sm font-bold">
-                        <Sparkles className="w-4 h-4" />
-                        {liveStats?.correctCount || 0} / {liveStats?.activeQuestionResponsesCount || 0} Players Scored Points
+                    <div className="w-full max-w-4xl flex flex-col items-center gap-6">
+                      <div className="bg-green-500/10 border-2 border-green-500/40 p-8 clip-slanted rounded-none text-center w-full backdrop-blur-md shadow-2xl animate-in zoom-in-95 duration-300">
+                        <p className="text-green-400 font-bold uppercase tracking-widest mb-2 text-xs font-mono">
+                          OFFICIAL CORRECT ANSWER
+                        </p>
+                        <p className="text-3xl sm:text-5xl font-black text-white mb-3">
+                          {activeQuestion.correctAnswer || 'All Answers Recorded'}
+                        </p>
+                        <div className="inline-flex items-center gap-2 bg-green-500/20 border border-green-500/30 px-4 py-1 rounded-full text-green-300 font-mono text-sm font-bold">
+                          <Sparkles className="w-4 h-4" />
+                          {liveStats?.correctCount || 0} / {liveStats?.activeQuestionResponsesCount || 0} Players Scored Points
+                        </div>
+                      </div>
+
+                      {/* Option distribution breakdown */}
+                      <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {activeQuestion.options?.map((opt: string, i: number) => {
+                          const count = liveStats?.mcqDistribution?.[opt] || 0;
+                          const isCorrect = opt === activeQuestion.correctAnswer;
+                          const maxCount = Math.max(1, liveStats?.activeQuestionResponsesCount || 1);
+                          const pct = Math.round((count / maxCount) * 100);
+
+                          return (
+                            <div
+                              key={i}
+                              className={`p-4 clip-slanted rounded-none border flex items-center justify-between transition-all ${
+                                isCorrect
+                                  ? 'bg-green-500/20 border-green-500/50 text-green-200'
+                                  : 'bg-navy-900/60 border-white/10 text-slate-300'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2 font-bold text-base">
+                                <span>{opt}</span>
+                                {isCorrect && <CheckCircle2 className="w-4 h-4 text-green-400" />}
+                              </div>
+                              <span className="font-mono font-bold text-lg">
+                                {count} <span className="text-xs text-slate-400 font-normal">({pct}%)</span>
+                              </span>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   ) : (
@@ -398,46 +530,12 @@ export default function HostView() {
                   )}
                 </div>
               )}
-
-              {/* NON-COMPETITIVE MODE */}
-              {session.mode === 'NON_COMPETITIVE' && (
-                <div className="flex-1 clip-slanted rounded-none overflow-hidden border-2 border-white/10 relative bg-navy-900/30 backdrop-blur-sm">
-                  {activeQuestion.type === 'TEXT' ? (
-                    <ResponseBoard key={activeQuestion.id} questionId={activeQuestion.id} />
-                  ) : (
-                    <div className="h-full w-full flex flex-col items-center justify-center p-8 sm:p-12">
-                      <div className="w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 gap-6">
-                        {activeQuestion.options?.map((opt: string, i: number) => {
-                          const count = liveStats?.mcqDistribution?.[opt] || 0;
-                          const maxCount = Math.max(1, liveStats?.activeQuestionResponsesCount || 1);
-                          const heightPercentage = Math.max(8, (count / maxCount) * 100);
-
-                          return (
-                            <div key={i} className="flex flex-col gap-2">
-                              <div className="w-full bg-navy-950 border border-white/10 clip-slanted rounded-none p-6 text-center shadow-xl relative overflow-hidden">
-                                <div
-                                  className="absolute bottom-0 left-0 right-0 bg-cyan-500/25 transition-all duration-700 ease-out z-0"
-                                  style={{ height: `${heightPercentage}%` }}
-                                />
-                                <div className="relative z-10">
-                                  <h3 className="text-xl font-bold text-white mb-2">{opt}</h3>
-                                  <p className="text-4xl font-black text-cyan-400 font-mono">{count}</p>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
-                        {/* Bottom Controls */}
+            {/* Bottom Controls */}
             <div className="flex justify-between items-center px-4 pt-2">
               <div className="flex gap-3">
-                {session.mode === 'COMPETITIVE' && !showAnswer && (
+                {activeQuestion.type === 'MCQ' && !showAnswer && (
                   <button
                     onClick={handleReveal}
                     className="px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold clip-slanted rounded-none flex items-center gap-2.5 transition-all border border-white/10 text-base"
@@ -454,7 +552,8 @@ export default function HostView() {
               </div>
               <button
                 onClick={handleNext}
-                className="px-8 py-3.5 bg-cyan-400 hover:bg-cyan-300 text-navy-950 font-black clip-slanted rounded-none flex items-center gap-2.5 transition-all shadow-xl shadow-cyan-500/20 text-base"
+                disabled={isAdvancing}
+                className="px-8 py-3.5 bg-cyan-400 hover:bg-cyan-300 disabled:opacity-50 text-navy-950 font-black clip-slanted rounded-none flex items-center gap-2.5 transition-all shadow-xl shadow-cyan-500/20 text-base"
               >
                 {activeQuestionIndex + 1 === session.questions.length ? 'Finish Arena' : 'Next Question'}
                 <ChevronRight className="w-5 h-5" />
