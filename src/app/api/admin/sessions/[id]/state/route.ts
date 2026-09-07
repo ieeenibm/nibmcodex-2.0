@@ -74,13 +74,25 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       });
     }
 
-    await publishSessionState(sessionId, {
-      status: sessionDetails?.status || updatedSession.status,
-      mode: sessionDetails?.mode || 'COMPETITIVE',
-      activeQuestion,
-      questionStartedAt: sessionDetails?.questionStartedAt?.toISOString() ?? null,
-      serverTime: new Date().toISOString(),
-    });
+    // Include sub-phase in the broadcast for game flow phases
+    // phase: 'get-ready' | 'question' | 'reveal' | 'leaderboard' | null
+    const phase = body.phase || (body.activeQuestionId ? 'get-ready' : null);
+
+    try {
+      await publishSessionState(sessionId, {
+        status: sessionDetails?.status || updatedSession.status,
+        mode: sessionDetails?.mode || 'COMPETITIVE',
+        activeQuestion,
+        questionStartedAt: sessionDetails?.questionStartedAt?.toISOString() ?? null,
+        serverTime: new Date().toISOString(),
+        phase,
+      });
+    } catch (ablyErr) {
+      // Ably publish failed after retries — log but don't fail the request
+      // since DB state has already been committed. The SSE/SWR fallbacks
+      // will still deliver the state to participants.
+      console.error('[State Route] Ably publish failed, relying on fallback:', ablyErr);
+    }
 
     return NextResponse.json(updatedSession);
   } catch (error) {

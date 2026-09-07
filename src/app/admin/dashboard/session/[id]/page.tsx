@@ -14,6 +14,8 @@ import {
   Loader2,
   Clock,
   Infinity as InfinityIcon,
+  Pencil,
+  X,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -46,9 +48,10 @@ export default function SessionEditorPage() {
   const [newQuestionType, setNewQuestionType] = useState('MCQ');
   const [newTimeLimit, setNewTimeLimit] = useState<number>(0);
   const [newQuestionMaxAnswers, setNewQuestionMaxAnswers] = useState<number>(1);
-  const [newOptions, setNewOptions] = useState(['', '', '', '']);
+  const [newOptions, setNewOptions] = useState(['', '']);
   const [correctOptionIndex, setCorrectOptionIndex] = useState(0);
   const [newCorrectText, setNewCorrectText] = useState('');
+  const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
 
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -60,35 +63,78 @@ export default function SessionEditorPage() {
     }
   }, [session?.mode]);
 
+  const handleStartEdit = (q: any) => {
+    setEditingQuestionId(q.id);
+    setNewQuestionText(q.text || '');
+    setNewQuestionType(q.type || 'MCQ');
+    setNewTimeLimit(q.timeLimit ?? 0);
+    setNewQuestionMaxAnswers(q.maxAnswers ?? 1);
+    if (q.type === 'MCQ' || q.type === 'POLL') {
+      const opts = Array.isArray(q.options) && q.options.length >= 2 ? [...q.options] : ['', ''];
+      setNewOptions(opts);
+      const correctIdx = opts.indexOf(q.correctAnswer);
+      setCorrectOptionIndex(correctIdx !== -1 ? correctIdx : 0);
+    } else if (q.type === 'TEXT') {
+      setNewCorrectText(q.correctAnswer || '');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingQuestionId(null);
+    setNewQuestionText('');
+    setNewOptions(['', '']);
+    setCorrectOptionIndex(0);
+    setNewCorrectText('');
+    setNewTimeLimit(session?.mode === 'NON_COMPETITIVE' ? 0 : 30);
+    setNewQuestionMaxAnswers(1);
+  };
+
   const handleAddQuestion = async () => {
     if (!newQuestionText.trim()) return;
 
+    // Validate MCQ/POLL options are not empty
+    if (newQuestionType === 'MCQ' || newQuestionType === 'POLL') {
+      const filledOptions = newOptions.filter(o => o.trim() !== '');
+      if (filledOptions.length < 2) {
+        alert('Please provide at least 2 options.');
+        return;
+      }
+    }
+
     setIsSaving(true);
     try {
-      await fetch(`/api/admin/sessions/${id}/questions`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: newQuestionText.trim(),
-          type: newQuestionType,
-          options: newQuestionType === 'MCQ' || newQuestionType === 'POLL' ? newOptions : null,
-          correctAnswer:
-            newQuestionType === 'MCQ'
-              ? newOptions[correctOptionIndex]
-              : newQuestionType === 'TEXT'
-              ? newCorrectText.trim() || null
-              : null,
-          timeLimit: newTimeLimit,
-          maxAnswers: newQuestionMaxAnswers,
-        }),
-      });
-      setNewQuestionText('');
-      setNewOptions(['', '', '', '']);
-      setCorrectOptionIndex(0);
-      setNewCorrectText('');
+      const payload = {
+        text: newQuestionText.trim(),
+        type: newQuestionType,
+        options: newQuestionType === 'MCQ' || newQuestionType === 'POLL' ? newOptions.filter(o => o.trim() !== '') : null,
+        correctAnswer:
+          newQuestionType === 'MCQ'
+            ? newOptions[correctOptionIndex]
+            : newQuestionType === 'TEXT'
+            ? newCorrectText.trim() || null
+            : null,
+        timeLimit: newTimeLimit,
+        maxAnswers: newQuestionMaxAnswers,
+      };
+
+      if (editingQuestionId) {
+        await fetch(`/api/admin/questions/${editingQuestionId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      } else {
+        await fetch(`/api/admin/sessions/${id}/questions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      handleCancelEdit();
       mutate();
     } catch (error) {
-      alert('Failed to save question');
+      alert(editingQuestionId ? 'Failed to update question' : 'Failed to save question');
     } finally {
       setIsSaving(false);
     }
@@ -190,14 +236,23 @@ export default function SessionEditorPage() {
                 </div>
               )}
             </div>
-            <button
-              onClick={() => handleDeleteQuestion(q.id)}
-              disabled={deletingId === q.id}
-              className="text-slate-500 hover:text-red-400 transition-colors p-2 disabled:opacity-50"
-              title="Delete question"
-            >
-              {deletingId === q.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
-            </button>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={() => handleStartEdit(q)}
+                className="text-slate-500 hover:text-cyan-400 transition-colors p-2"
+                title="Edit question"
+              >
+                <Pencil className="w-5 h-5" />
+              </button>
+              <button
+                onClick={() => handleDeleteQuestion(q.id)}
+                disabled={deletingId === q.id}
+                className="text-slate-500 hover:text-red-400 transition-colors p-2 disabled:opacity-50"
+                title="Delete question"
+              >
+                {deletingId === q.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         ))}
         {(!session.questions || session.questions.length === 0) && (
@@ -208,9 +263,28 @@ export default function SessionEditorPage() {
       </div>
 
       <div className="bg-navy-900 border border-cyan-500/30 rounded-2xl p-6 sm:p-8 shadow-[0_0_30px_rgba(34,211,238,0.05)]">
-        <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-          <Plus className="w-5 h-5 text-cyan-400" /> Add New Question
-        </h3>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-lg font-bold text-white flex items-center gap-2">
+            {editingQuestionId ? (
+              <>
+                <Pencil className="w-5 h-5 text-cyan-400" /> Edit Question
+              </>
+            ) : (
+              <>
+                <Plus className="w-5 h-5 text-cyan-400" /> Add New Question
+              </>
+            )}
+          </h3>
+          {editingQuestionId && (
+            <button
+              type="button"
+              onClick={handleCancelEdit}
+              className="text-xs px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white flex items-center gap-1 font-medium transition-colors"
+            >
+              <X className="w-3.5 h-3.5" /> Cancel Edit
+            </button>
+          )}
+        </div>
 
         <input
           type="text"
@@ -313,36 +387,61 @@ export default function SessionEditorPage() {
         )}
 
         {(newQuestionType === 'MCQ' || newQuestionType === 'POLL') && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-            {newOptions.map((opt, i) => (
-              <div key={i} className="flex items-center gap-3">
-                {newQuestionType === 'MCQ' && (
+          <div className="mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
+              {newOptions.map((opt, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  {newQuestionType === 'MCQ' && (
+                    <input
+                      type="radio"
+                      name="correct_answer"
+                      checked={correctOptionIndex === i}
+                      onChange={() => setCorrectOptionIndex(i)}
+                      className="w-5 h-5 accent-cyan-500 cursor-pointer"
+                      title="Mark as correct answer"
+                    />
+                  )}
                   <input
-                    type="radio"
-                    name="correct_answer"
-                    checked={correctOptionIndex === i}
-                    onChange={() => setCorrectOptionIndex(i)}
-                    className="w-5 h-5 accent-cyan-500 cursor-pointer"
-                    title="Mark as correct answer"
+                    type="text"
+                    value={opt}
+                    onChange={(e) => {
+                      const no = [...newOptions];
+                      no[i] = e.target.value;
+                      setNewOptions(no);
+                    }}
+                    placeholder={`Option ${i + 1}`}
+                    className={`w-full bg-navy-950 border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none transition-colors ${
+                      newQuestionType === 'MCQ' && correctOptionIndex === i
+                        ? 'border-cyan-500'
+                        : 'border-white/10 focus:border-cyan-500/50'
+                    }`}
                   />
-                )}
-                <input
-                  type="text"
-                  value={opt}
-                  onChange={(e) => {
-                    const no = [...newOptions];
-                    no[i] = e.target.value;
-                    setNewOptions(no);
-                  }}
-                  placeholder={`Option ${i + 1}`}
-                  className={`w-full bg-navy-950 border rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none transition-colors ${
-                    newQuestionType === 'MCQ' && correctOptionIndex === i
-                      ? 'border-cyan-500'
-                      : 'border-white/10 focus:border-cyan-500/50'
-                  }`}
-                />
-              </div>
-            ))}
+                  {newOptions.length > 2 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const no = newOptions.filter((_, idx) => idx !== i);
+                        setNewOptions(no);
+                        if (correctOptionIndex >= no.length) setCorrectOptionIndex(Math.max(0, no.length - 1));
+                      }}
+                      className="text-slate-500 hover:text-red-400 transition-colors p-1 shrink-0"
+                      title="Remove option"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+            {newOptions.length < 6 && (
+              <button
+                type="button"
+                onClick={() => setNewOptions([...newOptions, ''])}
+                className="flex items-center gap-1.5 text-sm text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+              >
+                <Plus className="w-4 h-4" /> Add Option
+              </button>
+            )}
           </div>
         )}
 
@@ -353,6 +452,10 @@ export default function SessionEditorPage() {
         >
           {isSaving ? (
             <Loader2 className="w-5 h-5 animate-spin" />
+          ) : editingQuestionId ? (
+            <>
+              <Save className="w-5 h-5" /> Update Question
+            </>
           ) : (
             <>
               <Save className="w-5 h-5" /> Save Question

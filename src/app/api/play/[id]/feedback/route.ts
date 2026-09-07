@@ -12,11 +12,18 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       return NextResponse.json({ error: 'Missing participantId or questionId' }, { status: 400 });
     }
 
-    const [participant, responses, higherScorersCount] = await Promise.all([
-      prisma.participant.findUnique({
-        where: { id: participantId },
-        select: { id: true, name: true, score: true, streak: true, sessionId: true },
-      }),
+    // First, fetch the participant to get their score for rank calculation
+    const participant = await prisma.participant.findUnique({
+      where: { id: participantId },
+      select: { id: true, name: true, score: true, streak: true, sessionId: true },
+    });
+
+    if (!participant || participant.sessionId !== sessionId) {
+      return NextResponse.json({ error: 'Participant not found' }, { status: 404 });
+    }
+
+    // Now run remaining queries in parallel (no inner await blocking)
+    const [responses, higherScorersCount] = await Promise.all([
       prisma.response.findMany({
         where: {
           participantId,
@@ -29,20 +36,13 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
         },
         orderBy: { answeredAt: 'desc' }
       }),
-      // We will compute rank once we verify participant
       prisma.participant.count({
         where: {
           sessionId,
-          score: {
-            gt: (await prisma.participant.findUnique({ where: { id: participantId }, select: { score: true } }))?.score ?? 0
-          }
+          score: { gt: participant.score }
         }
       })
     ]);
-
-    if (!participant || participant.sessionId !== sessionId) {
-      return NextResponse.json({ error: 'Participant not found' }, { status: 404 });
-    }
 
     const response = responses[0];
     const scoreEarnedTotal = responses.reduce((acc, res) => acc + res.scoreEarned, 0);
