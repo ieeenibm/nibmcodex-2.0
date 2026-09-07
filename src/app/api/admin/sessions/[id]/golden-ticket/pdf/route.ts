@@ -117,22 +117,22 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       });
 
       // 5. Instruction Footer
-      const instr1 = 'SCAN WITH YOUR PHONE CAMERA TO CLAIM';
-      const instr1Width = helveticaBold.widthOfTextAtSize(instr1, 16);
+      const instr1 = 'SCAN WITH YOUR PHONE TO UNLOCK THE TRIVIA CHALLENGE';
+      const instr1Width = helveticaBold.widthOfTextAtSize(instr1, 14);
       page.drawText(instr1, {
         x: (PAGE_WIDTH - instr1Width) / 2,
         y: 150,
-        size: 16,
+        size: 14,
         font: helveticaBold,
         color: rgb(0.04, 0.06, 0.11),
       });
 
-      const instr2 = 'First to find and scan gets the highest score!';
-      const instr2Width = helvetica.widthOfTextAtSize(instr2, 13);
+      const instr2 = 'Answer quickly and accurately to score maximum bonus points!';
+      const instr2Width = helvetica.widthOfTextAtSize(instr2, 12);
       page.drawText(instr2, {
         x: (PAGE_WIDTH - instr2Width) / 2,
-        y: 125,
-        size: 13,
+        y: 128,
+        size: 12,
         font: helvetica,
         color: rgb(0.3, 0.35, 0.4),
       });

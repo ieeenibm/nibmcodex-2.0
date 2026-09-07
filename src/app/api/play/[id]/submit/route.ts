@@ -50,14 +50,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     // Determine correctness
-    let isCorrect = false;
     const hasCorrectAnswer = !!question.correctAnswer && question.correctAnswer.trim() !== '' && question.correctAnswer !== 'null';
-
-    if (question.type === 'MCQ' || question.type === 'IMAGE_SELECT') {
-      isCorrect = answer.trim().toLowerCase() === (question.correctAnswer || '').trim().toLowerCase();
-    } else {
-      isCorrect = answer.trim().toLowerCase() === (question.correctAnswer || '').trim().toLowerCase();
-    }
+    const isCorrect = hasCorrectAnswer
+      ? answer.trim().toLowerCase() === question.correctAnswer!.trim().toLowerCase()
+      : false;
 
     // Time-based scoring: faster = more points (only for competitive sessions)
     let baseScore = 0;
@@ -76,78 +72,74 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     // Execute atomic transaction for response creation and participant updates
     // maxAnswers check is INSIDE the transaction to prevent race conditions from spam-clicks
     let finalScore = baseScore;
-    try {
-      const result = await prisma.$transaction(async (tx) => {
-        // Check maxAnswers inside transaction to prevent race condition
-        const existingResponsesCount = await tx.response.count({
-          where: { participantId, questionId }
-        });
-
-        if (existingResponsesCount >= (question.maxAnswers ?? 1)) {
-          return { duplicate: true } as const;
-        }
-
-        if (isCorrect && session.mode === 'COMPETITIVE') {
-          const currentStreak = participant.streak ?? 0;
-          const newStreak = currentStreak + 1;
-
-          // Additive streak bonus (replaces multiplicative 2.5x which caused runaway scores)
-          // Streak 0: +0, Streak 1: +100, Streak 2: +200, ... Streak 5+: +500 (capped)
-          const streakBonus = Math.min(500, currentStreak * 100);
-          finalScore = baseScore + streakBonus;
-
-          await tx.response.create({
-            data: {
-              questionId,
-              participantId,
-              answer,
-              isCorrect,
-              scoreEarned: finalScore,
-            }
-          });
-
-          await tx.participant.update({
-            where: { id: participantId },
-            data: {
-              score: { increment: finalScore },
-              streak: newStreak,
-            }
-          });
-        } else {
-          // Incorrect or Non-Competitive mode
-          await tx.response.create({
-            data: {
-              questionId,
-              participantId,
-              answer,
-              isCorrect,
-              scoreEarned: 0, // No points awarded
-            }
-          });
-
-          if (session.mode === 'COMPETITIVE') {
-            await tx.participant.update({
-              where: { id: participantId },
-              data: { streak: 0 }
-            });
-          }
-        }
-
-        return { duplicate: false } as const;
+    const result = await prisma.$transaction(async (tx) => {
+      // Check maxAnswers inside transaction to prevent race condition
+      const existingResponsesCount = await tx.response.count({
+        where: { participantId, questionId }
       });
 
-      if (result.duplicate) {
-        return NextResponse.json({ error: 'You have reached the maximum number of answers for this question' }, { status: 409 });
+      if (existingResponsesCount >= (question.maxAnswers ?? 1)) {
+        return { duplicate: true } as const;
       }
-    } catch (err: unknown) {
-      throw err;
+
+      if (isCorrect && session.mode === 'COMPETITIVE') {
+        const currentStreak = participant.streak ?? 0;
+        const newStreak = currentStreak + 1;
+
+        // Additive streak bonus (replaces multiplicative 2.5x which caused runaway scores)
+        // Streak 0: +0, Streak 1: +100, Streak 2: +200, ... Streak 5+: +500 (capped)
+        const streakBonus = Math.min(500, currentStreak * 100);
+        finalScore = baseScore + streakBonus;
+
+        await tx.response.create({
+          data: {
+            questionId,
+            participantId,
+            answer,
+            isCorrect,
+            scoreEarned: finalScore,
+          }
+        });
+
+        await tx.participant.update({
+          where: { id: participantId },
+          data: {
+            score: { increment: finalScore },
+            streak: newStreak,
+          }
+        });
+      } else {
+        // Incorrect or Non-Competitive mode
+        await tx.response.create({
+          data: {
+            questionId,
+            participantId,
+            answer,
+            isCorrect,
+            scoreEarned: 0, // No points awarded
+          }
+        });
+
+        if (session.mode === 'COMPETITIVE') {
+          await tx.participant.update({
+            where: { id: participantId },
+            data: { streak: 0 }
+          });
+        }
+      }
+
+      return { duplicate: false } as const;
+    });
+
+    if (result.duplicate) {
+      return NextResponse.json({ error: 'You have reached the maximum number of answers for this question' }, { status: 409 });
     }
 
     // After successful commit, publish real-time answer event to host via Ably
     // This is non-critical — fire-and-forget, host will still get data via SWR fallback
     try {
       const [responseCounts] = await prisma.$queryRaw<
-        { total: bigint; correct: bigint }[]
+        { total: number | bigint; correct: number | bigint }[]
       >`
         SELECT 
           COUNT(*)::int AS total,
@@ -169,8 +161,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       // Fire-and-forget — don't await
       publishAnswerSubmitted(sessionId, {
         questionId,
-        totalResponses: Number(responseCounts.total),
-        correctCount: Number(responseCounts.correct),
+        totalResponses: Number(responseCounts?.total ?? 0),
+        correctCount: Number(responseCounts?.correct ?? 0),
         mcqDistribution,
       });
     } catch {

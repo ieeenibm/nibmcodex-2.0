@@ -125,6 +125,10 @@ export default function AttendeeLivePlay() {
 
         es.onerror = () => {
           setSseConnected(false);
+          if (eventSourceRef.current) {
+            eventSourceRef.current.close();
+            eventSourceRef.current = null;
+          }
         };
       } catch {
         setSseConnected(false);
@@ -224,7 +228,7 @@ export default function AttendeeLivePlay() {
     }
 
     // Handle game flow phases
-    if (sessionState?.phase) {
+    if (sessionState?.phase !== undefined) {
       setPhase(sessionState.phase);
       if (sessionState.phase === 'get-ready') {
         setGetReadyCountdown(3);

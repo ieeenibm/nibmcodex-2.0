@@ -83,18 +83,22 @@ model Response {
 }
 
 model QrTicket {
-  id           String      @id @default(cuid())
-  sessionId    String
-  session      Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  ticketNumber Int
-  code         String      @unique // Secure random string in QR URL
-  isWinning    Boolean     @default(false)
-  basePoints   Int         @default(500)
-  maxScans     Int?        // null = unlimited
-  scanCount    Int         @default(0)
-  isExpired    Boolean     @default(false)
-  scans        QrScan[]
-  createdAt    DateTime    @default(now())
+  id            String      @id @default(cuid())
+  sessionId     String
+  session       Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  ticketNumber  Int
+  code          String      @unique // Secure random string in QR URL
+  isWinning     Boolean     @default(false)
+  basePoints    Int         @default(500)
+  maxScans      Int?        // null = unlimited
+  scanCount     Int         @default(0)
+  isExpired     Boolean     @default(false)
+  question      String?     // Trivia challenge prompt
+  options       Json?       // 4 multiple choice options
+  correctAnswer String?     // The correct trivia option
+  timeLimit     Int         @default(15) // Seconds allowed to answer after scan
+  scans         QrScan[]
+  createdAt     DateTime    @default(now())
 
   @@index([sessionId])
   @@index([code])
@@ -109,6 +113,9 @@ model QrScan {
   sessionId     String
   session       Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   pointsEarned  Int
+  answer        String?     // Answer submitted by attendee
+  isCorrect     Boolean     @default(true)
+  timeTaken     Float?      // Seconds elapsed to answer
   scannedAt     DateTime    @default(now())
 
   @@unique([ticketId, participantId]) // Enforces single-scan per participant per QR

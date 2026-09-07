@@ -79,12 +79,12 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     const header = rows[0].map((h) => h.toLowerCase().replace(/[^a-z0-9]/g, ''));
     
     // Default indices if headers follow standard order
-    let qIdx = header.findIndex((h) => h.includes('question'));
-    let opt1Idx = header.findIndex((h) => h.includes('option1') || h.includes('opt1') || h.includes('ans1') || h.includes('a'));
-    let opt2Idx = header.findIndex((h) => h.includes('option2') || h.includes('opt2') || h.includes('ans2') || h.includes('b'));
-    let opt3Idx = header.findIndex((h) => h.includes('option3') || h.includes('opt3') || h.includes('ans3') || h.includes('c'));
-    let opt4Idx = header.findIndex((h) => h.includes('option4') || h.includes('opt4') || h.includes('ans4') || h.includes('d'));
-    let correctIdx = header.findIndex((h) => h.includes('correct') || h.includes('right') || h.includes('answer'));
+    let qIdx = header.findIndex((h) => h.includes('question') || h === 'q');
+    let opt1Idx = header.findIndex((h) => h === 'option1' || h === 'opt1' || h === 'ans1' || h === 'optiona' || h === 'opta' || h === 'a');
+    let opt2Idx = header.findIndex((h) => h === 'option2' || h === 'opt2' || h === 'ans2' || h === 'optionb' || h === 'optb' || h === 'b');
+    let opt3Idx = header.findIndex((h) => h === 'option3' || h === 'opt3' || h === 'ans3' || h === 'optionc' || h === 'optc' || h === 'c');
+    let opt4Idx = header.findIndex((h) => h === 'option4' || h === 'opt4' || h === 'ans4' || h === 'optiond' || h === 'optd' || h === 'd');
+    let correctIdx = header.findIndex((h) => h.includes('correct') || h === 'right' || h === 'rightanswer' || h === 'answer' || h === 'ans');
 
     // Fallback to positional indices: 0: Question, 1: Opt1, 2: Opt2, 3: Opt3, 4: Opt4, 5: Correct
     if (qIdx === -1) qIdx = 0;

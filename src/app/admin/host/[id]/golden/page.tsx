@@ -33,6 +33,8 @@ interface ScanActivity {
   isWinning: boolean;
   pointsEarned: number;
   timestamp: string;
+  isCorrect?: boolean;
+  speedBonus?: number;
 }
 
 export default function GoldenTicketHostView() {
@@ -76,6 +78,8 @@ export default function GoldenTicketHostView() {
                 ticketNumber: data.ticketNumber,
                 isWinning: data.isWinning,
                 pointsEarned: data.pointsEarned,
+                isCorrect: data.isCorrect,
+                speedBonus: data.speedBonus,
                 timestamp: new Date().toLocaleTimeString(),
               },
               ...prev.slice(0, 29), // keep last 30 activities
@@ -324,10 +328,30 @@ export default function GoldenTicketHostView() {
                   <span className="text-slate-500 font-mono text-[10px]">{act.timestamp}</span>
                 </div>
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400 font-mono">Ticket #{String(act.ticketNumber).padStart(2, '0')}</span>
-                  <span className={`font-mono font-black ${act.isWinning ? 'text-yellow-400' : 'text-cyan-400'}`}>
-                    +{act.pointsEarned} pts
+                  <span className="text-slate-400 font-mono flex items-center gap-1.5">
+                    Ticket #{String(act.ticketNumber).padStart(2, '0')}
+                    {act.isCorrect !== undefined && (
+                      <span
+                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                          act.isCorrect
+                            ? 'text-emerald-400 bg-emerald-500/15 border border-emerald-500/30'
+                            : 'text-amber-400 bg-amber-500/15 border border-amber-500/30'
+                        }`}
+                      >
+                        {act.isCorrect ? 'SOLVED' : 'MISSED'}
+                      </span>
+                    )}
                   </span>
+                  <div className="text-right flex items-center gap-1.5">
+                    {Boolean(act.speedBonus && act.speedBonus > 0) && (
+                      <span className="text-[10px] text-emerald-400 font-mono font-bold">
+                        +{act.speedBonus}⚡
+                      </span>
+                    )}
+                    <span className={`font-mono font-black ${act.isWinning ? 'text-yellow-400' : 'text-cyan-400'}`}>
+                      +{act.pointsEarned} pts
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}

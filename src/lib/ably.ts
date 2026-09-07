@@ -58,8 +58,7 @@ export async function publishSessionState(sessionId: string, state: unknown): Pr
     return true;
   } catch (err) {
     console.error(`[Ably] Failed to publish state to session:${sessionId}:`, err);
-    // Re-throw so callers (e.g. state route) can handle the failure
-    throw err;
+    return false;
   }
 }
 

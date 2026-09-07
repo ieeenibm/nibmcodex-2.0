@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import Ably from 'ably';
+import { verifyToken } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,12 +19,37 @@ export async function GET(req: Request) {
     }
 
     const clientId = searchParams.get('clientId') || `user-${Math.random().toString(36).substring(2, 9)}`;
-    const role = searchParams.get('role'); // 'host' for admin host console
+    const roleParam = searchParams.get('role'); // 'host' for admin host console
+
+    let isAuthorizedHost = false;
+    if (roleParam === 'host') {
+      // Securely verify host credentials from session cookie to prevent capability escalation
+      const cookieHeader = req.headers.get('cookie') || '';
+      const match = cookieHeader.match(/(?:^|;\s*)token=([^;]+)/);
+      const tokenVal = match ? match[1] : null;
+
+      if (tokenVal) {
+        const payload = await verifyToken(tokenVal);
+        if (payload) {
+          if (payload.role === 'ADMIN') {
+            isAuthorizedHost = true;
+          } else {
+            const session = await prisma.session.findUnique({
+              where: { id: sessionId },
+              select: { hostId: true },
+            });
+            if (session?.hostId === payload.id) {
+              isAuthorizedHost = true;
+            }
+          }
+        }
+      }
+    }
 
     const client = new Ably.Rest(apiKey);
 
-    // Host gets publish + subscribe + presence; participants get subscribe + presence
-    const capabilities = role === 'host'
+    // Only verified hosts receive publish capabilities; all others are strictly subscribe + presence
+    const capabilities = isAuthorizedHost
       ? ['publish', 'subscribe', 'presence'] as const
       : ['subscribe', 'presence'] as const;
 
