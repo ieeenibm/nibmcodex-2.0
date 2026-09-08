@@ -47,8 +47,10 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    // Must delete related records first because we didn't set onDelete: Cascade
+    // Must delete related records first to maintain relational integrity
     await prisma.response.deleteMany({ where: { question: { sessionId: id } } });
+    await prisma.qrScan.deleteMany({ where: { sessionId: id } });
+    await prisma.qrTicket.deleteMany({ where: { sessionId: id } });
     await prisma.question.deleteMany({ where: { sessionId: id } });
     await prisma.participant.deleteMany({ where: { sessionId: id } });
     

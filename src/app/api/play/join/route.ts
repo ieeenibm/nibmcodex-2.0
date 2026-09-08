@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { publishParticipantJoined } from '@/lib/ably';
 
 export async function POST(req: Request) {
   try {
@@ -21,13 +22,42 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'This session has already ended' }, { status: 400 });
     }
 
-    // Create participant
-    const participant = await prisma.participant.create({
-      data: {
-        name,
+    const trimmedName = name.trim();
+
+    // Check if participant already exists in this session (case-insensitive)
+    let participant = await prisma.participant.findFirst({
+      where: {
         sessionId: session.id,
-      }
+        name: {
+          equals: trimmedName,
+          mode: 'insensitive',
+        },
+      },
     });
+
+    if (!participant) {
+      // Create new participant
+      participant = await prisma.participant.create({
+        data: {
+          name: trimmedName,
+          sessionId: session.id,
+        },
+      });
+    }
+
+    // Broadcast participant count update to host screen
+    try {
+      const totalParticipants = await prisma.participant.count({
+        where: { sessionId: session.id },
+      });
+      await publishParticipantJoined(session.id, {
+        participantId: participant.id,
+        name: participant.name,
+        totalParticipants,
+      });
+    } catch (publishErr) {
+      console.warn('[Join] Failed to broadcast participant joined (non-critical):', publishErr);
+    }
 
     return NextResponse.json({ 
       participantId: participant.id, 

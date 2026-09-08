@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getAuthUser } from '@/lib/auth';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const userId = req.headers.get('x-user-id');
-    const role = req.headers.get('x-user-role');
+    const authUser = await getAuthUser(req);
+    if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const { id: userId, role } = authUser;
     const id = (await params).id;
 
     // Single query: fetch session + participants in one round-trip

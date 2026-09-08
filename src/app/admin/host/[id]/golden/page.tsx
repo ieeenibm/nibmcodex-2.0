@@ -17,7 +17,10 @@ import {
   CheckCircle2,
   StopCircle,
   Plus,
+  RotateCcw,
 } from 'lucide-react';
+import ConfirmModal from '@/components/ui/ConfirmModal';
+import { useToast } from '@/components/ui/Toast';
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -40,6 +43,7 @@ interface ScanActivity {
 export default function GoldenTicketHostView() {
   const { id } = useParams();
   const router = useRouter();
+  const { toast } = useToast();
 
   const { data: session, mutate: mutateSession } = useSWR(`/api/admin/sessions/${id}`, fetcher, { refreshInterval: 5000 });
   const { data: liveStats, mutate: mutateLiveStats } = useSWR(`/api/admin/sessions/${id}/live-stats`, fetcher, { refreshInterval: 5000 });
@@ -51,6 +55,11 @@ export default function GoldenTicketHostView() {
   const [genCount, setGenCount] = useState(15);
   const [genWinning, setGenWinning] = useState(3);
   const [genMaxScans, setGenMaxScans] = useState<string>('');
+
+  const [showEndHuntModal, setShowEndHuntModal] = useState(false);
+  const [isEndingHunt, setIsEndingHunt] = useState(false);
+  const [showResetHuntModal, setShowResetHuntModal] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
 
   const ablyClientRef = useRef<Ably.Realtime | null>(null);
 
@@ -107,9 +116,8 @@ export default function GoldenTicketHostView() {
     };
   }, [id, mutateLiveStats, mutateTickets]);
 
-  const handleEndHunt = async () => {
-    if (!confirm('Are you sure you want to end this Golden Ticket hunt? ALL QR codes will immediately expire.')) return;
-
+  const confirmEndHunt = async () => {
+    setIsEndingHunt(true);
     try {
       await fetch(`/api/admin/sessions/${id}/state`, {
         method: 'POST',
@@ -117,15 +125,40 @@ export default function GoldenTicketHostView() {
         body: JSON.stringify({ status: 'ENDED' }),
       });
       await mutateSession();
-    } catch (err) {
-      alert('Failed to end hunt');
+      setShowEndHuntModal(false);
+      toast.info('Golden Ticket hunt ended.');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to end hunt');
+    } finally {
+      setIsEndingHunt(false);
+    }
+  };
+
+  const confirmResetHunt = async () => {
+    setIsResetting(true);
+    try {
+      const res = await fetch(`/api/admin/sessions/${id}/reset`, { method: 'POST' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to reset hunt');
+      }
+      await mutateSession();
+      await mutateLiveStats();
+      await mutateTickets();
+      setActivities([]);
+      setShowResetHuntModal(false);
+      toast.success('Golden Ticket Hunt has been reset to DRAFT mode!');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to reset hunt');
+    } finally {
+      setIsResetting(false);
     }
   };
 
   const handleGenerateMore = async () => {
     setIsGenerating(true);
     try {
-      await fetch(`/api/admin/sessions/${id}/golden-ticket/generate`, {
+      const res = await fetch(`/api/admin/sessions/${id}/golden-ticket/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -134,10 +167,15 @@ export default function GoldenTicketHostView() {
           maxScans: genMaxScans ? parseInt(genMaxScans, 10) : null,
         }),
       });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to generate tickets');
+      }
       setShowGenModal(false);
       await mutateTickets();
-    } catch (err) {
-      alert('Failed to generate tickets');
+      toast.success('Generated tickets successfully!');
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to generate tickets');
     } finally {
       setIsGenerating(false);
     }
@@ -195,10 +233,19 @@ export default function GoldenTicketHostView() {
             <Plus className="w-4 h-4" /> Generate Tickets
           </button>
 
+          <button
+            onClick={() => setShowResetHuntModal(true)}
+            disabled={isResetting}
+            className="px-4 py-2.5 bg-yellow-500/20 hover:bg-yellow-500/30 border border-yellow-500/40 text-yellow-300 font-mono text-xs font-bold clip-slanted rounded-none flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+            title="Reset hunt: clears scans and participants, resets ticket counters"
+          >
+            <RotateCcw className={`w-4 h-4 ${isResetting ? 'animate-spin' : ''}`} /> Reset Hunt
+          </button>
+
           {session?.status === 'ACTIVE' && (
             <button
-              onClick={handleEndHunt}
-              className="px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-400 font-mono text-xs font-bold clip-slanted rounded-none flex items-center gap-2 transition-all"
+              onClick={() => setShowEndHuntModal(true)}
+              className="px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-400 font-mono text-xs font-bold clip-slanted rounded-none flex items-center gap-2 transition-all cursor-pointer"
             >
               <StopCircle className="w-4 h-4" /> End Hunt
             </button>
@@ -434,6 +481,31 @@ export default function GoldenTicketHostView() {
           </div>
         </div>
       )}
+
+      {/* Custom Confirm Modals */}
+      <ConfirmModal
+        isOpen={showEndHuntModal}
+        title="End Golden Ticket Hunt?"
+        description="Are you sure you want to end this Golden Ticket hunt? All physical QR codes will immediately expire and participants will no longer be able to scan for points."
+        confirmText="End Hunt"
+        cancelText="Keep Active"
+        variant="danger"
+        isLoading={isEndingHunt}
+        onConfirm={confirmEndHunt}
+        onCancel={() => setShowEndHuntModal(false)}
+      />
+
+      <ConfirmModal
+        isOpen={showResetHuntModal}
+        title="Reset Golden Ticket Hunt?"
+        description="This will clear all participant scan history, registration, and scores. It also resets scan counters so all printed QR codes can be reused and scanned again."
+        confirmText="Reset Hunt"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isResetting}
+        onConfirm={confirmResetHunt}
+        onCancel={() => setShowResetHuntModal(false)}
+      />
     </div>
   );
 }

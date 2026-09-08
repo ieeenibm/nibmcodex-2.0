@@ -21,7 +21,10 @@ import {
   Trophy,
   Crown,
   TrendingUp,
+  RotateCcw,
 } from 'lucide-react';
+import ConfirmModal from '@/components/ui/ConfirmModal';
+import { useToast } from '@/components/ui/Toast';
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -41,6 +44,7 @@ const OPTION_COLORS = [
 
 export default function HostView() {
   const { id } = useParams();
+  const { toast } = useToast();
 
   // Passive reconciliation polling
   const { data: session, mutate: mutateSession } = useSWR(`/api/admin/sessions/${id}`, fetcher, { refreshInterval: 5000 });
@@ -56,7 +60,7 @@ export default function HostView() {
   // Game phase
   const [gamePhase, setGamePhase] = useState<GamePhase>('lobby');
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
-  const [timeLeft, setTimeLeft] = useState<number>(30);
+  const [timeLeft, setTimeLeft] = useState<number>(0);
   const [displayHost, setDisplayHost] = useState<string>('nibmcodex.nibmieee.lk/play');
 
   // Auto-advance
@@ -67,6 +71,37 @@ export default function HostView() {
   const [isAdvancing, setIsAdvancing] = useState<boolean>(false);
   const hasTriggeredAdvanceRef = useRef<string | null>(null);
   const ablyClientRef = useRef<Ably.Realtime | null>(null);
+
+  // Modals & loading states
+  const [isResetting, setIsResetting] = useState<boolean>(false);
+  const [showResetModal, setShowResetModal] = useState<boolean>(false);
+  const [showEndEarlyModal, setShowEndEarlyModal] = useState<boolean>(false);
+  const [isEndingEarly, setIsEndingEarly] = useState<boolean>(false);
+
+  const confirmResetAndPlayAgain = async () => {
+    setIsResetting(true);
+    try {
+      const res = await fetch(`/api/admin/sessions/${id}/reset`, { method: 'POST' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to reset session');
+      }
+      await mutateSession();
+      await mutateLiveStats();
+      setGamePhase('lobby');
+      setRealtimeResponseCount(0);
+      setRealtimeCorrectCount(0);
+      setRealtimeDistribution(null);
+      setRealtimeParticipantCount(0);
+      setRealtimeLeaderboard([]);
+      setShowResetModal(false);
+      toast.success('Arena reset successfully to lobby!');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to restart arena');
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   const gameType = session?.gameType || 'QUIZ';
 
@@ -311,15 +346,27 @@ export default function HostView() {
     }
   };
 
-  const handleEndEarly = async () => {
-    if (!confirm('Are you sure you want to end this arena early?')) return;
-    await fetch(`/api/admin/sessions/${id}/state`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'ENDED' }),
-    });
-    await mutateSession();
-    await mutateLiveStats();
+  const handleEndEarly = () => {
+    setShowEndEarlyModal(true);
+  };
+
+  const confirmEndEarly = async () => {
+    setIsEndingEarly(true);
+    try {
+      await fetch(`/api/admin/sessions/${id}/state`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'ENDED' }),
+      });
+      await mutateSession();
+      await mutateLiveStats();
+      setShowEndEarlyModal(false);
+      toast.info('Arena ended.');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to end arena');
+    } finally {
+      setIsEndingEarly(false);
+    }
   };
 
   const timeProgress = activeQuestion?.timeLimit ? (timeLeft / activeQuestion.timeLimit) * 100 : 100;
@@ -473,61 +520,64 @@ export default function HostView() {
                 </h2>
 
                 {/* GAME 2: AI VS HUMAN IMAGE CANDIDATES */}
-                {gameType === 'AI_VS_HUMAN' && activeQuestion.images && (
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    {activeQuestion.images.map((img: any, idx: number) => {
-                      const isCorrect = img.isTarget || img.id === activeQuestion.correctAnswer;
-                      const showHighlight = gamePhase === 'reveal' && isCorrect;
+                {(gameType === 'AI_VS_HUMAN' || activeQuestion.type === 'IMAGE_SELECT') && (() => {
+                  const rawImgs = activeQuestion.images;
+                  const candidateImages: any[] = Array.isArray(rawImgs)
+                    ? rawImgs
+                    : typeof rawImgs === 'string'
+                    ? (() => { try { return JSON.parse(rawImgs); } catch { return []; } })()
+                    : [];
 
-                      return (
-                        <div
-                          key={img.id || idx}
-                          className={`relative rounded-xl overflow-hidden border-2 transition-all group ${
-                            showHighlight
-                              ? 'border-green-400 shadow-2xl shadow-green-500/30 scale-[1.02]'
-                              : gamePhase === 'reveal'
-                              ? 'border-white/10 opacity-40'
-                              : 'border-white/15 hover:border-cyan-400'
-                          }`}
-                        >
-                          <img src={img.url} alt={img.label} className="w-full h-44 object-cover" />
-                          <div className="absolute top-2 left-2 bg-navy-950/80 px-2.5 py-1 rounded text-xs font-mono font-bold text-white border border-white/20">
-                            {OPTION_COLORS[idx]?.label || idx + 1}
-                          </div>
+                  if (candidateImages.length === 0) return null;
 
-                          {showHighlight && (
-                            <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center backdrop-blur-[2px]">
-                              <span className="bg-green-500 text-navy-950 px-3 py-1 font-mono font-black text-xs rounded-full flex items-center gap-1 shadow-lg">
-                                <CheckCircle2 className="w-4 h-4" /> OFFICIAL TARGET
-                              </span>
+                  return (
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      {candidateImages.map((img: any, idx: number) => {
+                        const isCorrect = img.isTarget || img.id === activeQuestion.correctAnswer;
+                        const showHighlight = gamePhase === 'reveal' && isCorrect;
+
+                        return (
+                          <div
+                            key={img.id || idx}
+                            className={`relative rounded-xl overflow-hidden border-2 transition-all group ${
+                              showHighlight
+                                ? 'border-green-400 shadow-2xl shadow-green-500/30 scale-[1.02]'
+                                : gamePhase === 'reveal'
+                                ? 'border-white/10 opacity-40'
+                                : 'border-white/15 hover:border-cyan-400'
+                            }`}
+                          >
+                            <img src={img.url} alt={img.label} className="w-full h-44 object-cover" />
+                            <div className="absolute top-2 left-2 bg-navy-950/80 px-2.5 py-1 rounded text-xs font-mono font-bold text-white border border-white/20">
+                              {OPTION_COLORS[idx]?.label || idx + 1}
                             </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
 
-                {/* GAME 1: CLASSIC MCQ 4 OPTION TILES */}
+                            {showHighlight && (
+                              <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center backdrop-blur-[2px]">
+                                <span className="bg-green-500 text-navy-950 px-3 py-1 font-mono font-black text-xs rounded-full flex items-center gap-1 shadow-lg">
+                                  <CheckCircle2 className="w-4 h-4" /> OFFICIAL TARGET
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
+                {/* GAME 1: CLASSIC MCQ 4 OPTION TILES — Never reveal right answer on big screen */}
                 {gameType !== 'AI_VS_HUMAN' && activeQuestion.options && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                     {activeQuestion.options.map((opt: string, idx: number) => {
                       const color = OPTION_COLORS[idx % OPTION_COLORS.length];
-                      const isCorrect = opt === activeQuestion.correctAnswer;
-                      const showHighlight = gamePhase === 'reveal' && isCorrect;
                       const count = effectiveDistribution[opt] || 0;
                       const pct = Math.round((count / Math.max(1, effectiveResponseCount)) * 100);
 
                       return (
                         <div
                           key={idx}
-                          className={`p-4 border-2 clip-slanted rounded-none flex items-center justify-between transition-all ${
-                            showHighlight
-                              ? 'bg-green-500/20 border-green-400 text-green-200 shadow-xl'
-                              : gamePhase === 'reveal'
-                              ? 'bg-navy-950/40 border-white/5 opacity-50'
-                              : `${color.bg} ${color.border} text-white`
-                          }`}
+                          className={`p-4 border-2 clip-slanted rounded-none flex items-center justify-between transition-all ${color.bg} ${color.border} text-white`}
                         >
                           <div className="flex items-center gap-3">
                             <span className={`w-7 h-7 rounded flex items-center justify-center font-mono font-black text-sm ${color.tagBg} text-navy-950`}>
@@ -537,7 +587,7 @@ export default function HostView() {
                           </div>
 
                           {gamePhase === 'reveal' && (
-                            <span className="font-mono text-xs font-bold">
+                            <span className="font-mono text-xs font-bold text-slate-200 bg-navy-950/70 px-2.5 py-1 rounded border border-white/10">
                               {count} ({pct}%)
                             </span>
                           )}
@@ -717,14 +767,47 @@ export default function HostView() {
             <div className="flex justify-center gap-4">
               <Link
                 href="/admin/dashboard"
-                className="px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold clip-slanted rounded-none flex items-center gap-2 font-mono text-sm"
+                className="px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold clip-slanted rounded-none flex items-center gap-2 font-mono text-sm transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" /> Back to Dashboard
               </Link>
+              <button
+                onClick={() => setShowResetModal(true)}
+                disabled={isResetting}
+                className="px-8 py-3.5 bg-cyan-400 hover:bg-cyan-300 active:bg-cyan-500 disabled:opacity-50 text-navy-950 font-black clip-slanted rounded-none flex items-center gap-2 font-mono text-sm transition-all shadow-lg shadow-cyan-500/20 cursor-pointer"
+              >
+                <RotateCcw className={`w-4 h-4 ${isResetting ? 'animate-spin' : ''}`} />
+                <span>{isResetting ? 'Resetting Arena...' : 'Reset & Play Again'}</span>
+              </button>
             </div>
           </div>
         )}
       </main>
+
+      {/* Custom Confirm Modals */}
+      <ConfirmModal
+        isOpen={showEndEarlyModal}
+        title="End Arena Early?"
+        description="Are you sure you want to end this arena early? The current round will conclude and the game will move directly to the final podium standings."
+        confirmText="End Arena"
+        cancelText="Keep Playing"
+        variant="danger"
+        isLoading={isEndingEarly}
+        onConfirm={confirmEndEarly}
+        onCancel={() => setShowEndEarlyModal(false)}
+      />
+
+      <ConfirmModal
+        isOpen={showResetModal}
+        title="Reset & Restart Arena?"
+        description="All participant responses, scores, and registrations will be cleared. The arena will return to the lobby in DRAFT mode so attendees can join fresh."
+        confirmText="Reset & Restart"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isResetting}
+        onConfirm={confirmResetAndPlayAgain}
+        onCancel={() => setShowResetModal(false)}
+      />
 
       {/* Decorative Glow */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-900/15 via-navy-950 to-navy-950 pointer-events-none" />

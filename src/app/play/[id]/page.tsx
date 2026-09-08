@@ -632,40 +632,53 @@ export default function AttendeeLivePlay() {
           </div>
         ) : (
           <div className="w-full">
-            {activeQ?.type === 'IMAGE_SELECT' || activeQ?.images ? (
-              <div className="grid grid-cols-2 gap-3.5">
-                {activeQ?.images?.map((img: any, i: number) => {
-                  const labels = ['A', 'B', 'C', 'D'];
-                  return (
+            {(() => {
+              const rawImgs = activeQ?.images;
+              const candidateImages: any[] = Array.isArray(rawImgs)
+                ? rawImgs
+                : typeof rawImgs === 'string'
+                ? (() => { try { return JSON.parse(rawImgs); } catch { return []; } })()
+                : [];
+
+              if (activeQ?.type === 'IMAGE_SELECT' || candidateImages.length > 0) {
+                return (
+                  <div className="grid grid-cols-2 gap-3.5">
+                    {candidateImages.map((img: any, i: number) => {
+                      const labels = ['A', 'B', 'C', 'D'];
+                      return (
+                        <button
+                          key={img.id || i}
+                          onClick={() => handleSubmit(img.id)}
+                          disabled={submitting}
+                          className="w-full relative bg-navy-900 hover:border-cyan-400 border-2 border-white/15 clip-slanted rounded-none p-2.5 transition-all transform active:scale-95 shadow-lg group overflow-hidden flex flex-col items-center"
+                        >
+                          <img src={img.url} alt={img.label} className="w-full h-36 sm:h-44 object-cover rounded-lg mb-2" />
+                          <span className="font-mono font-black text-sm text-white group-hover:text-cyan-300">
+                            {labels[i] || img.label || `Option ${i + 1}`}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              }
+
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {shuffledOptions.map((opt: string, i: number) => (
                     <button
-                      key={img.id || i}
-                      onClick={() => handleSubmit(img.id)}
+                      key={i}
+                      onClick={() => handleSubmit(opt)}
                       disabled={submitting}
-                      className="w-full relative bg-navy-900 hover:border-cyan-400 border-2 border-white/15 clip-slanted rounded-none p-2.5 transition-all transform active:scale-95 shadow-lg group overflow-hidden flex flex-col items-center"
+                      className="w-full text-left bg-navy-900 hover:bg-cyan-500/15 active:bg-cyan-500/30 border-2 border-white/10 hover:border-cyan-400 clip-slanted rounded-none p-5 sm:p-6 text-lg sm:text-xl font-bold text-white transition-all transform active:scale-[0.98] shadow-lg flex items-center justify-between group"
                     >
-                      <img src={img.url} alt={img.label} className="w-full h-36 sm:h-44 object-cover rounded-lg mb-2" />
-                      <span className="font-mono font-black text-sm text-white group-hover:text-cyan-300">
-                        {labels[i] || img.label || `Option ${i + 1}`}
-                      </span>
+                      <span className="leading-tight group-hover:text-cyan-200">{opt}</span>
+                      <span className="w-3 h-3 rounded-full border-2 border-white/20 group-hover:border-cyan-400 group-hover:bg-cyan-400 shrink-0 ml-3 transition-colors" />
                     </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {shuffledOptions.map((opt: string, i: number) => (
-                  <button
-                    key={i}
-                    onClick={() => handleSubmit(opt)}
-                    disabled={submitting}
-                    className="w-full text-left bg-navy-900 hover:bg-cyan-500/15 active:bg-cyan-500/30 border-2 border-white/10 hover:border-cyan-400 clip-slanted rounded-none p-5 sm:p-6 text-lg sm:text-xl font-bold text-white transition-all transform active:scale-[0.98] shadow-lg flex items-center justify-between group"
-                  >
-                    <span className="leading-tight group-hover:text-cyan-200">{opt}</span>
-                    <span className="w-3 h-3 rounded-full border-2 border-white/20 group-hover:border-cyan-400 group-hover:bg-cyan-400 shrink-0 ml-3 transition-colors" />
-                  </button>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         )}
       </div>
