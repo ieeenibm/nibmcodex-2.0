@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import useSWR from 'swr';
 import { Users, UserPlus, Trash2, Key, Loader2, CheckCircle2, ShieldAlert } from 'lucide-react';
-import ConfirmModal from '@/components/ui/ConfirmModal';
-import { useToast } from '@/components/ui/Toast';
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -15,13 +13,11 @@ const fetcher = async (url: string) => {
 
 export default function HostsManagementPage() {
   const { data: hosts, error, mutate } = useSWR('/api/admin/hosts', fetcher);
-  const { toast } = useToast();
 
   const [username, setUsername] = useState('');
   const [tempPassword, setTempPassword] = useState('');
   const [creating, setCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [hostToDelete, setHostToDelete] = useState<{ id: string; username: string } | null>(null);
   const [formError, setFormError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
@@ -44,33 +40,29 @@ export default function HostsManagementPage() {
       if (!res.ok) throw new Error(data.error || 'Failed to create host');
 
       setSuccessMsg(`Host "${username}" created! They must change their password upon first login.`);
-      toast.success(`Host "${username}" created!`);
       setUsername('');
       setTempPassword('');
       mutate();
     } catch (err: any) {
       setFormError(err.message);
-      toast.error(err.message || 'Failed to create host');
     } finally {
       setCreating(false);
     }
   };
 
-  const confirmDeleteHost = async () => {
-    if (!hostToDelete) return;
+  const handleDeleteHost = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete host account "${name}"? All their sessions will be removed.`)) return;
 
-    setDeletingId(hostToDelete.id);
+    setDeletingId(id);
     try {
-      const res = await fetch(`/api/admin/hosts/${hostToDelete.id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/admin/hosts/${id}`, { method: 'DELETE' });
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || 'Failed to delete');
       }
       mutate();
-      toast.success(`Host account "${hostToDelete.username}" deleted.`);
-      setHostToDelete(null);
     } catch (err: any) {
-      toast.error(err.message || 'Failed to delete host');
+      alert(err.message);
     } finally {
       setDeletingId(null);
     }
@@ -201,9 +193,9 @@ export default function HostsManagementPage() {
                   </div>
 
                   <button
-                    onClick={() => setHostToDelete({ id: host.id, username: host.username })}
+                    onClick={() => handleDeleteHost(host.id, host.username)}
                     disabled={deletingId === host.id}
-                    className="p-2 text-slate-400 hover:text-red-400 hover:bg-white/5 rounded-xl transition-colors cursor-pointer"
+                    className="p-2 text-slate-400 hover:text-red-400 hover:bg-white/5 rounded-xl transition-colors"
                     title="Delete Host"
                   >
                     {deletingId === host.id ? (
@@ -218,25 +210,6 @@ export default function HostsManagementPage() {
           )}
         </div>
       </div>
-
-      {/* Delete Host Confirm Modal */}
-      <ConfirmModal
-        isOpen={!!hostToDelete}
-        title="Delete Host Account?"
-        description={
-          hostToDelete ? (
-            <span>
-              Are you sure you want to delete host account <strong className="text-white">"{hostToDelete.username}"</strong>? All arena sessions managed by this host will also be permanently removed.
-            </span>
-          ) : ''
-        }
-        confirmText="Delete Host"
-        cancelText="Cancel"
-        variant="danger"
-        isLoading={!!deletingId}
-        onConfirm={confirmDeleteHost}
-        onCancel={() => setHostToDelete(null)}
-      />
     </div>
   );
 }

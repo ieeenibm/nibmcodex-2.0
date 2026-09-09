@@ -1,14 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getAuthUser } from '@/lib/auth';
 
 export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const authUser = await getAuthUser(req);
-    if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const { id: userId, role } = authUser;
+    const userId = req.headers.get('x-user-id');
+    const role = req.headers.get('x-user-role');
     const id = (await params).id;
+
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const question = await prisma.question.findUnique({
       where: { id },
@@ -40,11 +39,11 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
 
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const authUser = await getAuthUser(req);
-    if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const { id: userId, role } = authUser;
+    const userId = req.headers.get('x-user-id');
+    const role = req.headers.get('x-user-role');
     const id = (await params).id;
+
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const question = await prisma.question.findUnique({
       where: { id },
@@ -58,7 +57,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     }
 
     const body = await req.json();
-    const { text, type, options, images, correctAnswer, timeLimit, maxAnswers } = body;
+    const { text, type, options, correctAnswer, timeLimit, maxAnswers } = body;
 
     const updated = await prisma.question.update({
       where: { id },
@@ -66,7 +65,6 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
         ...(text !== undefined && { text }),
         ...(type !== undefined && { type }),
         ...(options !== undefined && { options }),
-        ...(images !== undefined && { images }),
         ...(correctAnswer !== undefined && { correctAnswer }),
         ...(timeLimit !== undefined && { timeLimit }),
         ...(maxAnswers !== undefined && { maxAnswers }),
