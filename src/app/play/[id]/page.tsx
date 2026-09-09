@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useMemo, useCallback } from 'react';
 import useSWR from 'swr';
 import { useParams, useRouter } from 'next/navigation';
-import { Loader2, CheckCircle2, Gamepad2, Flame, Trophy, AlertTriangle, Clock, Zap, XCircle } from 'lucide-react';
+import { Loader2, CheckCircle2, Gamepad2, Flame, Trophy, AlertTriangle, Clock, Zap, XCircle, Compass, Sparkles } from 'lucide-react';
 import * as Ably from 'ably';
 
 const fetcher = async (url: string) => {
@@ -49,6 +49,7 @@ export default function AttendeeLivePlay() {
   const ablyClientRef = useRef<Ably.Realtime | null>(null);
   const eventSourceRef = useRef<EventSource | null>(null);
   const isAblyActiveRef = useRef(false);
+  const prevQuestionIdRef = useRef<string | null>(null);
 
   // SWR Fallback Polling (only active if SSE is disconnected)
   const { data: swrState, error: swrError } = useSWR(
@@ -145,11 +146,17 @@ export default function AttendeeLivePlay() {
         });
         ablyClientRef.current = client;
 
+        const channel = client.channels.get(`session:${id}`);
+
         client.connection.on('connected', () => {
           isAblyActiveRef.current = true;
           setSseConnected(true);
           // Tear down SSE if Ably reconnects (fixes dual connection leak)
           closeSSE();
+          // Enter/re-enter presence so host tracks live participants even after mobile sleep (ENG-02)
+          channel.presence.enter({ participantId }).catch((err: unknown) => {
+            console.warn('[Player] Failed to enter presence on connect:', err);
+          });
         });
 
         client.connection.on('disconnected', () => {
@@ -165,7 +172,11 @@ export default function AttendeeLivePlay() {
           fallbackToSSE();
         });
 
-        const channel = client.channels.get(`session:${id}`);
+        // Initial presence enter
+        channel.presence.enter({ participantId }).catch((err: unknown) => {
+          console.warn('[Player] Failed to enter presence initially:', err);
+        });
+
         await channel.subscribe('state-change', (message) => {
           const data = message.data;
           if (data && !data.error) {
@@ -235,6 +246,19 @@ export default function AttendeeLivePlay() {
       }
     }
   }, [sessionState?.status, sessionState?.activeQuestion?.id, sessionState?.activeQuestion?.unchanged, sessionState?.questionStartedAt, sessionState?.phase, participantId]);
+
+  // Bug fix: Auto-reset phase when a new question is detected.
+  // Phase is transient (Ably-only, not persisted in DB), so if a player's
+  // WebSocket briefly drops and misses the 'get-ready' event, they get stuck
+  // on the reveal/leaderboard screen forever. This detects the new question
+  // ID from SSE/SWR fallback and forces the phase transition.
+  useEffect(() => {
+    if (activeQuestion?.id && activeQuestion.id !== prevQuestionIdRef.current) {
+      prevQuestionIdRef.current = activeQuestion.id;
+      setPhase((prev) => (prev === 'reveal' || prev === 'leaderboard' ? 'get-ready' : prev));
+      setGetReadyCountdown(3);
+    }
+  }, [activeQuestion?.id]);
 
   // Get Ready countdown timer
   useEffect(() => {
@@ -405,6 +429,87 @@ export default function AttendeeLivePlay() {
 
         <div className="pb-4 text-center">
           <p className="text-slate-600 text-xs font-mono">POWERED BY PULSE MINI</p>
+        </div>
+      </div>
+    );
+  }
+
+  // === GOLDEN TICKET SCAVENGER HUNT MODE ===
+  if (sessionState.gameType === 'GOLDEN_TICKET') {
+    if (sessionState.status === 'ENDED') {
+      return (
+        <div className="min-h-screen bg-navy-950 flex flex-col justify-between items-center text-center p-6 select-none">
+          <div className="pt-8">
+            <span className="text-xs font-mono uppercase tracking-widest text-yellow-400 font-bold bg-yellow-500/10 border border-yellow-500/20 px-3 py-1 rounded-full">
+              HUNT CONCLUDED
+            </span>
+          </div>
+
+          <div className="max-w-md w-full bg-navy-900/80 border border-yellow-500/30 clip-slanted rounded-none p-8 backdrop-blur-md shadow-2xl">
+            <Trophy className="w-16 h-16 text-yellow-400 mx-auto mb-4 animate-bounce" />
+            <h1 className="text-3xl font-black text-white mb-2">Hunt Concluded!</h1>
+            <p className="text-slate-300 text-sm mb-6 leading-relaxed">
+              The Golden Ticket hunt has concluded. Check the big projector screen on stage for the winner reveal and podium standings!
+            </p>
+
+            {feedback && (
+              <div className="bg-navy-950 p-4 clip-slanted rounded-none border border-white/10 text-center">
+                <span className="text-xs text-slate-400 uppercase font-mono block mb-1">Your Total Score</span>
+                <span className="text-3xl font-black text-yellow-400 font-mono">+{feedback.currentScore || 0} pts</span>
+                <span className="text-[11px] text-slate-500 font-mono block mt-1">Official podium displayed on stage</span>
+              </div>
+            )}
+          </div>
+
+          <div className="pb-4 text-center">
+            <p className="text-slate-600 text-xs font-mono">PULSE MINI • NIBMCODEX 2.0</p>
+          </div>
+        </div>
+      );
+    }
+
+    // Active Golden Ticket Hunt
+    return (
+      <div className="min-h-screen bg-navy-950 flex flex-col justify-between items-center text-center p-6 select-none relative overflow-hidden">
+        <div className="pt-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 text-xs font-mono font-bold tracking-wider">
+            <Sparkles className="w-3.5 h-3.5 animate-spin text-yellow-400" />
+            HUNT IN PROGRESS
+          </div>
+        </div>
+
+        <div className="max-w-md w-full bg-navy-900/90 border border-yellow-500/30 clip-slanted rounded-none p-8 backdrop-blur-md shadow-2xl relative z-10">
+          <div className="w-20 h-20 bg-yellow-500/15 border-2 border-yellow-500/30 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-yellow-500/10">
+            <Compass className="w-10 h-10 text-yellow-400 animate-pulse" />
+          </div>
+
+          <h1 className="text-2xl sm:text-3xl font-black text-white mb-2">Find The Golden Ticket</h1>
+          <p className="text-slate-300 text-sm mb-6 leading-relaxed">
+            Physical QR codes are hidden across the venue. Only <strong>ONE</strong> is the authentic Golden Ticket with a trivia bounty!
+          </p>
+
+          <div className="space-y-3 bg-navy-950/80 p-4 border border-white/10 clip-slanted rounded-none text-left mb-6">
+            <div className="flex items-start gap-3 text-xs text-slate-300">
+              <span className="w-5 h-5 rounded-full bg-yellow-500/20 text-yellow-400 flex items-center justify-center font-mono font-bold shrink-0">1</span>
+              <span>Search the venue and scan QR codes with your device camera.</span>
+            </div>
+            <div className="flex items-start gap-3 text-xs text-slate-300">
+              <span className="w-5 h-5 rounded-full bg-yellow-500/20 text-yellow-400 flex items-center justify-center font-mono font-bold shrink-0">2</span>
+              <span>Decoy QRs will let you know to keep searching.</span>
+            </div>
+            <div className="flex items-start gap-3 text-xs text-slate-300">
+              <span className="w-5 h-5 rounded-full bg-yellow-500/20 text-yellow-400 flex items-center justify-center font-mono font-bold shrink-0">3</span>
+              <span>When you find the Golden Ticket, solve the host trivia challenge before time expires!</span>
+            </div>
+          </div>
+
+          <div className="p-3 bg-cyan-500/10 border border-cyan-500/20 clip-slanted rounded-none text-cyan-300 text-xs font-mono">
+            Standings are private to attendees — keep your eyes on the host projector screen!
+          </div>
+        </div>
+
+        <div className="pb-4 text-center">
+          <p className="text-slate-600 text-xs font-mono">PULSE MINI • NIBMCODEX 2.0</p>
         </div>
       </div>
     );
@@ -615,11 +720,7 @@ export default function AttendeeLivePlay() {
               Waiting for the host to reveal the results...
             </p>
 
-            {feedback && feedback.scoreEarned > 0 && (
-              <div className="mt-4 inline-flex items-center gap-2 bg-green-500/20 border border-green-500/40 text-green-300 px-4 py-2 clip-slanted rounded-none font-mono text-sm font-black animate-bounce">
-                +{feedback.scoreEarned} PTS EARNED!
-              </div>
-            )}
+            {/* Score is intentionally hidden until reveal phase to avoid spoiling results */}
           </div>
         ) : isTimed && timeLeft <= 0 ? (
           <div className="bg-navy-900/90 border border-red-500/30 clip-slanted rounded-none p-8 text-center backdrop-blur-md shadow-2xl flex flex-col items-center justify-center animate-in zoom-in-95 duration-300">
@@ -632,40 +733,53 @@ export default function AttendeeLivePlay() {
           </div>
         ) : (
           <div className="w-full">
-            {activeQ?.type === 'IMAGE_SELECT' || activeQ?.images ? (
-              <div className="grid grid-cols-2 gap-3.5">
-                {activeQ?.images?.map((img: any, i: number) => {
-                  const labels = ['A', 'B', 'C', 'D'];
-                  return (
+            {(() => {
+              const rawImgs = activeQ?.images;
+              const candidateImages: any[] = Array.isArray(rawImgs)
+                ? rawImgs
+                : typeof rawImgs === 'string'
+                ? (() => { try { return JSON.parse(rawImgs); } catch { return []; } })()
+                : [];
+
+              if (activeQ?.type === 'IMAGE_SELECT' || candidateImages.length > 0) {
+                return (
+                  <div className="grid grid-cols-2 gap-3.5">
+                    {candidateImages.map((img: any, i: number) => {
+                      const labels = ['A', 'B', 'C', 'D'];
+                      return (
+                        <button
+                          key={img.id || i}
+                          onClick={() => handleSubmit(img.id)}
+                          disabled={submitting}
+                          className="w-full relative bg-navy-900 hover:border-cyan-400 border-2 border-white/15 clip-slanted rounded-none p-2.5 transition-all transform active:scale-95 shadow-lg group overflow-hidden flex flex-col items-center"
+                        >
+                          <img src={img.url} alt={img.label} className="w-full h-36 sm:h-44 object-cover rounded-lg mb-2" />
+                          <span className="font-mono font-black text-sm text-white group-hover:text-cyan-300">
+                            {labels[i] || img.label || `Option ${i + 1}`}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              }
+
+              return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {shuffledOptions.map((opt: string, i: number) => (
                     <button
-                      key={img.id || i}
-                      onClick={() => handleSubmit(img.id)}
+                      key={i}
+                      onClick={() => handleSubmit(opt)}
                       disabled={submitting}
-                      className="w-full relative bg-navy-900 hover:border-cyan-400 border-2 border-white/15 clip-slanted rounded-none p-2.5 transition-all transform active:scale-95 shadow-lg group overflow-hidden flex flex-col items-center"
+                      className="w-full text-left bg-navy-900 hover:bg-cyan-500/15 active:bg-cyan-500/30 border-2 border-white/10 hover:border-cyan-400 clip-slanted rounded-none p-5 sm:p-6 text-lg sm:text-xl font-bold text-white transition-all transform active:scale-[0.98] shadow-lg flex items-center justify-between group"
                     >
-                      <img src={img.url} alt={img.label} className="w-full h-36 sm:h-44 object-cover rounded-lg mb-2" />
-                      <span className="font-mono font-black text-sm text-white group-hover:text-cyan-300">
-                        {labels[i] || img.label || `Option ${i + 1}`}
-                      </span>
+                      <span className="leading-tight group-hover:text-cyan-200">{opt}</span>
+                      <span className="w-3 h-3 rounded-full border-2 border-white/20 group-hover:border-cyan-400 group-hover:bg-cyan-400 shrink-0 ml-3 transition-colors" />
                     </button>
-                  );
-                })}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {shuffledOptions.map((opt: string, i: number) => (
-                  <button
-                    key={i}
-                    onClick={() => handleSubmit(opt)}
-                    disabled={submitting}
-                    className="w-full text-left bg-navy-900 hover:bg-cyan-500/15 active:bg-cyan-500/30 border-2 border-white/10 hover:border-cyan-400 clip-slanted rounded-none p-5 sm:p-6 text-lg sm:text-xl font-bold text-white transition-all transform active:scale-[0.98] shadow-lg flex items-center justify-between group"
-                  >
-                    <span className="leading-tight group-hover:text-cyan-200">{opt}</span>
-                    <span className="w-3 h-3 rounded-full border-2 border-white/20 group-hover:border-cyan-400 group-hover:bg-cyan-400 shrink-0 ml-3 transition-colors" />
-                  </button>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         )}
       </div>
