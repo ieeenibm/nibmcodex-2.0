@@ -2,9 +2,13 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import QRCode from 'qrcode';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { getAuthUser } from '@/lib/auth';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const authUser = await getAuthUser(req);
+    if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const sessionId = (await params).id;
     const { origin } = new URL(req.url);
 
@@ -19,6 +23,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
 
     if (!session || !session.tickets.length) {
       return NextResponse.json({ error: 'No tickets found for this session' }, { status: 404 });
+    }
+
+    if (authUser.role !== 'ADMIN' && session.hostId !== authUser.id) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const pdfDoc = await PDFDocument.create();

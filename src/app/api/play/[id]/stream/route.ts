@@ -20,7 +20,7 @@ async function getSessionState(sessionId: string) {
     // Do NOT expose correctAnswer to the client
     activeQuestion = await prisma.question.findUnique({
       where: { id: session.activeQuestionId },
-      select: { id: true, type: true, text: true, options: true, timeLimit: true, maxAnswers: true },
+      select: { id: true, type: true, text: true, options: true, images: true, timeLimit: true, maxAnswers: true },
     });
   }
 

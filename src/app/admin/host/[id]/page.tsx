@@ -21,7 +21,10 @@ import {
   Trophy,
   Crown,
   TrendingUp,
+  RotateCcw,
 } from 'lucide-react';
+import ConfirmModal from '@/components/ui/ConfirmModal';
+import { useToast } from '@/components/ui/Toast';
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -41,6 +44,7 @@ const OPTION_COLORS = [
 
 export default function HostView() {
   const { id } = useParams();
+  const { toast } = useToast();
 
   // Passive reconciliation polling
   const { data: session, mutate: mutateSession } = useSWR(`/api/admin/sessions/${id}`, fetcher, { refreshInterval: 5000 });
@@ -56,7 +60,7 @@ export default function HostView() {
   // Game phase
   const [gamePhase, setGamePhase] = useState<GamePhase>('lobby');
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
-  const [timeLeft, setTimeLeft] = useState<number>(30);
+  const [timeLeft, setTimeLeft] = useState<number>(0);
   const [displayHost, setDisplayHost] = useState<string>('nibmcodex.nibmieee.lk/play');
 
   // Auto-advance
@@ -67,6 +71,37 @@ export default function HostView() {
   const [isAdvancing, setIsAdvancing] = useState<boolean>(false);
   const hasTriggeredAdvanceRef = useRef<string | null>(null);
   const ablyClientRef = useRef<Ably.Realtime | null>(null);
+
+  // Modals & loading states
+  const [isResetting, setIsResetting] = useState<boolean>(false);
+  const [showResetModal, setShowResetModal] = useState<boolean>(false);
+  const [showEndEarlyModal, setShowEndEarlyModal] = useState<boolean>(false);
+  const [isEndingEarly, setIsEndingEarly] = useState<boolean>(false);
+
+  const confirmResetAndPlayAgain = async () => {
+    setIsResetting(true);
+    try {
+      const res = await fetch(`/api/admin/sessions/${id}/reset`, { method: 'POST' });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Failed to reset session');
+      }
+      await mutateSession();
+      await mutateLiveStats();
+      setGamePhase('lobby');
+      setRealtimeResponseCount(0);
+      setRealtimeCorrectCount(0);
+      setRealtimeDistribution(null);
+      setRealtimeParticipantCount(0);
+      setRealtimeLeaderboard([]);
+      setShowResetModal(false);
+      toast.success('Arena reset successfully to lobby!');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to restart arena');
+    } finally {
+      setIsResetting(false);
+    }
+  };
 
   const gameType = session?.gameType || 'QUIZ';
 
@@ -98,7 +133,7 @@ export default function HostView() {
           mutateLiveStats();
         });
 
-        // Attendee joined
+        // Attendee joined (supplementary — presence is primary for live count)
         await channel.subscribe('participant-joined', (message) => {
           const data = message.data;
           if (data?.totalParticipants) {
@@ -111,6 +146,26 @@ export default function HostView() {
         await channel.subscribe('leaderboard-update', () => {
           mutateLiveStats();
         });
+
+        // Ably Presence: track live participant count.
+        // Players enter presence on connect; Ably auto-removes on disconnect/tab close.
+        // This solves "user count doesn't decrease on exit".
+        const updatePresenceCount = async () => {
+          try {
+            const members = await channel.presence.get();
+            // Exclude the host's own presence and deduplicate by clientId
+            const uniqueParticipants = new Set(
+              members
+                .map(m => m.clientId)
+                .filter(cid => cid && !cid.startsWith('host-'))
+            );
+            setRealtimeParticipantCount(uniqueParticipants.size);
+          } catch (err) {
+            console.warn('[Host] Presence count failed:', err);
+          }
+        };
+        await channel.presence.subscribe(updatePresenceCount);
+        updatePresenceCount(); // Fetch initial count
       } catch (err) {
         console.error('[Host] Ably connection failed, falling back to polling:', err);
       }
@@ -133,12 +188,18 @@ export default function HostView() {
     }
   }, [session?.serverTime]);
 
-  // Sync leaderboard from SWR
+  // Sync leaderboard from SWR — FROZEN during active question phase.
+  // Scores are written to DB immediately on submit, but showing live
+  // re-ranking during a question leaks competitive information.
+  // The leaderboard only updates during reveal, lobby, or ended phases.
   useEffect(() => {
     if (liveStats?.leaderboard) {
-      setRealtimeLeaderboard(liveStats.leaderboard);
+      if (gamePhase !== 'question' || !realtimeLeaderboard) {
+        setRealtimeLeaderboard(liveStats.leaderboard);
+      }
     }
-  }, [liveStats?.leaderboard]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [liveStats?.leaderboard, gamePhase]);
 
   // Generate QR code for instant join
   useEffect(() => {
@@ -311,15 +372,27 @@ export default function HostView() {
     }
   };
 
-  const handleEndEarly = async () => {
-    if (!confirm('Are you sure you want to end this arena early?')) return;
-    await fetch(`/api/admin/sessions/${id}/state`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'ENDED' }),
-    });
-    await mutateSession();
-    await mutateLiveStats();
+  const handleEndEarly = () => {
+    setShowEndEarlyModal(true);
+  };
+
+  const confirmEndEarly = async () => {
+    setIsEndingEarly(true);
+    try {
+      await fetch(`/api/admin/sessions/${id}/state`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'ENDED' }),
+      });
+      await mutateSession();
+      await mutateLiveStats();
+      setShowEndEarlyModal(false);
+      toast.info('Arena ended.');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to end arena');
+    } finally {
+      setIsEndingEarly(false);
+    }
   };
 
   const timeProgress = activeQuestion?.timeLimit ? (timeLeft / activeQuestion.timeLimit) * 100 : 100;
@@ -473,71 +546,90 @@ export default function HostView() {
                 </h2>
 
                 {/* GAME 2: AI VS HUMAN IMAGE CANDIDATES */}
-                {gameType === 'AI_VS_HUMAN' && activeQuestion.images && (
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    {activeQuestion.images.map((img: any, idx: number) => {
-                      const isCorrect = img.isTarget || img.id === activeQuestion.correctAnswer;
-                      const showHighlight = gamePhase === 'reveal' && isCorrect;
+                {(gameType === 'AI_VS_HUMAN' || activeQuestion.type === 'IMAGE_SELECT') && (() => {
+                  const rawImgs = activeQuestion.images;
+                  const candidateImages: any[] = Array.isArray(rawImgs)
+                    ? rawImgs
+                    : typeof rawImgs === 'string'
+                    ? (() => { try { return JSON.parse(rawImgs); } catch { return []; } })()
+                    : [];
 
-                      return (
-                        <div
-                          key={img.id || idx}
-                          className={`relative rounded-xl overflow-hidden border-2 transition-all group ${
-                            showHighlight
-                              ? 'border-green-400 shadow-2xl shadow-green-500/30 scale-[1.02]'
-                              : gamePhase === 'reveal'
-                              ? 'border-white/10 opacity-40'
-                              : 'border-white/15 hover:border-cyan-400'
-                          }`}
-                        >
-                          <img src={img.url} alt={img.label} className="w-full h-44 object-cover" />
-                          <div className="absolute top-2 left-2 bg-navy-950/80 px-2.5 py-1 rounded text-xs font-mono font-bold text-white border border-white/20">
-                            {OPTION_COLORS[idx]?.label || idx + 1}
-                          </div>
+                  if (candidateImages.length === 0) return null;
 
-                          {showHighlight && (
-                            <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center backdrop-blur-[2px]">
-                              <span className="bg-green-500 text-navy-950 px-3 py-1 font-mono font-black text-xs rounded-full flex items-center gap-1 shadow-lg">
-                                <CheckCircle2 className="w-4 h-4" /> OFFICIAL TARGET
-                              </span>
+                  return (
+                    <div className="grid grid-cols-2 gap-4 mb-4">
+                      {candidateImages.map((img: any, idx: number) => {
+                        const isCorrect = img.isTarget || img.id === activeQuestion.correctAnswer;
+                        const showHighlight = gamePhase === 'reveal' && isCorrect;
+
+                        return (
+                          <div
+                            key={img.id || idx}
+                            className={`relative rounded-xl overflow-hidden border-2 transition-all group ${
+                              showHighlight
+                                ? 'border-green-400 shadow-2xl shadow-green-500/30 scale-[1.02]'
+                                : gamePhase === 'reveal'
+                                ? 'border-white/10 opacity-40'
+                                : 'border-white/15 hover:border-cyan-400'
+                            }`}
+                          >
+                            <img src={img.url} alt={img.label} className="w-full h-44 object-cover" />
+                            <div className="absolute top-2 left-2 bg-navy-950/80 px-2.5 py-1 rounded text-xs font-mono font-bold text-white border border-white/20">
+                              {OPTION_COLORS[idx]?.label || idx + 1}
                             </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
 
-                {/* GAME 1: CLASSIC MCQ 4 OPTION TILES */}
+                            {showHighlight && (
+                              <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center backdrop-blur-[2px]">
+                                <span className="bg-green-500 text-navy-950 px-3 py-1 font-mono font-black text-xs rounded-full flex items-center gap-1 shadow-lg">
+                                  <CheckCircle2 className="w-4 h-4" /> OFFICIAL TARGET
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
+                {/* GAME 1: CLASSIC MCQ OPTION TILES — Never reveal right answer during question, illuminate on reveal phase (ADM-01) */}
                 {gameType !== 'AI_VS_HUMAN' && activeQuestion.options && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                     {activeQuestion.options.map((opt: string, idx: number) => {
                       const color = OPTION_COLORS[idx % OPTION_COLORS.length];
-                      const isCorrect = opt === activeQuestion.correctAnswer;
-                      const showHighlight = gamePhase === 'reveal' && isCorrect;
                       const count = effectiveDistribution[opt] || 0;
                       const pct = Math.round((count / Math.max(1, effectiveResponseCount)) * 100);
+                      const isWinningAnswer = Boolean(
+                        activeQuestion.correctAnswer &&
+                        opt.trim().toLowerCase() === activeQuestion.correctAnswer.trim().toLowerCase()
+                      );
+                      const showWinningHighlight = gamePhase === 'reveal' && isWinningAnswer;
 
                       return (
                         <div
                           key={idx}
                           className={`p-4 border-2 clip-slanted rounded-none flex items-center justify-between transition-all ${
-                            showHighlight
-                              ? 'bg-green-500/20 border-green-400 text-green-200 shadow-xl'
-                              : gamePhase === 'reveal'
-                              ? 'bg-navy-950/40 border-white/5 opacity-50'
+                            showWinningHighlight
+                              ? 'bg-emerald-500/20 border-emerald-400 ring-2 ring-emerald-400/80 shadow-lg shadow-emerald-500/20 text-white'
                               : `${color.bg} ${color.border} text-white`
                           }`}
                         >
                           <div className="flex items-center gap-3">
-                            <span className={`w-7 h-7 rounded flex items-center justify-center font-mono font-black text-sm ${color.tagBg} text-navy-950`}>
-                              {color.label}
+                            <span className={`w-7 h-7 rounded flex items-center justify-center font-mono font-black text-sm ${
+                              showWinningHighlight ? 'bg-emerald-400 text-navy-950 font-bold' : `${color.tagBg} text-navy-950`
+                            }`}>
+                              {showWinningHighlight ? '✓' : color.label}
                             </span>
                             <span className="font-bold text-base">{opt}</span>
+                            {showWinningHighlight && (
+                              <span className="text-[10px] font-mono font-black uppercase tracking-wider bg-emerald-500/30 text-emerald-300 border border-emerald-500/50 px-2 py-0.5 rounded">
+                                CORRECT ANSWER
+                              </span>
+                            )}
                           </div>
 
                           {gamePhase === 'reveal' && (
-                            <span className="font-mono text-xs font-bold">
+                            <span className="font-mono text-xs font-bold text-slate-200 bg-navy-950/70 px-2.5 py-1 rounded border border-white/10">
                               {count} ({pct}%)
                             </span>
                           )}
@@ -717,14 +809,47 @@ export default function HostView() {
             <div className="flex justify-center gap-4">
               <Link
                 href="/admin/dashboard"
-                className="px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold clip-slanted rounded-none flex items-center gap-2 font-mono text-sm"
+                className="px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold clip-slanted rounded-none flex items-center gap-2 font-mono text-sm transition-colors"
               >
                 <ArrowLeft className="w-4 h-4" /> Back to Dashboard
               </Link>
+              <button
+                onClick={() => setShowResetModal(true)}
+                disabled={isResetting}
+                className="px-8 py-3.5 bg-cyan-400 hover:bg-cyan-300 active:bg-cyan-500 disabled:opacity-50 text-navy-950 font-black clip-slanted rounded-none flex items-center gap-2 font-mono text-sm transition-all shadow-lg shadow-cyan-500/20 cursor-pointer"
+              >
+                <RotateCcw className={`w-4 h-4 ${isResetting ? 'animate-spin' : ''}`} />
+                <span>{isResetting ? 'Resetting Arena...' : 'Reset & Play Again'}</span>
+              </button>
             </div>
           </div>
         )}
       </main>
+
+      {/* Custom Confirm Modals */}
+      <ConfirmModal
+        isOpen={showEndEarlyModal}
+        title="End Arena Early?"
+        description="Are you sure you want to end this arena early? The current round will conclude and the game will move directly to the final podium standings."
+        confirmText="End Arena"
+        cancelText="Keep Playing"
+        variant="danger"
+        isLoading={isEndingEarly}
+        onConfirm={confirmEndEarly}
+        onCancel={() => setShowEndEarlyModal(false)}
+      />
+
+      <ConfirmModal
+        isOpen={showResetModal}
+        title="Reset & Restart Arena?"
+        description="All participant responses, scores, and registrations will be cleared. The arena will return to the lobby in DRAFT mode so attendees can join fresh."
+        confirmText="Reset & Restart"
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={isResetting}
+        onConfirm={confirmResetAndPlayAgain}
+        onCancel={() => setShowResetModal(false)}
+      />
 
       {/* Decorative Glow */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-900/15 via-navy-950 to-navy-950 pointer-events-none" />

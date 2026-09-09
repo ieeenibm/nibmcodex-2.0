@@ -1,13 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getAuthUser } from '@/lib/auth';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const userId = req.headers.get('x-user-id');
-    const role = req.headers.get('x-user-role');
-    const sessionId = (await params).id;
+    const authUser = await getAuthUser(req);
+    if (!authUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { id: userId, role } = authUser;
+    const sessionId = (await params).id;
 
     // Verify session ownership
     const session = await prisma.session.findUnique({
@@ -29,6 +30,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         type: body.type,
         text: body.text,
         options: body.options || null,
+        images: body.images || null,
         correctAnswer: body.correctAnswer || null,
         timeLimit: body.timeLimit !== undefined ? Number(body.timeLimit) : 30,
         maxAnswers: body.maxAnswers !== undefined ? Number(body.maxAnswers) : 1,
