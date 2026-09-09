@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Gamepad2, Loader2, Sparkles } from 'lucide-react';
 import Link from 'next/link';
@@ -12,6 +12,7 @@ function PlayForm() {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const isSubmittingRef = useRef(false);
 
   useEffect(() => {
     const codeParam = searchParams.get('code');
@@ -22,8 +23,9 @@ function PlayForm() {
 
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !code.trim()) return;
+    if (!name.trim() || !code.trim() || isSubmittingRef.current) return;
 
+    isSubmittingRef.current = true;
     setLoading(true);
     setError('');
 
@@ -44,6 +46,7 @@ function PlayForm() {
       router.push(`/play/${data.sessionId}`);
     } catch (err: any) {
       setError(err.message);
+      isSubmittingRef.current = false;
     } finally {
       setLoading(false);
     }
