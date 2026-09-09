@@ -6,12 +6,19 @@ export async function POST(req: Request) {
   try {
     const { name, joinCode } = await req.json();
 
-    if (!name || !joinCode) {
-      return NextResponse.json({ error: 'Name and game code are required' }, { status: 400 });
+    const trimmedName = typeof name === 'string' ? name.trim() : '';
+    const trimmedCode = typeof joinCode === 'string' ? joinCode.trim().toUpperCase() : '';
+
+    if (!trimmedName || !trimmedCode) {
+      return NextResponse.json({ error: 'Valid nickname and game code are required' }, { status: 400 });
+    }
+
+    if (trimmedName.length > 25) {
+      return NextResponse.json({ error: 'Nickname cannot exceed 25 characters' }, { status: 400 });
     }
 
     const session = await prisma.session.findUnique({
-      where: { joinCode },
+      where: { joinCode: trimmedCode },
     });
 
     if (!session) {
@@ -21,8 +28,6 @@ export async function POST(req: Request) {
     if (session.status === 'ENDED') {
       return NextResponse.json({ error: 'This session has already ended' }, { status: 400 });
     }
-
-    const trimmedName = name.trim();
 
     // Check if participant already exists in this session (case-insensitive)
     let participant = await prisma.participant.findFirst({

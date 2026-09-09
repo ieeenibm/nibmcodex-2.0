@@ -80,6 +80,7 @@ model Response {
 
   @@index([questionId])
   @@index([participantId])
+  @@unique([participantId, questionId]) // Prevents multi-submit race condition
 }
 
 model QrTicket {
@@ -97,6 +98,7 @@ model QrTicket {
   options       Json?       // 4 multiple choice options
   correctAnswer String?     // The correct trivia option
   timeLimit     Int         @default(15) // Seconds allowed to answer after scan
+  maxAttempts   Int         @default(1)  // Dynamic number of attempts configured by host
   scans         QrScan[]
   createdAt     DateTime    @default(now())
 
@@ -114,8 +116,9 @@ model QrScan {
   session       Session     @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   pointsEarned  Int
   answer        String?     // Answer submitted by attendee
-  isCorrect     Boolean     @default(true)
+  isCorrect     Boolean     @default(false)
   timeTaken     Float?      // Seconds elapsed to answer
+  attemptsUsed  Int         @default(1) // Number of attempts utilized by attendee
   scannedAt     DateTime    @default(now())
 
   @@unique([ticketId, participantId]) // Enforces single-scan per participant per QR

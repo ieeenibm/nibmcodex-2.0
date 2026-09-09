@@ -194,15 +194,20 @@ export default function SessionEditorPage() {
 
     setIsSaving(true);
     try {
+      const filledOptions = gameType === 'AI_VS_HUMAN' ? null : options.filter((o) => o.trim() !== '');
+      const selectedOptionText = options[correctOptionIndex]?.trim();
+      const resolvedCorrectAnswer = gameType === 'AI_VS_HUMAN'
+        ? imageCandidates.find((img) => img.isTarget)?.id || null
+        : (filledOptions && selectedOptionText && filledOptions.includes(selectedOptionText)
+            ? selectedOptionText
+            : filledOptions?.[0] || null);
+
       const payload = {
         text: questionText.trim(),
         type: gameType === 'AI_VS_HUMAN' ? 'IMAGE_SELECT' : 'MCQ',
-        options: gameType === 'AI_VS_HUMAN' ? null : options.filter((o) => o.trim() !== ''),
+        options: filledOptions,
         images: gameType === 'AI_VS_HUMAN' ? imageCandidates : null,
-        correctAnswer:
-          gameType === 'AI_VS_HUMAN'
-            ? imageCandidates.find((img) => img.isTarget)?.id || null
-            : options[correctOptionIndex] || options[0],
+        correctAnswer: resolvedCorrectAnswer,
         timeLimit,
         maxAnswers: 1,
       };

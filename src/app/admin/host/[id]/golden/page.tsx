@@ -18,6 +18,8 @@ import {
   StopCircle,
   Plus,
   RotateCcw,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import { useToast } from '@/components/ui/Toast';
@@ -53,8 +55,19 @@ export default function GoldenTicketHostView() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showGenModal, setShowGenModal] = useState(false);
   const [genCount, setGenCount] = useState(15);
-  const [genWinning, setGenWinning] = useState(3);
-  const [genMaxScans, setGenMaxScans] = useState<string>('');
+  const [genMaxScans, setGenMaxScans] = useState<string>('1');
+  const [genAttempts, setGenAttempts] = useState<number>(2);
+  const [genTimeLimit, setGenTimeLimit] = useState<number>(30);
+  const [genBasePoints, setGenBasePoints] = useState<number>(1000);
+  const [genQuestion, setGenQuestion] = useState('What data structure does a database index typically use for fast range queries?');
+  const [genOptions, setGenOptions] = useState<string[]>([
+    'B-Tree',
+    'Linked List',
+    'Stack',
+    'Queue'
+  ]);
+  const [genCorrectAnswerIndex, setGenCorrectAnswerIndex] = useState<number>(0);
+  const [showLeaderboardOnBigScreen, setShowLeaderboardOnBigScreen] = useState<boolean>(true);
 
   const [showEndHuntModal, setShowEndHuntModal] = useState(false);
   const [isEndingHunt, setIsEndingHunt] = useState(false);
@@ -158,12 +171,26 @@ export default function GoldenTicketHostView() {
   const handleGenerateMore = async () => {
     setIsGenerating(true);
     try {
+      const validOptions = genOptions.map((o) => o.trim()).filter(Boolean);
+      if (validOptions.length < 2) {
+        toast.warning('Please provide at least 2 options for the trivia question.');
+        setIsGenerating(false);
+        return;
+      }
+      const selectedCorrect = genOptions[genCorrectAnswerIndex]?.trim() || validOptions[0];
+
       const res = await fetch(`/api/admin/sessions/${id}/golden-ticket/generate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           totalTickets: genCount,
-          winningCount: genWinning,
+          winningCount: 1, // Exactly 1 winning ticket
+          winningQuestion: genQuestion.trim(),
+          winningOptions: validOptions,
+          winningCorrectAnswer: selectedCorrect,
+          maxAttempts: genAttempts,
+          timeLimit: genTimeLimit,
+          basePoints: genBasePoints,
           maxScans: genMaxScans ? parseInt(genMaxScans, 10) : null,
         }),
       });
@@ -173,7 +200,7 @@ export default function GoldenTicketHostView() {
       }
       setShowGenModal(false);
       await mutateTickets();
-      toast.success('Generated tickets successfully!');
+      toast.success('Generated 1 Golden Ticket and decoy tickets successfully!');
     } catch (err: any) {
       toast.error(err?.message || 'Failed to generate tickets');
     } finally {
@@ -227,6 +254,28 @@ export default function GoldenTicketHostView() {
           </a>
 
           <button
+            onClick={() => setShowLeaderboardOnBigScreen(!showLeaderboardOnBigScreen)}
+            className={`px-4 py-2.5 border font-mono text-xs font-bold clip-slanted rounded-none flex items-center gap-2 transition-all ${
+              showLeaderboardOnBigScreen
+                ? 'bg-purple-500/20 hover:bg-purple-500/30 border-purple-500/40 text-purple-300 shadow-lg shadow-purple-500/10'
+                : 'bg-white/10 hover:bg-white/20 border-white/15 text-slate-300'
+            }`}
+            title="Toggle whether the standings and podium are displayed on the projector screen"
+          >
+            {showLeaderboardOnBigScreen ? (
+              <>
+                <Eye className="w-4 h-4 text-purple-400" />
+                <span>Projector: Standings Visible</span>
+              </>
+            ) : (
+              <>
+                <EyeOff className="w-4 h-4 text-slate-400" />
+                <span>Projector: Standings Hidden</span>
+              </>
+            )}
+          </button>
+
+          <button
             onClick={() => setShowGenModal(true)}
             className="px-4 py-2.5 bg-white/10 hover:bg-white/20 border border-white/10 text-white font-mono text-xs font-bold clip-slanted rounded-none flex items-center gap-2 transition-all"
           >
@@ -276,75 +325,100 @@ export default function GoldenTicketHostView() {
             </div>
           </div>
 
-          {/* Top 3 Podium */}
-          <div className="bg-navy-900/90 border border-white/10 p-6 clip-slanted rounded-none backdrop-blur-md">
-            <h2 className="text-base font-bold text-white font-mono flex items-center gap-2 mb-6">
-              <Trophy className="w-5 h-5 text-yellow-400" />
-              TOP 3 SCAVENGER PODIUM
-            </h2>
+          {showLeaderboardOnBigScreen ? (
+            <>
+              {/* Top 3 Podium */}
+              <div className="bg-navy-900/90 border border-white/10 p-6 clip-slanted rounded-none backdrop-blur-md">
+                <h2 className="text-base font-bold text-white font-mono flex items-center gap-2 mb-6">
+                  <Trophy className="w-5 h-5 text-yellow-400" />
+                  TOP 3 SCAVENGER PODIUM
+                </h2>
 
-            <div className="grid grid-cols-3 gap-4 text-center items-end pt-4">
-              {/* #2 Silver */}
-              <div className="bg-white/5 border border-white/10 p-4 clip-slanted rounded-none order-1">
-                <div className="w-10 h-10 bg-slate-300 text-navy-950 font-black text-lg rounded-full flex items-center justify-center mx-auto mb-2 font-mono">
-                  2
+                <div className="grid grid-cols-3 gap-4 text-center items-end pt-4">
+                  {/* #2 Silver */}
+                  <div className="bg-white/5 border border-white/10 p-4 clip-slanted rounded-none order-1">
+                    <div className="w-10 h-10 bg-slate-300 text-navy-950 font-black text-lg rounded-full flex items-center justify-center mx-auto mb-2 font-mono">
+                      2
+                    </div>
+                    <h3 className="font-bold text-white text-base truncate">{leaderboard[1]?.name || '---'}</h3>
+                    <p className="text-cyan-400 font-mono font-black text-xl">{leaderboard[1]?.score || 0}</p>
+                    <span className="text-[10px] text-slate-400 font-mono">points</span>
+                  </div>
+
+                  {/* #1 Gold */}
+                  <div className="bg-yellow-500/10 border-2 border-yellow-500/40 p-6 clip-slanted rounded-none order-2 shadow-2xl shadow-yellow-500/10 relative -top-3">
+                    <div className="w-12 h-12 bg-yellow-500 text-navy-950 font-black text-xl rounded-full flex items-center justify-center mx-auto mb-2 font-mono shadow-lg">
+                      1
+                    </div>
+                    <h3 className="font-bold text-white text-lg truncate flex items-center justify-center gap-1">
+                      {leaderboard[0]?.name || '---'}
+                    </h3>
+                    <p className="text-yellow-400 font-mono font-black text-3xl">{leaderboard[0]?.score || 0}</p>
+                    <span className="text-xs text-yellow-300/80 font-mono font-bold">LEADING CHAMPION</span>
+                  </div>
+
+                  {/* #3 Bronze */}
+                  <div className="bg-white/5 border border-white/10 p-4 clip-slanted rounded-none order-3">
+                    <div className="w-10 h-10 bg-amber-700 text-white font-black text-lg rounded-full flex items-center justify-center mx-auto mb-2 font-mono">
+                      3
+                    </div>
+                    <h3 className="font-bold text-white text-base truncate">{leaderboard[2]?.name || '---'}</h3>
+                    <p className="text-cyan-400 font-mono font-black text-xl">{leaderboard[2]?.score || 0}</p>
+                    <span className="text-[10px] text-slate-400 font-mono">points</span>
+                  </div>
                 </div>
-                <h3 className="font-bold text-white text-base truncate">{leaderboard[1]?.name || '---'}</h3>
-                <p className="text-cyan-400 font-mono font-black text-xl">{leaderboard[1]?.score || 0}</p>
-                <span className="text-[10px] text-slate-400 font-mono">points</span>
               </div>
 
-              {/* #1 Gold */}
-              <div className="bg-yellow-500/10 border-2 border-yellow-500/40 p-6 clip-slanted rounded-none order-2 shadow-2xl shadow-yellow-500/10 relative -top-3">
-                <div className="w-12 h-12 bg-yellow-500 text-navy-950 font-black text-xl rounded-full flex items-center justify-center mx-auto mb-2 font-mono shadow-lg">
-                  1
-                </div>
-                <h3 className="font-bold text-white text-lg truncate flex items-center justify-center gap-1">
-                  {leaderboard[0]?.name || '---'}
+              {/* Full Leaderboard Table */}
+              <div className="bg-navy-900/90 border border-white/10 p-6 clip-slanted rounded-none flex-1 overflow-y-auto max-h-[350px]">
+                <h3 className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-4 font-bold">
+                  FULL ARENA STANDINGS ({leaderboard.length})
                 </h3>
-                <p className="text-yellow-400 font-mono font-black text-3xl">{leaderboard[0]?.score || 0}</p>
-                <span className="text-xs text-yellow-300/80 font-mono font-bold">LEADING CHAMPION</span>
-              </div>
-
-              {/* #3 Bronze */}
-              <div className="bg-white/5 border border-white/10 p-4 clip-slanted rounded-none order-3">
-                <div className="w-10 h-10 bg-amber-700 text-white font-black text-lg rounded-full flex items-center justify-center mx-auto mb-2 font-mono">
-                  3
+                <div className="space-y-2">
+                  {leaderboard.map((p: any, idx: number) => (
+                    <div
+                      key={p.id}
+                      className="flex items-center justify-between p-3 bg-navy-950 border border-white/5 clip-slanted rounded-none"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="w-7 h-7 flex items-center justify-center text-xs font-mono font-bold text-slate-400 bg-white/5">
+                          #{idx + 1}
+                        </span>
+                        <span className="font-bold text-white text-sm">{p.name}</span>
+                      </div>
+                      <div className="font-mono text-cyan-400 font-bold text-base">
+                        {p.score} <span className="text-xs text-slate-500">pts</span>
+                      </div>
+                    </div>
+                  ))}
+                  {leaderboard.length === 0 && (
+                    <p className="text-center text-slate-500 py-8 text-sm font-mono">No scans recorded yet.</p>
+                  )}
                 </div>
-                <h3 className="font-bold text-white text-base truncate">{leaderboard[2]?.name || '---'}</h3>
-                <p className="text-cyan-400 font-mono font-black text-xl">{leaderboard[2]?.score || 0}</p>
-                <span className="text-[10px] text-slate-400 font-mono">points</span>
               </div>
+            </>
+          ) : (
+            /* Concealed Standings View for Projector Privacy */
+            <div className="bg-navy-900/90 border border-purple-500/30 p-12 clip-slanted rounded-none backdrop-blur-md text-center flex flex-col items-center justify-center flex-1 min-h-[420px]">
+              <div className="w-20 h-20 bg-purple-500/10 border-2 border-purple-500/40 rounded-full flex items-center justify-center mb-6 shadow-2xl shadow-purple-500/10">
+                <EyeOff className="w-10 h-10 text-purple-400 animate-pulse" />
+              </div>
+              <span className="text-xs font-mono uppercase tracking-widest text-purple-400 font-bold mb-2 block">
+                PROJECTOR PRIVACY MODE
+              </span>
+              <h2 className="text-3xl font-black text-white mb-3">Leaderboard Concealed by Host</h2>
+              <p className="text-slate-400 text-sm max-w-md mx-auto leading-relaxed mb-6">
+                The scavenger hunt is underway! Attendees cannot see scores on their devices. Standings are hidden on this screen to keep the final standing a surprise until you choose to reveal it.
+              </p>
+              <button
+                onClick={() => setShowLeaderboardOnBigScreen(true)}
+                className="px-6 py-3 bg-purple-500 hover:bg-purple-400 text-navy-950 font-black text-sm clip-slanted rounded-none flex items-center gap-2 transition-all shadow-xl shadow-purple-500/20"
+              >
+                <Eye className="w-4 h-4" />
+                <span>Reveal Standings on Big Screen</span>
+              </button>
             </div>
-          </div>
-
-          {/* Full Leaderboard Table */}
-          <div className="bg-navy-900/90 border border-white/10 p-6 clip-slanted rounded-none flex-1 overflow-y-auto max-h-[350px]">
-            <h3 className="text-xs font-mono uppercase tracking-widest text-slate-400 mb-4 font-bold">
-              FULL ARENA STANDINGS ({leaderboard.length})
-            </h3>
-            <div className="space-y-2">
-              {leaderboard.map((p: any, idx: number) => (
-                <div
-                  key={p.id}
-                  className="flex items-center justify-between p-3 bg-navy-950 border border-white/5 clip-slanted rounded-none"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="w-7 h-7 flex items-center justify-center text-xs font-mono font-bold text-slate-400 bg-white/5">
-                      #{idx + 1}
-                    </span>
-                    <span className="font-bold text-white text-sm">{p.name}</span>
-                  </div>
-                  <div className="font-mono text-cyan-400 font-bold text-base">
-                    {p.score} <span className="text-xs text-slate-500">pts</span>
-                  </div>
-                </div>
-              ))}
-              {leaderboard.length === 0 && (
-                <p className="text-center text-slate-500 py-8 text-sm font-mono">No scans recorded yet.</p>
-              )}
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Right Column: Live Scan Activity Feed */}
@@ -415,42 +489,151 @@ export default function GoldenTicketHostView() {
 
       {/* Generate Tickets Modal */}
       {showGenModal && (
-        <div className="fixed inset-0 bg-navy-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200">
-          <div className="bg-navy-900 border border-white/15 p-6 max-w-md w-full clip-slanted rounded-none shadow-2xl">
-            <h3 className="text-xl font-black text-white mb-4">Generate Physical QR Tickets</h3>
-
-            <div className="space-y-4 mb-6">
+        <div className="fixed inset-0 bg-navy-950/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-in fade-in duration-200 overflow-y-auto">
+          <div className="bg-navy-900 border border-white/15 p-6 max-w-lg w-full clip-slanted rounded-none shadow-2xl my-8">
+            <div className="flex items-center justify-between mb-4 border-b border-white/10 pb-3">
               <div>
-                <label className="block text-xs font-mono uppercase text-slate-400 mb-1">
-                  Total Tickets to Add
+                <h3 className="text-xl font-black text-white">Generate Golden Ticket Hunt</h3>
+                <p className="text-slate-400 text-xs mt-0.5 font-mono">1 Winning QR Code + Decoys with Host Trivia</p>
+              </div>
+              <span className="text-xs font-mono bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 px-2 py-0.5 rounded font-bold">
+                1 WINNER ONLY
+              </span>
+            </div>
+
+            <div className="space-y-4 mb-6 max-h-[70vh] overflow-y-auto pr-1">
+              {/* Ticket Counts & Dynamic Attempts */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-mono uppercase text-slate-400 mb-1">
+                    Total QR Codes
+                  </label>
+                  <input
+                    type="number"
+                    min="2"
+                    max="100"
+                    value={genCount}
+                    onChange={(e) => setGenCount(Math.max(2, parseInt(e.target.value) || 2))}
+                    className="w-full bg-navy-950 border border-white/15 p-2.5 text-white font-mono font-bold text-sm focus:border-cyan-400 outline-none"
+                  />
+                  <span className="text-[10px] text-slate-500 font-mono mt-0.5 block">
+                    1 Winner + {Math.max(1, genCount - 1)} Decoys
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono uppercase text-slate-400 mb-1">
+                    Allowed Attempts
+                  </label>
+                  <select
+                    value={genAttempts}
+                    onChange={(e) => setGenAttempts(parseInt(e.target.value, 10))}
+                    className="w-full bg-navy-950 border border-white/15 p-2.5 text-white font-mono font-bold text-sm focus:border-cyan-400 outline-none"
+                  >
+                    <option value={1}>1 Attempt (Sudden Death)</option>
+                    <option value={2}>2 Attempts (Recommended)</option>
+                    <option value={3}>3 Attempts</option>
+                    <option value={5}>5 Attempts</option>
+                  </select>
+                  <span className="text-[10px] text-yellow-400/80 font-mono mt-0.5 block">
+                    Dynamic host limit
+                  </span>
+                </div>
+              </div>
+
+              {/* Scoring & Timer */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-mono uppercase text-slate-400 mb-1">
+                    Base Points
+                  </label>
+                  <input
+                    type="number"
+                    min="100"
+                    max="10000"
+                    step="100"
+                    value={genBasePoints}
+                    onChange={(e) => setGenBasePoints(Math.max(100, parseInt(e.target.value) || 100))}
+                    className="w-full bg-navy-950 border border-white/15 p-2.5 text-yellow-400 font-mono font-bold text-sm focus:border-cyan-400 outline-none"
+                  />
+                  <span className="text-[10px] text-slate-500 font-mono mt-0.5 block">
+                    Degrades with response delay
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-mono uppercase text-slate-400 mb-1">
+                    Time Limit (Sec)
+                  </label>
+                  <select
+                    value={genTimeLimit}
+                    onChange={(e) => setGenTimeLimit(parseInt(e.target.value, 10))}
+                    className="w-full bg-navy-950 border border-white/15 p-2.5 text-white font-mono font-bold text-sm focus:border-cyan-400 outline-none"
+                  >
+                    <option value={15}>15 seconds</option>
+                    <option value={30}>30 seconds</option>
+                    <option value={45}>45 seconds</option>
+                    <option value={60}>60 seconds</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Winning Trivia Prompt */}
+              <div className="pt-2 border-t border-white/10">
+                <label className="block text-xs font-mono uppercase text-yellow-400 mb-1 font-bold flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  Winning Golden Ticket Trivia Challenge
                 </label>
-                <input
-                  type="number"
-                  min="1"
-                  max="100"
-                  value={genCount}
-                  onChange={(e) => setGenCount(Math.max(1, parseInt(e.target.value) || 1))}
-                  className="w-full bg-navy-950 border border-white/15 p-3 text-white font-mono font-bold"
+                <textarea
+                  rows={2}
+                  value={genQuestion}
+                  onChange={(e) => setGenQuestion(e.target.value)}
+                  placeholder="Enter trivia challenge question..."
+                  className="w-full bg-navy-950 border border-white/15 p-2.5 text-white text-sm focus:border-yellow-400 outline-none resize-none rounded-none"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-mono uppercase text-slate-400 mb-1">
-                  Number of Winning ("Golden") Tickets
+              {/* 4 Options with Radio to select correct */}
+              <div className="space-y-2">
+                <label className="block text-[11px] font-mono uppercase text-slate-400 font-bold">
+                  Trivia Options (Select the Radio for Correct Answer):
                 </label>
-                <input
-                  type="number"
-                  min="0"
-                  max={genCount}
-                  value={genWinning}
-                  onChange={(e) => setGenWinning(Math.min(genCount, Math.max(0, parseInt(e.target.value) || 0)))}
-                  className="w-full bg-navy-950 border border-white/15 p-3 text-yellow-400 font-mono font-bold"
-                />
+                {genOptions.map((opt, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="gen_correct_opt"
+                      checked={genCorrectAnswerIndex === i}
+                      onChange={() => setGenCorrectAnswerIndex(i)}
+                      className="w-4 h-4 accent-yellow-400 cursor-pointer"
+                      title="Mark as correct answer"
+                    />
+                    <input
+                      type="text"
+                      value={opt}
+                      onChange={(e) => {
+                        const no = [...genOptions];
+                        no[i] = e.target.value;
+                        setGenOptions(no);
+                      }}
+                      placeholder={`Option ${i + 1}`}
+                      className={`flex-1 bg-navy-950 border p-2 text-xs text-white outline-none ${
+                        genCorrectAnswerIndex === i ? 'border-yellow-500 bg-yellow-500/10' : 'border-white/15 focus:border-cyan-400'
+                      }`}
+                    />
+                    {genCorrectAnswerIndex === i && (
+                      <span className="text-[10px] font-mono font-bold text-yellow-400 shrink-0">
+                        CORRECT
+                      </span>
+                    )}
+                  </div>
+                ))}
               </div>
 
-              <div>
+              {/* Max Scans */}
+              <div className="pt-2 border-t border-white/10">
                 <label className="block text-xs font-mono uppercase text-slate-400 mb-1">
-                  Max Scans Per Ticket <span className="text-slate-500 lowercase">(leave blank for unlimited)</span>
+                  Max Claims for Winning Ticket <span className="text-slate-500 lowercase">(blank for unlimited)</span>
                 </label>
                 <input
                   type="number"
@@ -458,7 +641,7 @@ export default function GoldenTicketHostView() {
                   placeholder="Unlimited"
                   value={genMaxScans}
                   onChange={(e) => setGenMaxScans(e.target.value)}
-                  className="w-full bg-navy-950 border border-white/15 p-3 text-white font-mono font-bold"
+                  className="w-full bg-navy-950 border border-white/15 p-2.5 text-white font-mono font-bold text-sm"
                 />
               </div>
             </div>
@@ -472,10 +655,11 @@ export default function GoldenTicketHostView() {
               </button>
               <button
                 onClick={handleGenerateMore}
-                disabled={isGenerating}
-                className="flex-1 py-3 bg-cyan-400 hover:bg-cyan-300 text-navy-950 font-black text-sm clip-slanted rounded-none"
+                disabled={isGenerating || !genQuestion.trim()}
+                className="flex-1 py-3 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-40 text-navy-950 font-black text-sm clip-slanted rounded-none flex items-center justify-center gap-1.5 shadow-xl shadow-yellow-500/20"
               >
-                {isGenerating ? 'Generating...' : 'Create Tickets'}
+                <Sparkles className="w-4 h-4" />
+                <span>{isGenerating ? 'Generating...' : 'Deploy Golden Ticket'}</span>
               </button>
             </div>
           </div>

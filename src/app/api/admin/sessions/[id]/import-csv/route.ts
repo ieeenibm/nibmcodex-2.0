@@ -97,10 +97,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     let currentOrder = (session.questions[0]?.order ?? 0) + 1;
     const questionsToCreate = [];
 
+    const skippedRows: number[] = [];
+
     for (let r = 1; r < rows.length; r++) {
       const row = rows[r];
       const questionText = row[qIdx]?.trim();
-      if (!questionText) continue;
+      if (!questionText) {
+        skippedRows.push(r + 1);
+        continue;
+      }
 
       const opt1 = row[opt1Idx]?.trim();
       const opt2 = row[opt2Idx]?.trim();
@@ -108,7 +113,10 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       const opt4 = row[opt4Idx]?.trim();
 
       const options = [opt1, opt2, opt3, opt4].filter((o): o is string => Boolean(o && o.length > 0));
-      if (options.length < 2) continue; // Minimum 2 options required
+      if (options.length < 2) {
+        skippedRows.push(r + 1);
+        continue; // Minimum 2 options required
+      }
 
       const rawCorrect = row[correctIdx]?.trim() || '1';
       let resolvedCorrect = options[0];
@@ -145,7 +153,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     if (questionsToCreate.length === 0) {
-      return NextResponse.json({ error: 'No valid questions found in CSV.' }, { status: 400 });
+      return NextResponse.json({ error: 'No valid questions found in CSV.', skippedRows }, { status: 400 });
     }
 
     // Bulk create questions
@@ -156,6 +164,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     return NextResponse.json({
       success: true,
       importedCount: questionsToCreate.length,
+      skippedRows,
     });
   } catch (error) {
     console.error('CSV import error:', error);

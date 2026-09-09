@@ -43,22 +43,23 @@ function getNextEventIndex(): number {
 }
 
 export default function CountdownSection() {
-  const [activeIdx, setActiveIdx] = useState<number>(() => getNextEventIndex());
+  const [activeIdx, setActiveIdx] = useState<number>(0);
   const [mounted, setMounted] = useState(false);
   const [nowMs, setNowMs] = useState<number>(0);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { setMounted(true); }, []);
-
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+    setActiveIdx(getNextEventIndex());
     setNowMs(Date.now());
     const interval = setInterval(() => setNowMs(Date.now()), 1000);
     return () => clearInterval(interval);
   }, []);
 
   const active = EVENTS[activeIdx];
-  const allPast = useMemo(() => EVENTS.every((e) => e.date.getTime() <= nowMs), [nowMs]);
+  const allPast = useMemo(() => {
+    if (!mounted || !nowMs) return false;
+    return EVENTS.every((e) => e.date.getTime() <= nowMs);
+  }, [mounted, nowMs]);
 
   return (
     <section

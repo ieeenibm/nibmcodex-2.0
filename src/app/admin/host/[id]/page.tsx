@@ -133,7 +133,7 @@ export default function HostView() {
           mutateLiveStats();
         });
 
-        // Attendee joined
+        // Attendee joined (supplementary — presence is primary for live count)
         await channel.subscribe('participant-joined', (message) => {
           const data = message.data;
           if (data?.totalParticipants) {
@@ -146,6 +146,26 @@ export default function HostView() {
         await channel.subscribe('leaderboard-update', () => {
           mutateLiveStats();
         });
+
+        // Ably Presence: track live participant count.
+        // Players enter presence on connect; Ably auto-removes on disconnect/tab close.
+        // This solves "user count doesn't decrease on exit".
+        const updatePresenceCount = async () => {
+          try {
+            const members = await channel.presence.get();
+            // Exclude the host's own presence and deduplicate by clientId
+            const uniqueParticipants = new Set(
+              members
+                .map(m => m.clientId)
+                .filter(cid => cid && !cid.startsWith('host-'))
+            );
+            setRealtimeParticipantCount(uniqueParticipants.size);
+          } catch (err) {
+            console.warn('[Host] Presence count failed:', err);
+          }
+        };
+        await channel.presence.subscribe(updatePresenceCount);
+        updatePresenceCount(); // Fetch initial count
       } catch (err) {
         console.error('[Host] Ably connection failed, falling back to polling:', err);
       }
@@ -168,12 +188,18 @@ export default function HostView() {
     }
   }, [session?.serverTime]);
 
-  // Sync leaderboard from SWR
+  // Sync leaderboard from SWR — FROZEN during active question phase.
+  // Scores are written to DB immediately on submit, but showing live
+  // re-ranking during a question leaks competitive information.
+  // The leaderboard only updates during reveal, lobby, or ended phases.
   useEffect(() => {
     if (liveStats?.leaderboard) {
-      setRealtimeLeaderboard(liveStats.leaderboard);
+      if (gamePhase !== 'question' || !realtimeLeaderboard) {
+        setRealtimeLeaderboard(liveStats.leaderboard);
+      }
     }
-  }, [liveStats?.leaderboard]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [liveStats?.leaderboard, gamePhase]);
 
   // Generate QR code for instant join
   useEffect(() => {
@@ -566,24 +592,40 @@ export default function HostView() {
                   );
                 })()}
 
-                {/* GAME 1: CLASSIC MCQ 4 OPTION TILES — Never reveal right answer on big screen */}
+                {/* GAME 1: CLASSIC MCQ OPTION TILES — Never reveal right answer during question, illuminate on reveal phase (ADM-01) */}
                 {gameType !== 'AI_VS_HUMAN' && activeQuestion.options && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
                     {activeQuestion.options.map((opt: string, idx: number) => {
                       const color = OPTION_COLORS[idx % OPTION_COLORS.length];
                       const count = effectiveDistribution[opt] || 0;
                       const pct = Math.round((count / Math.max(1, effectiveResponseCount)) * 100);
+                      const isWinningAnswer = Boolean(
+                        activeQuestion.correctAnswer &&
+                        opt.trim().toLowerCase() === activeQuestion.correctAnswer.trim().toLowerCase()
+                      );
+                      const showWinningHighlight = gamePhase === 'reveal' && isWinningAnswer;
 
                       return (
                         <div
                           key={idx}
-                          className={`p-4 border-2 clip-slanted rounded-none flex items-center justify-between transition-all ${color.bg} ${color.border} text-white`}
+                          className={`p-4 border-2 clip-slanted rounded-none flex items-center justify-between transition-all ${
+                            showWinningHighlight
+                              ? 'bg-emerald-500/20 border-emerald-400 ring-2 ring-emerald-400/80 shadow-lg shadow-emerald-500/20 text-white'
+                              : `${color.bg} ${color.border} text-white`
+                          }`}
                         >
                           <div className="flex items-center gap-3">
-                            <span className={`w-7 h-7 rounded flex items-center justify-center font-mono font-black text-sm ${color.tagBg} text-navy-950`}>
-                              {color.label}
+                            <span className={`w-7 h-7 rounded flex items-center justify-center font-mono font-black text-sm ${
+                              showWinningHighlight ? 'bg-emerald-400 text-navy-950 font-bold' : `${color.tagBg} text-navy-950`
+                            }`}>
+                              {showWinningHighlight ? '✓' : color.label}
                             </span>
                             <span className="font-bold text-base">{opt}</span>
+                            {showWinningHighlight && (
+                              <span className="text-[10px] font-mono font-black uppercase tracking-wider bg-emerald-500/30 text-emerald-300 border border-emerald-500/50 px-2 py-0.5 rounded">
+                                CORRECT ANSWER
+                              </span>
+                            )}
                           </div>
 
                           {gamePhase === 'reveal' && (
