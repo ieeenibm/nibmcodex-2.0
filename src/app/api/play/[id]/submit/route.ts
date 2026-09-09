@@ -129,7 +129,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       }
 
       return { duplicate: false } as const;
-    }, { maxWait: 10000, timeout: 15000 });
+    });
 
     if (result.duplicate) {
       return NextResponse.json({ error: 'You have reached the maximum number of answers for this question' }, { status: 409 });
@@ -170,11 +170,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     return NextResponse.json({ success: true, isCorrect, scoreEarned: finalScore });
-  } catch (error: any) {
-    // Handle unique constraint violation from @@unique([participantId, questionId])
-    if (error?.code === 'P2002') {
-      return NextResponse.json({ error: 'You have already answered this question' }, { status: 409 });
-    }
+  } catch (error) {
     console.error('Submit answer error:', error);
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }

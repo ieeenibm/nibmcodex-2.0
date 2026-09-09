@@ -21,12 +21,9 @@ import {
   Sparkles,
   QrCode,
   ExternalLink,
-  RotateCcw,
 } from 'lucide-react';
 import Link from 'next/link';
 import { uploadImageToCloudinary } from '@/lib/cloudinary';
-import ConfirmModal from '@/components/ui/ConfirmModal';
-import { useToast } from '@/components/ui/Toast';
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -55,7 +52,6 @@ interface ImageOption {
 export default function SessionEditorPage() {
   const { id } = useParams();
   const router = useRouter();
-  const { toast } = useToast();
 
   const { data: session, isLoading, mutate, error } = useSWR(`/api/admin/sessions/${id}`, fetcher);
 
@@ -75,27 +71,6 @@ export default function SessionEditorPage() {
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [isResetting, setIsResetting] = useState(false);
-  const [showResetModal, setShowResetModal] = useState(false);
-  const [questionToDelete, setQuestionToDelete] = useState<{ id: string; text: string } | null>(null);
-
-  const confirmResetSession = async () => {
-    setIsResetting(true);
-    try {
-      const res = await fetch(`/api/admin/sessions/${id}/reset`, { method: 'POST' });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data.error || 'Failed to reset session');
-      }
-      mutate();
-      setShowResetModal(false);
-      toast.success('Session successfully reset to DRAFT mode!');
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to reset session');
-    } finally {
-      setIsResetting(false);
-    }
-  };
 
   // CSV Import Modal state
   const [showCsvModal, setShowCsvModal] = useState(false);
@@ -143,7 +118,7 @@ export default function SessionEditorPage() {
     if (!file) return;
 
     if (imageCandidates.length >= 4) {
-      toast.warning('Maximum 4 images per question.');
+      alert('Maximum 4 images per question.');
       return;
     }
 
@@ -176,89 +151,68 @@ export default function SessionEditorPage() {
 
     if (gameType === 'AI_VS_HUMAN') {
       if (imageCandidates.length < 1) {
-        toast.warning('Please upload at least 1 image.');
+        alert('Please upload at least 1 image.');
         return;
       }
       const hasTarget = imageCandidates.some((img) => img.isTarget);
       if (!hasTarget) {
-        toast.warning('Please select which image is the target correct answer.');
+        alert('Please select which image is the target correct answer.');
         return;
       }
     } else {
       const filledOptions = options.filter((o) => o.trim() !== '');
       if (filledOptions.length < 2) {
-        toast.warning('Please provide at least 2 options for this MCQ question.');
+        alert('Please provide at least 2 options for this MCQ question.');
         return;
       }
     }
 
     setIsSaving(true);
     try {
-      const filledOptions = gameType === 'AI_VS_HUMAN' ? null : options.filter((o) => o.trim() !== '');
-      const selectedOptionText = options[correctOptionIndex]?.trim();
-      const resolvedCorrectAnswer = gameType === 'AI_VS_HUMAN'
-        ? imageCandidates.find((img) => img.isTarget)?.id || null
-        : (filledOptions && selectedOptionText && filledOptions.includes(selectedOptionText)
-            ? selectedOptionText
-            : filledOptions?.[0] || null);
-
       const payload = {
         text: questionText.trim(),
         type: gameType === 'AI_VS_HUMAN' ? 'IMAGE_SELECT' : 'MCQ',
-        options: filledOptions,
+        options: gameType === 'AI_VS_HUMAN' ? null : options.filter((o) => o.trim() !== ''),
         images: gameType === 'AI_VS_HUMAN' ? imageCandidates : null,
-        correctAnswer: resolvedCorrectAnswer,
+        correctAnswer:
+          gameType === 'AI_VS_HUMAN'
+            ? imageCandidates.find((img) => img.isTarget)?.id || null
+            : options[correctOptionIndex] || options[0],
         timeLimit,
         maxAnswers: 1,
       };
 
       if (editingQuestionId) {
-        const res = await fetch(`/api/admin/questions/${editingQuestionId}`, {
+        await fetch(`/api/admin/questions/${editingQuestionId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || 'Failed to update question');
-        }
-        toast.success('Question updated successfully!');
       } else {
-        const res = await fetch(`/api/admin/sessions/${id}/questions`, {
+        await fetch(`/api/admin/sessions/${id}/questions`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
-        if (!res.ok) {
-          const data = await res.json();
-          throw new Error(data.error || 'Failed to save question');
-        }
-        toast.success('Question added successfully!');
       }
 
       handleCancelEdit();
       mutate();
-    } catch (error: any) {
-      toast.error(error?.message || (editingQuestionId ? 'Failed to update question' : 'Failed to save question'));
+    } catch (error) {
+      alert(editingQuestionId ? 'Failed to update question' : 'Failed to save question');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const confirmDeleteQuestion = async () => {
-    if (!questionToDelete) return;
-    setDeletingId(questionToDelete.id);
+  const handleDeleteQuestion = async (qId: string) => {
+    if (!confirm('Are you sure you want to delete this question?')) return;
+    setDeletingId(qId);
     try {
-      const res = await fetch(`/api/admin/questions/${questionToDelete.id}`, { method: 'DELETE' });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Failed to delete question');
-      }
+      await fetch(`/api/admin/questions/${qId}`, { method: 'DELETE' });
       mutate();
-      toast.success('Question deleted.');
-      setQuestionToDelete(null);
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to delete question');
+    } catch (error) {
+      alert('Failed to delete question');
     } finally {
       setDeletingId(null);
     }
@@ -320,7 +274,7 @@ export default function SessionEditorPage() {
       setCsvFile(null);
       setCsvPreview('');
       mutate();
-      toast.success(`Successfully imported ${data.importedCount} questions!`);
+      alert(`Successfully imported ${data.importedCount} questions!`);
     } catch (err: any) {
       setCsvError(err.message || 'Error parsing CSV file');
     } finally {
@@ -370,16 +324,6 @@ export default function SessionEditorPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={() => setShowResetModal(true)}
-            disabled={isResetting}
-            className="px-4 py-3 bg-white/5 hover:bg-yellow-500/20 border border-white/10 hover:border-yellow-500/40 text-slate-300 hover:text-yellow-300 font-bold rounded-xl flex items-center gap-2 transition-all text-sm font-mono disabled:opacity-50 cursor-pointer"
-            title="Reset arena: clears responses and participants, returns to DRAFT"
-          >
-            {isResetting ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
-            <span>Reset Arena</span>
-          </button>
-
           {gameType === 'GOLDEN_TICKET' ? (
             <Link
               href={`/admin/host/${id}/golden`}
@@ -527,9 +471,9 @@ export default function SessionEditorPage() {
                     <Pencil className="w-5 h-5" />
                   </button>
                   <button
-                    onClick={() => setQuestionToDelete({ id: q.id, text: q.text })}
+                    onClick={() => handleDeleteQuestion(q.id)}
                     disabled={deletingId === q.id}
-                    className="text-slate-500 hover:text-red-400 transition-colors p-2 disabled:opacity-50 cursor-pointer"
+                    className="text-slate-500 hover:text-red-400 transition-colors p-2 disabled:opacity-50"
                     title="Delete question"
                   >
                     {deletingId === q.id ? <Loader2 className="w-5 h-5 animate-spin" /> : <Trash2 className="w-5 h-5" />}
@@ -821,48 +765,6 @@ export default function SessionEditorPage() {
           </div>
         </div>
       )}
-
-      {/* Custom Confirm Modals */}
-      <ConfirmModal
-        isOpen={!!questionToDelete}
-        title="Delete Question?"
-        description={
-          questionToDelete ? (
-            <span>
-              Are you sure you want to delete this question: <strong className="text-white">"{questionToDelete.text}"</strong>? This action cannot be undone.
-            </span>
-          ) : ''
-        }
-        confirmText="Delete Question"
-        cancelText="Cancel"
-        variant="danger"
-        isLoading={!!deletingId}
-        onConfirm={confirmDeleteQuestion}
-        onCancel={() => setQuestionToDelete(null)}
-      />
-
-      <ConfirmModal
-        isOpen={showResetModal}
-        title={`Reset "${session?.name}"?`}
-        description={
-          <div className="space-y-2">
-            <p>
-              Are you sure you want to reset <strong className="text-white">"{session?.name}"</strong>?
-            </p>
-            <ul className="list-disc list-inside text-xs text-slate-400 space-y-1">
-              <li>All participant responses and scores will be deleted.</li>
-              <li>The room will return to <span className="text-cyan-400 font-bold">DRAFT</span> mode.</li>
-              <li>All questions and candidate images remain intact.</li>
-            </ul>
-          </div>
-        }
-        confirmText="Reset Arena"
-        cancelText="Cancel"
-        variant="danger"
-        isLoading={isResetting}
-        onConfirm={confirmResetSession}
-        onCancel={() => setShowResetModal(false)}
-      />
     </div>
   );
 }

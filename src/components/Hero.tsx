@@ -1,7 +1,6 @@
 'use client';
 import { motion, useTransform, Variants } from 'framer-motion';
 import Image from 'next/image';
-import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import Magnetic from './ui/Magnetic';
 import { useLenisScroll } from './SmoothScroll';
@@ -69,9 +68,9 @@ export default function Hero() {
         <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-6 items-center">
           <LearnMoreButton scrollTo={scrollTo} />
           <Magnetic>
-            <Link href="/nibmcodex-1.0" className="group relative inline-flex items-center justify-center px-10 py-5 border border-cyan-400/30 text-cyan-300 font-bold uppercase tracking-widest clip-slanted overflow-hidden transition-all hover:border-cyan-400/60 hover:bg-cyan-400/5 active:scale-95">
+            <a href="/nibmcodex-1.0" className="group relative inline-flex items-center justify-center px-10 py-5 border border-cyan-400/30 text-cyan-300 font-bold uppercase tracking-widest clip-slanted overflow-hidden transition-all hover:border-cyan-400/60 hover:bg-cyan-400/5 active:scale-95">
               <span className="relative z-10">View 1.0 Gallery</span>
-            </Link>
+            </a>
           </Magnetic>
         </motion.div>
       </motion.div>

@@ -4,7 +4,7 @@ import { getAblyRest } from '@/lib/ably';
 
 /**
  * GET /api/play/claim?code=...&participantId=...
- * Query ticket status. Distinguishes between Decoy QR and Single Winning QR.
+ * Query ticket status, metadata, and trivia challenge without revealing the answer.
  */
 export async function GET(req: Request) {
   try {
@@ -42,29 +42,15 @@ export async function GET(req: Request) {
       );
     }
 
-    // Decoy QR ticket — immediate guidance, no questions
-    if (!ticket.isWinning) {
-      return NextResponse.json({
-        valid: true,
-        isWinning: false,
-        ticketNumber: ticket.ticketNumber,
-        sessionId: ticket.session.id,
-        sessionName: ticket.session.name,
-        message: 'This is not the Golden Ticket! Keep searching the venue to find the right QR code.',
-      });
-    }
-
-    // Single Winning Golden Ticket QR
     if (ticket.isExpired || (ticket.maxScans && ticket.scanCount >= ticket.maxScans)) {
       return NextResponse.json(
-        { error: 'The Golden Ticket has already been cracked and claimed!', isExpired: true },
+        { error: 'This ticket has already reached its maximum scan limit.', isExpired: true },
         { status: 410 }
       );
     }
 
     let alreadyClaimed = false;
-    let attemptsUsed = 0;
-    const maxAttempts = ticket.maxAttempts || 1;
+    let existingScanInfo = null;
 
     if (participantId) {
       const existingScan = await prisma.qrScan.findUnique({
@@ -77,30 +63,30 @@ export async function GET(req: Request) {
       });
 
       if (existingScan) {
-        attemptsUsed = existingScan.attemptsUsed;
-        if (existingScan.isCorrect) {
-          alreadyClaimed = true;
-        }
+        alreadyClaimed = true;
+        existingScanInfo = {
+          pointsEarned: existingScan.pointsEarned,
+          isCorrect: existingScan.isCorrect,
+          answer: existingScan.answer,
+          scannedAt: existingScan.scannedAt,
+        };
       }
     }
 
-    const attemptsRemaining = Math.max(0, maxAttempts - attemptsUsed);
-
+    // Return ticket details with trivia question & options, but NEVER expose correctAnswer
     return NextResponse.json({
       valid: true,
-      isWinning: true,
       ticketNumber: ticket.ticketNumber,
       sessionId: ticket.session.id,
       sessionName: ticket.session.name,
+      isWinning: ticket.isWinning,
       potentialPoints: ticket.basePoints,
       hasQuestion: Boolean(ticket.question),
       question: ticket.question,
       options: ticket.options,
-      timeLimit: ticket.timeLimit || 30,
-      maxAttempts,
-      attemptsUsed,
-      attemptsRemaining,
+      timeLimit: ticket.timeLimit || 15,
       alreadyClaimed,
+      existingScan: existingScanInfo,
       isExpired: ticket.isExpired,
     });
   } catch (error) {
@@ -111,8 +97,7 @@ export async function GET(req: Request) {
 
 /**
  * POST /api/play/claim
- * Process ticket scan or winning trivia answer submission.
- * Strictly guarantees points are awarded ONLY on correct answers.
+ * Submit ticket claim and optional trivia response atomically with speed bonus & decay.
  */
 export async function POST(req: Request) {
   try {
@@ -147,12 +132,15 @@ export async function POST(req: Request) {
       );
     }
 
+    if (ticket.isExpired || (ticket.maxScans && ticket.scanCount >= ticket.maxScans)) {
+      return NextResponse.json({ error: 'This ticket has already reached its maximum scan limit.' }, { status: 410 });
+    }
+
     let participantId = rawParticipantId;
 
-    // Resolve or register attendee using case-insensitive lookup
+    // If no participantId provided, register attendee using nickname
     if (!participantId) {
-      const trimmedName = name?.trim();
-      if (!trimmedName) {
+      if (!name?.trim()) {
         return NextResponse.json({
           needsRegistration: true,
           sessionId: ticket.session.id,
@@ -161,13 +149,11 @@ export async function POST(req: Request) {
         });
       }
 
+      // Check if participant already exists with this name in this session
       let participant = await prisma.participant.findFirst({
         where: {
           sessionId: ticket.session.id,
-          name: {
-            equals: trimmedName,
-            mode: 'insensitive',
-          },
+          name: name.trim(),
         },
       });
 
@@ -175,7 +161,7 @@ export async function POST(req: Request) {
         participant = await prisma.participant.create({
           data: {
             sessionId: ticket.session.id,
-            name: trimmedName,
+            name: name.trim(),
             score: 0,
             streak: 0,
           },
@@ -192,43 +178,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Participant not found for this arena session.' }, { status: 404 });
     }
 
-    // === CASE 1: DECOY QR TICKET ===
-    // Scanning a decoy ticket awards ZERO points and notifies the attendee to keep looking
-    if (!ticket.isWinning) {
-      // Upsert scan history with 0 points so attendee sees they checked this code
-      await prisma.qrScan.upsert({
-        where: {
-          ticketId_participantId: {
-            ticketId: ticket.id,
-            participantId,
-          },
-        },
-        create: {
-          ticketId: ticket.id,
-          participantId,
-          sessionId: ticket.session.id,
-          pointsEarned: 0,
-          isCorrect: false,
-          answer: 'DECOY',
-          attemptsUsed: 1,
-        },
-        update: {},
-      });
-
-      return NextResponse.json({
-        success: false,
-        isWinning: false,
-        pointsEarned: 0,
-        ticketNumber: ticket.ticketNumber,
-        message: 'This is not the Golden Ticket! Keep searching the venue to find the right QR code.',
-      });
-    }
-
-    // === CASE 2: SINGLE WINNING GOLDEN TICKET QR ===
-    if (ticket.isExpired || (ticket.maxScans && ticket.scanCount >= ticket.maxScans)) {
-      return NextResponse.json({ error: 'The Golden Ticket has already been cracked and claimed!' }, { status: 410 });
-    }
-
+    // Check if user already claimed this specific ticket before transaction
     const existingScan = await prisma.qrScan.findUnique({
       where: {
         ticketId_participantId: {
@@ -238,143 +188,148 @@ export async function POST(req: Request) {
       },
     });
 
-    const maxAttempts = ticket.maxAttempts || 1;
-    const currentAttemptsUsed = existingScan?.attemptsUsed ?? 0;
-
-    if (existingScan?.isCorrect) {
+    if (existingScan) {
       return NextResponse.json(
         {
           alreadyClaimed: true,
-          error: 'You have already cracked and claimed this Golden Ticket!',
-          ticketNumber: ticket.ticketNumber,
+          error: `You already claimed Ticket #${ticket.ticketNumber}! Look for other QR codes around the venue.`,
           pointsEarned: existingScan.pointsEarned,
+          isCorrect: existingScan.isCorrect,
+          ticketNumber: ticket.ticketNumber,
         },
         { status: 409 }
       );
     }
 
-    if (currentAttemptsUsed >= maxAttempts) {
-      return NextResponse.json(
-        {
-          error: `You have exhausted all ${maxAttempts} attempt(s) for this Golden Ticket!`,
-          attemptsRemaining: 0,
-        },
-        { status: 400 }
-      );
+    // Atomic transaction for claim, scan count increment, decay calculation, and score update
+    // Resolves concurrency race conditions and guarantees unique claim constraint
+    let claimResult;
+    try {
+      claimResult = await prisma.$transaction(async (tx) => {
+        // Read fresh ticket inside transaction
+        const liveTicket = await tx.qrTicket.findUnique({
+          where: { id: ticket.id },
+          select: {
+            id: true,
+            scanCount: true,
+            maxScans: true,
+            isExpired: true,
+            isWinning: true,
+            basePoints: true,
+            question: true,
+            correctAnswer: true,
+            timeLimit: true,
+            ticketNumber: true,
+          },
+        });
+
+        if (!liveTicket) {
+          throw new Error('Ticket not found');
+        }
+
+        if (liveTicket.isExpired || (liveTicket.maxScans && liveTicket.scanCount >= liveTicket.maxScans)) {
+          return { errorType: 'EXPIRED' as const };
+        }
+
+        // Dynamic score decay based on atomic current scanCount
+        const scanOrder = liveTicket.scanCount; // 0 for 1st scan, 1 for 2nd, etc.
+        let baseDecayedPoints = liveTicket.basePoints || 100;
+        if (liveTicket.isWinning) {
+          if (scanOrder === 0) {
+            baseDecayedPoints = liveTicket.basePoints; // 100%
+          } else if (scanOrder === 1) {
+            baseDecayedPoints = Math.round(liveTicket.basePoints * 0.8); // 80%
+          } else if (scanOrder === 2) {
+            baseDecayedPoints = Math.round(liveTicket.basePoints * 0.65); // 65%
+          } else {
+            baseDecayedPoints = Math.round(liveTicket.basePoints * 0.5); // 50% floor
+          }
+        }
+
+        // Trivia validation & speed bonus calculation
+        let isCorrect = true;
+        let speedBonus = 0;
+        let pointsEarned = baseDecayedPoints;
+
+        if (liveTicket.question && liveTicket.correctAnswer) {
+          const userAns = (answer || '').trim().toLowerCase();
+          const correctAns = liveTicket.correctAnswer.trim().toLowerCase();
+          isCorrect = userAns === correctAns;
+
+          if (isCorrect) {
+            // Speed bonus: up to +200 bonus points for fast response within timeLimit
+            const limit = liveTicket.timeLimit || 15;
+            const actualTime = typeof timeTaken === 'number' ? Math.max(0, timeTaken) : limit;
+            const speedFraction = Math.max(0, 1 - actualTime / limit);
+            speedBonus = Math.round(speedFraction * 200);
+            pointsEarned = baseDecayedPoints + speedBonus;
+          } else {
+            // Consolation discovery points for finding the QR ticket despite incorrect answer
+            pointsEarned = 50;
+            speedBonus = 0;
+          }
+        }
+
+        const nextScanCount = liveTicket.scanCount + 1;
+        const shouldExpire = liveTicket.maxScans ? nextScanCount >= liveTicket.maxScans : false;
+
+        await tx.qrTicket.update({
+          where: { id: liveTicket.id },
+          data: {
+            scanCount: { increment: 1 },
+            isExpired: shouldExpire,
+          },
+        });
+
+        await tx.qrScan.create({
+          data: {
+            ticketId: liveTicket.id,
+            participantId,
+            sessionId: ticket.session.id,
+            pointsEarned,
+            answer: answer || null,
+            isCorrect,
+            timeTaken: typeof timeTaken === 'number' ? timeTaken : null,
+          },
+        });
+
+        const updatedParticipant = await tx.participant.update({
+          where: { id: participantId },
+          data: {
+            score: { increment: pointsEarned },
+          },
+        });
+
+        return {
+          errorType: null,
+          pointsEarned,
+          speedBonus,
+          baseDecayedPoints,
+          isCorrect,
+          correctAnswer: liveTicket.correctAnswer,
+          newScore: updatedParticipant.score,
+        };
+      });
+    } catch (txErr: any) {
+      // Catch Prisma duplicate unique constraint error (P2002) and return 409 Conflict
+      if (txErr?.code === 'P2002') {
+        return NextResponse.json(
+          {
+            alreadyClaimed: true,
+            error: `You already claimed Ticket #${ticket.ticketNumber}! Look for other QR codes around the venue.`,
+            ticketNumber: ticket.ticketNumber,
+          },
+          { status: 409 }
+        );
+      }
+      throw txErr;
     }
 
-    // Evaluate trivia answer
-    const userAns = (answer || '').trim().toLowerCase();
-    const correctAns = (ticket.correctAnswer || '').trim().toLowerCase();
-    const isCorrect = Boolean(correctAns && userAns === correctAns);
-
-    const newAttemptsUsed = currentAttemptsUsed + 1;
-    const attemptsRemaining = Math.max(0, maxAttempts - newAttemptsUsed);
-
-    // SUB-CASE 2A: INCORRECT ANSWER -> STRICTLY 0 POINTS
-    if (!isCorrect) {
-      await prisma.qrScan.upsert({
-        where: {
-          ticketId_participantId: {
-            ticketId: ticket.id,
-            participantId,
-          },
-        },
-        create: {
-          ticketId: ticket.id,
-          participantId,
-          sessionId: ticket.session.id,
-          pointsEarned: 0, // STRICTLY ZERO POINTS
-          isCorrect: false,
-          answer: answer || '',
-          timeTaken: typeof timeTaken === 'number' ? timeTaken : null,
-          attemptsUsed: newAttemptsUsed,
-        },
-        update: {
-          attemptsUsed: newAttemptsUsed,
-          answer: answer || '',
-          timeTaken: typeof timeTaken === 'number' ? timeTaken : null,
-          isCorrect: false,
-          pointsEarned: 0, // NEVER AWARD POINTS ON WRONG ANSWER
-        },
-      });
-
-      return NextResponse.json({
-        success: false,
-        isCorrect: false,
-        isWinning: true,
-        pointsEarned: 0,
-        attemptsUsed: newAttemptsUsed,
-        attemptsRemaining,
-        message: attemptsRemaining > 0
-          ? `Incorrect answer! You have ${attemptsRemaining} attempt(s) remaining.`
-          : `Incorrect answer! All ${maxAttempts} attempt(s) for this Golden Ticket have been used.`,
-      });
+    if (claimResult.errorType === 'EXPIRED') {
+      return NextResponse.json({ error: 'This ticket has already reached its maximum scan limit.' }, { status: 410 });
     }
 
-    // SUB-CASE 2B: CORRECT ANSWER -> CALCULATE TIME-DECAY POINTS
-    const basePoints = ticket.basePoints || 1000;
-    const timeLimit = ticket.timeLimit || 30;
-    const actualTime = typeof timeTaken === 'number' ? Math.max(0, Math.min(timeLimit, timeTaken)) : 0;
-    
-    // Points degrade over time: 100% on instant answer down to 40% floor at timer limit
-    const speedFraction = Math.max(0, 1 - actualTime / timeLimit);
-    const pointsEarned = Math.max(100, Math.round(basePoints * (0.4 + 0.6 * speedFraction)));
-
-    // Atomic transaction for claim, scan count, and participant score increment
-    const transactionResult = await prisma.$transaction(async (tx) => {
-      // Atomically increment ticket's scanCount
-      const updatedTicket = await tx.qrTicket.update({
-        where: { id: ticket.id },
-        data: {
-          scanCount: { increment: 1 },
-          isExpired: ticket.maxScans ? { set: (ticket.scanCount + 1) >= ticket.maxScans } : false,
-        },
-      });
-
-      // Upsert winning scan record
-      await tx.qrScan.upsert({
-        where: {
-          ticketId_participantId: {
-            ticketId: ticket.id,
-            participantId,
-          },
-        },
-        create: {
-          ticketId: ticket.id,
-          participantId,
-          sessionId: ticket.session.id,
-          pointsEarned,
-          isCorrect: true,
-          answer: answer || '',
-          timeTaken: actualTime,
-          attemptsUsed: newAttemptsUsed,
-        },
-        update: {
-          pointsEarned,
-          isCorrect: true,
-          answer: answer || '',
-          timeTaken: actualTime,
-          attemptsUsed: newAttemptsUsed,
-        },
-      });
-
-      // Increment participant score ONLY on correct answer
-      const updatedParticipant = await tx.participant.update({
-        where: { id: participantId },
-        data: {
-          score: { increment: pointsEarned },
-        },
-      });
-
-      return {
-        pointsEarned,
-        newScore: updatedParticipant.score,
-        ticketNumber: updatedTicket.ticketNumber,
-      };
-    }, { maxWait: 10000, timeout: 15000 });
-
-    // Broadcast real-time claim event to host console via Ably
+    // Broadcast Ably event for real-time host screen & leaderboard updates
     try {
       const ably = getAblyRest();
       if (ably) {
@@ -382,10 +337,11 @@ export async function POST(req: Request) {
         channel.publish('ticket-scanned', {
           participantName: participant.name,
           ticketNumber: ticket.ticketNumber,
-          isWinning: true,
-          isCorrect: true,
-          pointsEarned: transactionResult.pointsEarned,
-          newScore: transactionResult.newScore,
+          isWinning: ticket.isWinning,
+          isCorrect: claimResult.isCorrect,
+          pointsEarned: claimResult.pointsEarned,
+          speedBonus: claimResult.speedBonus,
+          newScore: claimResult.newScore,
         });
         channel.publish('leaderboard-update', { timestamp: Date.now() });
       }
@@ -395,18 +351,19 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      isCorrect: true,
-      isWinning: true,
-      pointsEarned: transactionResult.pointsEarned,
-      newScore: transactionResult.newScore,
+      pointsEarned: claimResult.pointsEarned,
+      speedBonus: claimResult.speedBonus,
+      basePoints: claimResult.baseDecayedPoints,
+      isCorrect: claimResult.isCorrect,
+      correctAnswer: claimResult.correctAnswer,
+      isWinning: ticket.isWinning,
       ticketNumber: ticket.ticketNumber,
       participantId,
       participantName: participant.name,
-      message: 'Congratulations! You cracked the Golden Ticket challenge!',
+      newScore: claimResult.newScore,
     });
   } catch (error) {
     console.error('Ticket claim error:', error);
     return NextResponse.json({ error: 'Failed to process ticket claim' }, { status: 500 });
   }
 }
-

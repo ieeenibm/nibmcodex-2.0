@@ -102,11 +102,11 @@ export default function WhatsAppBubble() {
             e.stopPropagation();
             setIsDismissed(true);
           }}
-          className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-navy-900 border border-white/20 text-slate-400 hover:text-white hover:bg-red-500 hover:border-red-500 flex items-center justify-center transition-all shadow-md opacity-80 hover:opacity-100 z-10 cursor-pointer"
+          className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-navy-900 border border-white/20 text-slate-400 hover:text-white hover:bg-red-500 hover:border-red-500 flex items-center justify-center transition-all shadow-md opacity-80 hover:opacity-100 z-10 cursor-pointer"
           title="Dismiss button"
           aria-label="Dismiss WhatsApp button"
         >
-          <X size={13} strokeWidth={2.5} />
+          <X size={11} strokeWidth={2.5} />
         </button>
 
         {/* Floating Bubble Button */}
