@@ -54,7 +54,7 @@ export default function EventSeries() {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   return (
-    <section id="events" className="relative py-28 bg-navy-950 border-t border-white/5 overflow-hidden">
+    <section id="events" className="relative py-20 sm:py-28 bg-navy-950 border-t border-white/5 overflow-hidden">
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
 
@@ -63,15 +63,15 @@ export default function EventSeries() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-20"
+          className="text-center mb-14 sm:mb-20"
         >
           <span className="inline-block px-4 py-1 mb-6 border border-white/10 text-cyan-400 text-xs font-mono uppercase tracking-[0.2em] rounded-full glass-panel-light">
             A Multi-Stage Journey
           </span>
-          <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white tracking-tighter">
             The NIBMCodeX <span className="text-gradient-cyan">Series</span>
           </h2>
-          <p className="text-slate-400 mt-4 font-light tracking-wide max-w-2xl mx-auto">
+          <p className="text-slate-400 mt-4 font-light tracking-wide max-w-2xl mx-auto text-sm sm:text-base">
             Three distinct events. One connected journey - from workshop to summit to a 24-hour competitive finale aligned with IEEEXtreme 20.0.
           </p>
         </motion.div>
@@ -133,19 +133,19 @@ export default function EventSeries() {
                       {/* Soft underlying glow blob */}
                       <div className={`absolute -top-20 -right-20 w-64 h-64 rounded-full bg-gradient-to-br ${event.accentColor} blur-[80px] opacity-40 group-hover:opacity-70 transition-opacity duration-700 pointer-events-none`} />
 
-                      <div className="relative z-10 p-8 flex flex-col h-full">
+                      <div className="relative z-10 p-6 sm:p-8 flex flex-col h-full">
                         {/* Number row */}
-                        <div className="flex items-center justify-between mb-6">
-                          <span className="text-6xl font-bold text-white/5 group-hover:text-white/20 transition-all duration-500 font-mono leading-none select-none">
+                        <div className="flex items-center justify-between mb-5 sm:mb-6">
+                          <span className="text-5xl sm:text-6xl font-bold text-white/5 group-hover:text-white/20 transition-all duration-500 font-mono leading-none select-none">
                             {event.number}
                           </span>
                           {event.completed && (
-                            <div className="px-3 py-1 rounded-full border border-white/10 bg-white/5 text-[10px] font-bold tracking-widest text-slate-400 uppercase backdrop-blur-sm">
+                            <div className="px-2.5 sm:px-3 py-1 rounded-full border border-white/10 bg-white/5 text-[9px] sm:text-[10px] font-bold tracking-widest text-slate-400 uppercase backdrop-blur-sm">
                               Completed
                             </div>
                           )}
                           {event.nextUp && (
-                            <div className="px-3 py-1 rounded-full border border-cyan-400/30 bg-cyan-500/10 text-[10px] font-bold tracking-widest text-cyan-300 uppercase backdrop-blur-sm flex items-center gap-1.5">
+                            <div className="px-2.5 sm:px-3 py-1 rounded-full border border-cyan-400/30 bg-cyan-500/10 text-[9px] sm:text-[10px] font-bold tracking-widest text-cyan-300 uppercase backdrop-blur-sm flex items-center gap-1.5">
                               <span className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
@@ -156,12 +156,12 @@ export default function EventSeries() {
                         </div>
 
                         {/* Title */}
-                        <h3 className="text-2xl font-bold text-white tracking-tight mb-4 leading-snug group-hover:text-cyan-100 transition-colors duration-300">
+                        <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight mb-3 sm:mb-4 leading-snug group-hover:text-cyan-100 transition-colors duration-300">
                           {event.title}
                         </h3>
 
                         {/* Description */}
-                        <p className="text-slate-400 text-[15px] leading-relaxed mb-8 font-light flex-grow">
+                        <p className="text-slate-400 text-sm sm:text-[15px] leading-relaxed mb-6 sm:mb-8 font-light flex-grow">
                           {event.description}
                         </p>
 

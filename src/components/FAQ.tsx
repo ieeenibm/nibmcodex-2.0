@@ -35,21 +35,21 @@ export default function FAQ() {
   ];
 
   return (
-    <section id="faq" className="py-32 bg-navy-950 border-t border-white/5">
-      <div className="container mx-auto px-6 md:px-12 max-w-4xl">
+    <section id="faq" className="py-20 sm:py-32 bg-navy-950 border-t border-white/5">
+      <div className="container mx-auto px-4 sm:px-6 md:px-12 max-w-4xl">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-20"
+          className="text-center mb-14 sm:mb-20"
         >
           <span className="inline-block px-4 py-1 mb-6 border border-white/10 text-cyan-400 text-xs font-mono uppercase tracking-[0.2em] rounded-full">
             Frequently Asked Questions
           </span>
-          <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter">FAQ</h2>
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white tracking-tighter">FAQ</h2>
         </motion.div>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {faqs.map((faq, idx) => (
             <motion.div 
               key={idx} 
@@ -60,16 +60,16 @@ export default function FAQ() {
               className="glass-panel-light clip-slanted overflow-hidden"
             >
               <button 
-                className="w-full text-left p-6 md:p-8 flex justify-between items-center text-white hover:text-cyan-400 transition-colors"
+                className="w-full text-left p-5 sm:p-6 md:p-8 flex justify-between items-center text-white hover:text-cyan-400 transition-colors gap-3"
                 onClick={() => setOpen(open === idx ? null : idx)}
                 aria-expanded={open === idx}
                 aria-controls={`faq-answer-${idx}`}
               >
-                <span className="text-lg md:text-xl font-bold tracking-tight">{faq.q}</span>
+                <span className="text-base sm:text-lg md:text-xl font-bold tracking-tight">{faq.q}</span>
                 <motion.span 
                   animate={{ rotate: open === idx ? 180 : 0 }}
                   transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                  className="text-cyan-400 text-2xl font-light"
+                  className="text-cyan-400 text-xl sm:text-2xl font-light shrink-0"
                 >
                   ↓
                 </motion.span>
@@ -82,7 +82,7 @@ export default function FAQ() {
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ type: "spring", stiffness: 200, damping: 25 }}
                   >
-                    <div id={`faq-answer-${idx}`} className="px-6 md:px-8 pb-8 text-slate-400 font-light leading-relaxed text-lg">
+                    <div id={`faq-answer-${idx}`} className="px-5 sm:px-6 md:px-8 pb-6 sm:pb-8 text-slate-400 font-light leading-relaxed text-sm sm:text-base md:text-lg">
                       {faq.a}
                     </div>
                   </motion.div>

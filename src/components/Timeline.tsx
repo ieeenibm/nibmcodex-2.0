@@ -149,15 +149,15 @@ export default function Timeline() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-24"
+          className="text-center mb-14 sm:mb-24"
         >
           <span className="inline-block px-4 py-1 mb-6 border border-white/10 text-cyan-400 text-xs font-mono uppercase tracking-[0.2em] rounded-full glass-panel-light shadow-xl">
             Journey
           </span>
-          <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter drop-shadow-2xl">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white tracking-tighter drop-shadow-2xl">
             Event <span className="text-gradient-cyan">Timeline</span>
           </h2>
-          <p className="text-slate-400 mt-4 font-light tracking-wide max-w-lg mx-auto">The roadmap leading up to the ultimate challenge.</p>
+          <p className="text-slate-400 mt-4 font-light tracking-wide max-w-lg mx-auto text-sm sm:text-base">The roadmap leading up to the ultimate challenge.</p>
         </motion.div>
 
         <div className="max-w-5xl mx-auto relative">
@@ -208,11 +208,11 @@ export default function Timeline() {
                     whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ margin: "-100px" }}
                     transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
-                    className={`w-full md:w-[45%] pl-16 md:pl-0 ${idx % 2 === 0 ? 'md:text-left' : 'md:text-right'}`}
+                    className={`w-full md:w-[45%] pl-14 sm:pl-16 md:pl-0 ${idx % 2 === 0 ? 'md:text-left' : 'md:text-right'}`}
                   >
                     <SpotlightCard 
                       onClick={(e) => e.stopPropagation()}
-                      className={`glass-panel-light p-8 clip-slanted overflow-hidden relative transition-all duration-700 shadow-xl
+                      className={`glass-panel-light p-5 sm:p-8 clip-slanted overflow-hidden relative transition-all duration-700 shadow-xl
                       ${isCompleted ? (step.memories && step.memories.length > 0 ? 'opacity-80 hover:opacity-100' : 'opacity-50 grayscale hover:opacity-60') : (step.status === 'postponed' ? 'group hover:border-amber-400/30' : 'group hover:border-cyan-400/30')}
                       ${isActive ? 'border-cyan-400/40 ring-1 ring-cyan-400/10' : ''}
                     `}>
@@ -255,7 +255,7 @@ export default function Timeline() {
                              <span className="px-2 py-0.5 rounded border border-cyan-400/50 bg-cyan-500/10 text-[10px] ml-2 text-cyan-300 shadow-[0_0_5px_rgba(34,211,238,0.2)]">NEXT UP</span>
                            )}
                         </div>
-                        <h3 className={`text-2xl font-bold mb-2 transition-colors tracking-tight
+                        <h3 className={`text-xl sm:text-2xl font-bold mb-2 transition-colors tracking-tight
                           ${isCompleted ? 'text-slate-300' : (step.status === 'postponed' ? 'text-white group-hover:text-amber-300' : 'text-white group-hover:text-cyan-300')}
                         `}>{step.title}</h3>
                         <div className={`font-light leading-relaxed text-sm md:text-base

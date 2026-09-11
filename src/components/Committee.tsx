@@ -37,7 +37,7 @@ function MemberCard({ member, idx, onMemberClick }: { member: Member; idx: numbe
       className="h-full"
     >
       <SpotlightCard
-        className={`h-full p-6 flex flex-col items-center text-center group ${
+        className={`h-full p-4 sm:p-6 flex flex-col items-center text-center group ${
           member.highlight ? 'glass-panel border-cyan-400/30' : 'glass-panel'
         } ${onMemberClick ? 'cursor-pointer select-none' : ''}`}
         spotlightColor={
@@ -45,20 +45,20 @@ function MemberCard({ member, idx, onMemberClick }: { member: Member; idx: numbe
         }
         onClick={() => onMemberClick?.(member.name)}
       >
-        <div className="relative mb-5 mt-2 w-28 h-28 mx-auto">
+        <div className="relative mb-3 sm:mb-5 mt-1 sm:mt-2 w-20 h-20 sm:w-28 sm:h-28 mx-auto">
           <div className="relative w-full h-full rounded-full flex items-center justify-center bg-navy-900 border-2 border-white/5 text-slate-500 overflow-hidden group-hover:border-cyan-400/40 group-hover:ring-4 group-hover:ring-cyan-400/10 transition-all duration-500">
             {member.image ? (
               <Image
                 src={getOptimizedCloudinaryUrl(member.image, { width: 250, crop: 'fill', gravity: 'face' })}
                 alt={member.name}
                 fill
-                sizes="112px"
+                sizes="(max-width: 640px) 80px, 112px"
                 draggable={false}
                 className="object-cover transition-transform duration-500 group-hover:scale-110 select-none pointer-events-none"
                 unoptimized
               />
             ) : (
-              <User size={36} strokeWidth={1.5} className="group-hover:text-cyan-400 transition-colors duration-300" />
+              <User size={30} strokeWidth={1.5} className="group-hover:text-cyan-400 transition-colors duration-300" />
             )}
           </div>
           
@@ -67,18 +67,18 @@ function MemberCard({ member, idx, onMemberClick }: { member: Member; idx: numbe
               href={member.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              className="absolute bottom-0 right-0 translate-x-1 translate-y-1 p-2 rounded-full bg-navy-950 border border-white/10 text-slate-400 hover:text-cyan-400 hover:border-cyan-400/50 hover:bg-cyan-950/50 transition-all duration-300 z-10 shadow-xl"
+              className="absolute bottom-0 right-0 translate-x-1 translate-y-1 p-1.5 sm:p-2 rounded-full bg-navy-950 border border-white/10 text-slate-400 hover:text-cyan-400 hover:border-cyan-400/50 hover:bg-cyan-950/50 transition-all duration-300 z-10 shadow-xl"
               aria-label={`LinkedIn of ${member.name}`}
             >
-              <FaLinkedin size={16} />
+              <FaLinkedin className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </a>
           )}
         </div>
         
-        <h4 className="text-sm font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors">
+        <h4 className="text-xs sm:text-sm font-bold text-white mb-1 group-hover:text-cyan-300 transition-colors">
           {member.name}
         </h4>
-        <p className={`text-[10px] font-mono uppercase tracking-widest ${member.highlight ? 'text-cyan-400' : 'text-slate-400'}`}>
+        <p className={`text-[9px] sm:text-[10px] font-mono uppercase tracking-wider sm:tracking-widest ${member.highlight ? 'text-cyan-400' : 'text-slate-400'}`}>
           {member.role}
         </p>
       </SpotlightCard>
@@ -189,7 +189,7 @@ export default function Committee() {
   }, [startAutoSwitch]);
 
   return (
-    <section id="committee" className="relative py-32 bg-navy-950 overflow-hidden border-t border-white/5">
+    <section id="committee" className="relative py-20 sm:py-32 bg-navy-950 overflow-hidden border-t border-white/5">
       <div className="absolute inset-0 z-0 opacity-20">
         <Image
           src="https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/misc/holodeck"
@@ -201,36 +201,36 @@ export default function Committee() {
         <div className="absolute inset-0 bg-gradient-to-b from-navy-950 via-navy-950/80 to-navy-950"></div>
       </div>
 
-      <div className="container mx-auto px-6 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-24"
+          className="text-center mb-14 sm:mb-24"
         >
           <span className="inline-block px-4 py-1 mb-6 border border-white/10 text-cyan-400 text-xs font-mono uppercase tracking-[0.2em] rounded-full glass-panel-light">
             Leadership
           </span>
-          <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white tracking-tighter">
             Organizing <span className="text-gradient-cyan">Committee</span>
           </h2>
-          <p className="text-slate-400 mt-4 font-light tracking-wide max-w-lg mx-auto">
+          <p className="text-slate-400 mt-4 font-light tracking-wide max-w-lg mx-auto text-sm sm:text-base">
             The team driving NIBMCodeX 2.0 from vision to reality.
           </p>
         </motion.div>
 
         {/* Leadership */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto mb-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-3xl mx-auto mb-14 sm:mb-20">
           {leadership.map((member, idx) => (
             <MemberCard key={member.name} member={member} idx={idx} onMemberClick={handleMemberClick} />
           ))}
         </div>
 
         {/* Executive Committee */}
-        <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-10">
+        <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-6 sm:mb-10">
           Executive Committee
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 max-w-4xl mx-auto mb-14 sm:mb-20">
           {execBoard.map((member, idx) => (
             <MemberCard key={member.name} member={member} idx={idx} onMemberClick={handleMemberClick} />
           ))}
@@ -238,17 +238,17 @@ export default function Committee() {
 
         {/* OC Teams */}
         <div ref={teamsRef}>
-          <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-10">
+          <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-6 sm:mb-10">
             OC Teams
           </h3>
 
           {/* Team Tabs */}
-          <div className="flex flex-wrap justify-center gap-2 mb-12">
+          <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 mb-8 sm:mb-12">
             {teams.map((team, idx) => (
               <button
                 key={team.name}
                 onClick={() => handleManualClick(idx)}
-                className={`px-4 py-2 text-xs font-mono uppercase tracking-wider clip-slanted transition-all duration-300 ${
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-mono uppercase tracking-wider clip-slanted transition-all duration-300 ${
                   activeTeam === idx
                     ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
                     : 'text-slate-400 border border-white/5 hover:border-white/20 hover:text-slate-300'
@@ -271,7 +271,7 @@ export default function Committee() {
               onMouseEnter={handleHoverStart}
               onMouseLeave={handleHoverEnd}
             >
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-w-6xl mx-auto">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 max-w-6xl mx-auto">
                 {teams[activeTeam].members.map((member, idx) => (
                   <MemberCard key={idx} member={member} idx={idx} onMemberClick={handleMemberClick} />
                 ))}

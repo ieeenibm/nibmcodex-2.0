@@ -46,11 +46,28 @@ export default function AISummitSection() {
     setProgress(0);
   };
 
-  // Keep active speaker scrolled into view in the right rail
+  const isFirstRender = useRef(true);
+
+  // Keep active speaker scrolled into view ONLY inside the inner rail, never scrolling the page
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
     const activeEl = itemRefs.current[activeIndex];
-    if (activeEl && railRef.current) {
-      activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const rail = railRef.current;
+    if (activeEl && rail) {
+      const elTop = activeEl.offsetTop;
+      const elHeight = activeEl.offsetHeight;
+      const railTop = rail.scrollTop;
+      const railHeight = rail.clientHeight;
+
+      if (elTop < railTop) {
+        rail.scrollTo({ top: elTop, behavior: 'smooth' });
+      } else if (elTop + elHeight > railTop + railHeight) {
+        rail.scrollTo({ top: elTop + elHeight - railHeight, behavior: 'smooth' });
+      }
     }
   }, [activeIndex]);
 
@@ -153,7 +170,7 @@ export default function AISummitSection() {
         >
           {/* LEFT COLUMN: ENLARGED SPOTLIGHT CARD (~7 cols on desktop) */}
           <div className="lg:col-span-7 h-full">
-            <div className="relative border border-cyan-400/20 hover:border-cyan-400/35 bg-navy-900/60 backdrop-blur-2xl clip-slanted p-6 sm:p-8 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] flex flex-col justify-between h-full min-h-[530px] transition-colors duration-300">
+            <div className="relative border border-cyan-400/20 hover:border-cyan-400/35 bg-navy-900/60 backdrop-blur-2xl clip-slanted p-4 sm:p-7 md:p-8 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] flex flex-col justify-between h-full min-h-[460px] sm:min-h-[530px] transition-colors duration-300">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={activeSpeaker.id}
@@ -161,10 +178,10 @@ export default function AISummitSection() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 12 }}
                   transition={{ duration: 0.3, ease: 'easeInOut' }}
-                  className="flex flex-col sm:flex-row gap-6 sm:gap-8 items-start"
+                  className="flex flex-col sm:flex-row gap-5 sm:gap-8 items-center sm:items-start w-full"
                 >
                   {/* Speaker Photo - Clean 3:4 Portrait */}
-                  <div className="relative shrink-0 w-full sm:w-52 md:w-56">
+                  <div className="relative shrink-0 w-full max-w-[200px] sm:max-w-none sm:w-52 md:w-56 mx-auto sm:mx-0">
                     <div className="relative w-full aspect-[3/4] border border-white/10 clip-slanted bg-navy-950 shadow-xl overflow-hidden">
                       <div className="absolute inset-1 overflow-hidden clip-slanted bg-navy-900">
                         <Image

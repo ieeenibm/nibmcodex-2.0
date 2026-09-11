@@ -88,7 +88,7 @@ export default function LivePlayBubble() {
 
   return (
     <div
-      className="fixed bottom-6 left-6 z-50 flex flex-col items-start gap-3 select-none"
+      className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-50 flex flex-col items-start gap-3 select-none"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -100,7 +100,7 @@ export default function LivePlayBubble() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 15, scale: 0.94 }}
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[calc(100vw-3rem)] sm:w-88 md:w-96 bg-navy-950/95 backdrop-blur-2xl border border-cyan-500/30 rounded-2xl p-4 sm:p-5 shadow-2xl shadow-black/80 relative overflow-hidden"
+            className="w-[calc(100vw-2rem)] sm:w-88 md:w-96 bg-navy-950/95 backdrop-blur-2xl border border-cyan-500/30 rounded-2xl p-4 sm:p-5 shadow-2xl shadow-black/80 relative overflow-hidden"
           >
             {/* Background Cyber Accent Glows */}
             <div className="absolute -top-12 -right-12 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
