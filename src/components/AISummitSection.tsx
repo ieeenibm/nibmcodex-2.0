@@ -22,6 +22,7 @@ const AUTO_ROTATE_INTERVAL_MS = 6000;
 
 export default function AISummitSection() {
   const [activeIndex, setActiveIndex] = useState(0);
+  const [direction, setDirection] = useState<1 | -1>(1);
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -31,19 +32,61 @@ export default function AISummitSection() {
   const railRef = useRef<HTMLDivElement>(null);
   const itemRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+  const touchDeltaX = useRef<number>(0);
+
   const nextSpeaker = useCallback(() => {
+    setDirection(1);
     setActiveIndex((prev) => (prev + 1) % SPEAKERS.length);
     setProgress(0);
   }, []);
 
   const prevSpeaker = useCallback(() => {
+    setDirection(-1);
     setActiveIndex((prev) => (prev - 1 + SPEAKERS.length) % SPEAKERS.length);
     setProgress(0);
   }, []);
 
   const selectSpeaker = (idx: number) => {
+    setDirection(idx > activeIndex ? 1 : -1);
     setActiveIndex(idx);
     setProgress(0);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    touchDeltaX.current = 0;
+    setIsPaused(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStartX.current === null || touchStartY.current === null) return;
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    const deltaX = currentX - touchStartX.current;
+    const deltaY = currentY - touchStartY.current;
+
+    // Only recognize horizontal swipe if horizontal movement dominates vertical
+    if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      touchDeltaX.current = deltaX;
+    }
+  };
+
+  const handleTouchEnd = () => {
+    const SWIPE_THRESHOLD = 40;
+    if (touchDeltaX.current < -SWIPE_THRESHOLD) {
+      nextSpeaker();
+    } else if (touchDeltaX.current > SWIPE_THRESHOLD) {
+      prevSpeaker();
+    }
+    touchStartX.current = null;
+    touchStartY.current = null;
+    touchDeltaX.current = 0;
+    setTimeout(() => {
+      setIsPaused(false);
+    }, 2000);
   };
 
   const isFirstRender = useRef(true);
@@ -170,25 +213,36 @@ export default function AISummitSection() {
         >
           {/* LEFT COLUMN: ENLARGED SPOTLIGHT CARD (~7 cols on desktop) */}
           <div className="lg:col-span-7 h-full">
-            <div className="relative border border-cyan-400/20 hover:border-cyan-400/35 bg-navy-900/60 backdrop-blur-2xl clip-slanted p-4 sm:p-7 md:p-8 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] flex flex-col justify-between h-full min-h-[460px] sm:min-h-[530px] transition-colors duration-300">
-              <AnimatePresence mode="wait">
+            <div 
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              className="relative border border-cyan-400/20 hover:border-cyan-400/35 bg-navy-900/60 backdrop-blur-2xl clip-slanted p-4 sm:p-7 md:p-8 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] flex flex-col justify-between h-full min-h-[440px] sm:min-h-[530px] transition-colors duration-300 touch-pan-y"
+            >
+              <AnimatePresence mode="wait" custom={direction}>
                 <motion.div
                   key={activeSpeaker.id}
-                  initial={{ opacity: 0, x: -12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 12 }}
+                  custom={direction}
+                  variants={{
+                    enter: (dir: number) => ({ opacity: 0, x: dir > 0 ? 35 : -35 }),
+                    center: { opacity: 1, x: 0 },
+                    exit: (dir: number) => ({ opacity: 0, x: dir > 0 ? -35 : 35 }),
+                  }}
+                  initial="enter"
+                  animate="center"
+                  exit="exit"
                   transition={{ duration: 0.3, ease: 'easeInOut' }}
                   className="flex flex-col sm:flex-row gap-5 sm:gap-8 items-center sm:items-start w-full"
                 >
                   {/* Speaker Photo - Clean 3:4 Portrait */}
-                  <div className="relative shrink-0 w-full max-w-[200px] sm:max-w-none sm:w-52 md:w-56 mx-auto sm:mx-0">
+                  <div className="relative shrink-0 w-full max-w-[160px] sm:max-w-none sm:w-52 md:w-56 mx-auto sm:mx-0">
                     <div className="relative w-full aspect-[3/4] border border-white/10 clip-slanted bg-navy-950 shadow-xl overflow-hidden">
                       <div className="absolute inset-1 overflow-hidden clip-slanted bg-navy-900">
                         <Image
                           src={activeSpeaker.image}
                           alt={activeSpeaker.name}
                           fill
-                          sizes="(max-width: 640px) 100vw, 240px"
+                          sizes="(max-width: 640px) 160px, 240px"
                           className={`object-cover ${
                             activeSpeaker.id === 'sampath-gamage'
                               ? 'object-[center_20%]'
@@ -225,7 +279,7 @@ export default function AISummitSection() {
                         {activeSpeaker.tag}
                       </div>
 
-                      <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight leading-tight">
+                      <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white tracking-tight leading-tight">
                         {activeSpeaker.name}
                       </h3>
 
@@ -271,7 +325,7 @@ export default function AISummitSection() {
               </AnimatePresence>
 
               {/* Spotlight Bottom Controls & Progress Bar */}
-              <div className="mt-8 pt-4 border-t border-white/10">
+              <div className="mt-6 sm:mt-8 pt-4 border-t border-white/10">
                 <div className="space-y-3">
                   {/* Progress bar across current rotation cycle */}
                   <div className="h-1 w-full bg-white/10 overflow-hidden relative rounded-full">
@@ -307,23 +361,44 @@ export default function AISummitSection() {
                         {activeIndex + 1} <span className="text-slate-500 font-normal">/ {SPEAKERS.length}</span>
                       </span>
 
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1.5">
                         <button
                           onClick={prevSpeaker}
-                          className="p-1.5 border border-white/10 hover:border-cyan-400/50 bg-white/5 text-slate-300 hover:text-cyan-300 rounded-lg transition-colors active:scale-95 cursor-pointer"
+                          className="p-2 sm:p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center border border-white/10 hover:border-cyan-400/50 bg-white/5 text-slate-300 hover:text-cyan-300 rounded-lg transition-colors active:scale-95 cursor-pointer"
                           aria-label="Previous speaker"
                         >
-                          <ChevronLeft className="w-3.5 h-3.5" />
+                          <ChevronLeft className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                         </button>
                         <button
                           onClick={nextSpeaker}
-                          className="p-1.5 border border-white/10 hover:border-cyan-400/50 bg-white/5 text-slate-300 hover:text-cyan-300 rounded-lg transition-colors active:scale-95 cursor-pointer"
+                          className="p-2 sm:p-1.5 min-w-[32px] min-h-[32px] flex items-center justify-center border border-white/10 hover:border-cyan-400/50 bg-white/5 text-slate-300 hover:text-cyan-300 rounded-lg transition-colors active:scale-95 cursor-pointer"
                           aria-label="Next speaker"
                         >
-                          <ChevronRight className="w-3.5 h-3.5" />
+                          <ChevronRight className="w-4 h-4 sm:w-3.5 sm:h-3.5" />
                         </button>
                       </div>
                     </div>
+                  </div>
+
+                  {/* Mobile Pagination Dots & Swipe Hint */}
+                  <div className="flex lg:hidden items-center justify-between pt-3 mt-1 border-t border-white/5">
+                    <div className="flex items-center gap-1.5">
+                      {SPEAKERS.map((s, idx) => (
+                        <button
+                          key={s.id}
+                          onClick={() => selectSpeaker(idx)}
+                          aria-label={`Go to ${s.name}`}
+                          className={`transition-all duration-300 rounded-full h-1.5 ${
+                            idx === activeIndex
+                              ? 'w-6 bg-cyan-400'
+                              : 'w-1.5 bg-white/20 hover:bg-white/40'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-[10px] font-mono text-cyan-400/80 uppercase tracking-wider flex items-center gap-1 select-none">
+                      ⇄ Swipe to switch
+                    </span>
                   </div>
                 </div>
               </div>
@@ -334,7 +409,7 @@ export default function AISummitSection() {
           <div 
             ref={railRef}
             data-lenis-prevent="true"
-            className="lg:col-span-5 flex flex-col gap-2 max-h-[530px] overflow-y-auto overscroll-contain pr-1.5 custom-scrollbar"
+            className="lg:col-span-5 flex flex-col gap-2 max-h-[360px] sm:max-h-[440px] lg:max-h-[530px] overflow-y-auto overscroll-contain pr-1.5 custom-scrollbar"
             style={{ scrollBehavior: 'smooth' }}
           >
             {SPEAKERS.map((speaker, idx) => {
@@ -416,7 +491,7 @@ export default function AISummitSection() {
       {/* SPEAKER FULL BIO MODAL */}
       <AnimatePresence>
         {selectedSpeaker && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-6">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-4 md:p-6">
             {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -431,12 +506,12 @@ export default function AISummitSection() {
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="relative w-full max-w-2xl bg-navy-900 border border-cyan-400/30 clip-slanted p-6 md:p-8 shadow-2xl overflow-hidden max-h-[90vh] flex flex-col z-10"
+              className="relative w-full max-w-2xl bg-navy-900 border border-cyan-400/30 clip-slanted p-4 sm:p-6 md:p-8 shadow-2xl overflow-hidden max-h-[85vh] sm:max-h-[90vh] flex flex-col z-10"
             >
               {/* Close Button */}
               <button
                 onClick={() => setSelectedSpeaker(null)}
-                className="absolute top-5 right-5 p-2 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 rounded-lg transition-colors z-20 cursor-pointer"
+                className="absolute top-3.5 right-3.5 sm:top-5 sm:right-5 p-1.5 sm:p-2 bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 rounded-lg transition-colors z-20 cursor-pointer"
                 aria-label="Close bio"
               >
                 <X className="w-5 h-5" />
@@ -444,13 +519,13 @@ export default function AISummitSection() {
 
               <div data-lenis-prevent="true" className="overflow-y-auto pr-2 custom-scrollbar">
                 {/* Header in Modal */}
-                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 mb-6 pb-6 border-b border-white/10">
-                  <div className="relative w-24 h-32 shrink-0 border border-white/15 clip-slanted overflow-hidden bg-navy-950">
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-5 mb-5 sm:mb-6 pb-5 sm:pb-6 border-b border-white/10">
+                  <div className="relative w-20 h-28 sm:w-24 sm:h-32 shrink-0 border border-white/15 clip-slanted overflow-hidden bg-navy-950">
                     <Image
                       src={selectedSpeaker.image}
                       alt={selectedSpeaker.name}
                       fill
-                      sizes="96px"
+                      sizes="(max-width: 640px) 80px, 96px"
                       className={`object-cover ${
                         selectedSpeaker.id === 'sampath-gamage'
                           ? 'object-[center_20%]'
@@ -468,7 +543,7 @@ export default function AISummitSection() {
                     <span className="inline-block text-[10px] font-mono uppercase tracking-wider text-cyan-300 bg-white/[0.04] border border-white/15 px-2.5 py-0.5 rounded-full mb-2">
                       {selectedSpeaker.tag}
                     </span>
-                    <h3 className="text-xl md:text-2xl font-bold text-white">
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white">
                       {selectedSpeaker.name}
                     </h3>
                     <p className="text-sm text-cyan-300 font-medium">
