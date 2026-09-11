@@ -4,6 +4,7 @@ import CountdownSection from '@/components/CountdownSection';
 import SectionSeparator from '@/components/SectionSeparator';
 import LandingGallery from '@/components/LandingGallery';
 import EventSeries from '@/components/EventSeries';
+import AISummitSection from '@/components/AISummitSection';
 import Timeline from '@/components/Timeline';
 import VerticalScrollMoment from '@/components/VerticalScrollMoment';
 // import About from '@/components/About';
@@ -14,7 +15,7 @@ import FAQ from '@/components/FAQ';
 // import Registration from '@/components/Registration';
 import Footer from '@/components/Footer';
 import RegistrationPill from '@/components/ui/RegistrationPill';
-// import LivePlayBubble from '@/components/LivePlayBubble';
+import LivePlayBubble from '@/components/LivePlayBubble';
 import WhatsAppBubble from '@/components/WhatsAppBubble';
 
 export default function Home() {
@@ -26,6 +27,7 @@ export default function Home() {
       <SectionSeparator />
       <LandingGallery />
       <EventSeries />
+      <AISummitSection />
       <Timeline />
       <Committee />
       <Partners />
@@ -36,7 +38,7 @@ export default function Home() {
       {/* <Registration /> */}
       <Footer />
       <RegistrationPill />
-      {/* <LivePlayBubble /> */}
+      <LivePlayBubble />
       <WhatsAppBubble />
     </main>
   );

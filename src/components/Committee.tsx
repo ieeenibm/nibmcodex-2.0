@@ -222,7 +222,7 @@ export default function Committee() {
         {/* Leadership */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto mb-20">
           {leadership.map((member, idx) => (
-            <MemberCard key={member.role} member={member} idx={idx} onMemberClick={handleMemberClick} />
+            <MemberCard key={member.name} member={member} idx={idx} onMemberClick={handleMemberClick} />
           ))}
         </div>
 
@@ -230,9 +230,9 @@ export default function Committee() {
         <h3 className="text-center text-xs font-mono uppercase tracking-[0.3em] text-cyan-400/60 mb-10">
           Executive Committee
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 max-w-5xl mx-auto mb-20">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mb-20">
           {execBoard.map((member, idx) => (
-            <MemberCard key={member.role} member={member} idx={idx} onMemberClick={handleMemberClick} />
+            <MemberCard key={member.name} member={member} idx={idx} onMemberClick={handleMemberClick} />
           ))}
         </div>
 

@@ -42,7 +42,7 @@ const nationalPartner: PartnerData = {
 const ecosystemPartner: PartnerData = {
   name: 'SLASSCOM',
   role: '',
-  image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/partners/slasscom-logo',
+  image: '/partners/slasscom-logo.png',
   bgClass: 'bg-white',
 };
 

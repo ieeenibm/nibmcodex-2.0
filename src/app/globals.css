@@ -86,19 +86,28 @@ input, textarea, select {
   background: rgba(255, 255, 255, 0.2);
 }
 
-/* Timeline specific inner scrollbar */
-.timeline-scrollbar::-webkit-scrollbar {
+/* Timeline & Custom inner scrollbar */
+.timeline-scrollbar::-webkit-scrollbar,
+.custom-scrollbar::-webkit-scrollbar {
   width: 4px;
 }
-.timeline-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
+.timeline-scrollbar::-webkit-scrollbar-track,
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
 }
-.timeline-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(34, 211, 238, 0.3);
+.timeline-scrollbar::-webkit-scrollbar-thumb,
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(34, 211, 238, 0.4);
   border-radius: 10px;
 }
-.timeline-scrollbar::-webkit-scrollbar-thumb:hover {
+.timeline-scrollbar::-webkit-scrollbar-thumb:hover,
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: rgba(34, 211, 238, 0.8);
+}
+.timeline-scrollbar,
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(34, 211, 238, 0.4) transparent;
 }
 
 /* Marquee Animations for Section Separator */
