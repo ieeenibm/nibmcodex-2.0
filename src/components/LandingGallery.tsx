@@ -37,7 +37,7 @@ const items: DriftWallItem[] = [
 
 export default function LandingGallery() {
   return (
-    <section className="relative w-full pt-20 pb-10 bg-navy-950 overflow-hidden flex flex-col items-center">
+    <section className="relative w-full max-w-full pt-20 pb-10 bg-navy-950 overflow-hidden overflow-x-clip flex flex-col items-center">
       
       {/* Background Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-60 bg-cyan-900/10 blur-[120px] rounded-full pointer-events-none z-0" />

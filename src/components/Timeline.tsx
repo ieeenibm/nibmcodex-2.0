@@ -143,7 +143,7 @@ export default function Timeline() {
   }
 
   return (
-    <section id="timeline" ref={containerRef} onClick={() => setOpenGalleryIdx(null)} className="py-32 bg-navy-950 relative border-t border-white/5">
+    <section id="timeline" ref={containerRef} onClick={() => setOpenGalleryIdx(null)} className="py-32 bg-navy-950 relative border-t border-white/5 overflow-hidden overflow-x-clip max-w-full">
       <div className="container mx-auto px-6 md:px-12">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -204,10 +204,10 @@ export default function Timeline() {
 
                   {/* Content Card */}
                   <motion.div 
-                    initial={{ opacity: 0, x: idx % 2 === 0 ? 50 : -50 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ margin: "-100px" }}
-                    transition={{ duration: 0.6, type: "spring", bounce: 0.4 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ margin: "-50px" }}
+                    transition={{ duration: 0.5, type: "spring", bounce: 0.3 }}
                     className={`w-full md:w-[45%] pl-14 sm:pl-16 md:pl-0 ${idx % 2 === 0 ? 'md:text-left' : 'md:text-right'}`}
                   >
                     <SpotlightCard 

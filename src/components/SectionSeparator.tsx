@@ -2,7 +2,7 @@
 
 export default function SectionSeparator() {
   return (
-    <div className="relative flex flex-col items-center justify-center w-full py-28 bg-navy-950 overflow-hidden z-10">
+    <div className="relative flex flex-col items-center justify-center w-full max-w-full py-28 bg-navy-950 overflow-hidden overflow-x-clip isolate z-10">
       
       {/* Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-40 bg-cyan-400/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
@@ -21,7 +21,7 @@ export default function SectionSeparator() {
       </div>
 
       {/* Tilted Marquee Foreground */}
-      <div className="relative w-[110vw] -left-[5vw] -rotate-3 flex flex-col gap-4 z-10">
+      <div className="relative w-[120%] -left-[10%] -rotate-3 flex flex-col gap-4 z-10">
         
         {/* Top Row - Moves Left */}
         <div className="flex w-max animate-marquee-left whitespace-nowrap bg-white/5 border-y border-white/10 py-5 shadow-[0_0_50px_rgba(0,0,0,0.6)] backdrop-blur-xl">

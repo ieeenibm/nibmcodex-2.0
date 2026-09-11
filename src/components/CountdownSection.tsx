@@ -64,7 +64,7 @@ export default function CountdownSection() {
   return (
     <section
       id="about"
-      className="relative py-28 md:py-36 w-full flex items-center min-h-[70vh] overflow-hidden bg-navy-950 border-t border-white/5"
+      className="relative py-28 md:py-36 w-full max-w-full flex items-center min-h-[70vh] overflow-hidden overflow-x-clip bg-navy-950 border-t border-white/5"
     >
       {/* Ambient glow - colour follows the active event */}
       <AnimatePresence mode="wait">

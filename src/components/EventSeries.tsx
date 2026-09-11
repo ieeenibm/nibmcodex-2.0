@@ -54,7 +54,7 @@ export default function EventSeries() {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   return (
-    <section id="events" className="relative py-20 sm:py-28 bg-navy-950 border-t border-white/5 overflow-hidden">
+    <section id="events" className="relative py-20 sm:py-28 bg-navy-950 border-t border-white/5 overflow-hidden overflow-x-clip max-w-full">
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
 

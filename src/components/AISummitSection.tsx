@@ -179,7 +179,7 @@ export default function AISummitSection() {
   return (
     <section 
       id="summit" 
-      className="relative py-24 bg-navy-950 border-t border-cyan-500/20 overflow-hidden"
+      className="relative py-24 bg-navy-950 border-t border-cyan-500/20 overflow-hidden overflow-x-clip max-w-full"
     >
       {/* Ambient background lighting */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-cyan-500/10 blur-[140px] pointer-events-none rounded-full" />
@@ -217,7 +217,7 @@ export default function AISummitSection() {
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
-              className="relative border border-cyan-400/20 hover:border-cyan-400/35 bg-navy-900/60 backdrop-blur-2xl clip-slanted p-4 sm:p-7 md:p-8 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] flex flex-col justify-between h-full min-h-[440px] sm:min-h-[530px] transition-colors duration-300 touch-pan-y"
+              className="relative border border-cyan-400/20 hover:border-cyan-400/35 bg-navy-900/60 backdrop-blur-2xl clip-slanted p-4 sm:p-7 md:p-8 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.05)] flex flex-col justify-between h-full min-h-[440px] sm:min-h-[530px] transition-colors duration-300 touch-pan-y overflow-hidden"
             >
               <AnimatePresence mode="wait" custom={direction}>
                 <motion.div

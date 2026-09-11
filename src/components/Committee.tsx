@@ -189,7 +189,7 @@ export default function Committee() {
   }, [startAutoSwitch]);
 
   return (
-    <section id="committee" className="relative py-20 sm:py-32 bg-navy-950 overflow-hidden border-t border-white/5">
+    <section id="committee" className="relative py-20 sm:py-32 bg-navy-950 overflow-hidden overflow-x-clip max-w-full border-t border-white/5">
       <div className="absolute inset-0 z-0 opacity-20">
         <Image
           src="https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/misc/holodeck"

@@ -20,7 +20,7 @@ import WhatsAppBubble from '@/components/WhatsAppBubble';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-navy-950 selection:bg-cyan-400/30 selection:text-cyan-400 relative">
+    <main className="min-h-screen bg-navy-950 selection:bg-cyan-400/30 selection:text-cyan-400 relative w-full max-w-full overflow-x-clip">
       <Header />
       <Hero />
       <CountdownSection />

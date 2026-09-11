@@ -33,7 +33,7 @@ export default function Hero() {
   };
 
   return (
-    <section id="hero" className="relative h-screen w-full flex items-center justify-center overflow-hidden">
+    <section id="hero" className="relative h-screen w-full max-w-full flex items-center justify-center overflow-hidden overflow-x-clip">
       {/* Parallax Background Image */}
       <motion.div style={{ y, scale: 1.05 }} className="absolute inset-0 z-0">
         <Image
