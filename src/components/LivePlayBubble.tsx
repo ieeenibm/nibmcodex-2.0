@@ -41,22 +41,33 @@ const GAMES: GameItem[] = [
   },
 ];
 
+const GAMES_UNLOCK_DATE = new Date('2026-09-12T08:00:00+05:30');
+
 export default function LivePlayBubble() {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setMounted(true);
+    const checkUnlocked = () => {
+      const isParamPreview = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('preview_games');
+      setIsUnlocked(Date.now() >= GAMES_UNLOCK_DATE.getTime() || isParamPreview);
+    };
+    checkUnlocked();
+    const timer = setInterval(checkUnlocked, 1000);
+
     return () => {
+      clearInterval(timer);
       if (closeTimeoutRef.current) {
         clearTimeout(closeTimeoutRef.current);
       }
     };
   }, []);
 
-  if (!mounted || isDismissed) return null;
+  if (!mounted || isDismissed || !isUnlocked) return null;
 
   const handleMouseEnter = () => {
     if (closeTimeoutRef.current) {

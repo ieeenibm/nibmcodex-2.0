@@ -54,7 +54,21 @@ export default function AISummitSection() {
     }
   }, [activeIndex]);
 
-  // Timer loop for auto-rotation and progress bar
+  // Ensure mouse wheel scrolling works reliably without being hijacked by Lenis smooth scroll
+  useEffect(() => {
+    const rail = railRef.current;
+    if (!rail) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      e.stopPropagation();
+      rail.scrollTop += e.deltaY;
+    };
+
+    rail.addEventListener('wheel', handleWheel, { passive: true });
+    return () => {
+      rail.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
   useEffect(() => {
     if (isPaused || selectedSpeaker !== null) {
       if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
@@ -302,6 +316,7 @@ export default function AISummitSection() {
           {/* RIGHT COLUMN: ALL SPEAKERS SELECTOR RAIL (~5 cols on desktop) */}
           <div 
             ref={railRef}
+            data-lenis-prevent="true"
             className="lg:col-span-5 flex flex-col gap-2 max-h-[530px] overflow-y-auto overscroll-contain pr-1.5 custom-scrollbar"
             style={{ scrollBehavior: 'smooth' }}
           >
@@ -410,7 +425,7 @@ export default function AISummitSection() {
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="overflow-y-auto pr-2 custom-scrollbar">
+              <div data-lenis-prevent="true" className="overflow-y-auto pr-2 custom-scrollbar">
                 {/* Header in Modal */}
                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5 mb-6 pb-6 border-b border-white/10">
                   <div className="relative w-24 h-32 shrink-0 border border-white/15 clip-slanted overflow-hidden bg-navy-950">
