@@ -25,15 +25,32 @@ html, body {
   background-color: var(--background);
   color: var(--foreground);
   font-family: var(--font-inter), Arial, Helvetica, sans-serif;
+  width: 100%;
+  max-width: 100%;
   overflow-x: hidden;
+  overflow-x: clip;
+  position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
-/* Allow text selection inside form inputs if they are ever re-enabled */
-input, textarea, select {
-  user-select: auto;
-  -webkit-user-select: auto;
+/* Allow text selection inside form inputs and editable elements */
+input, textarea, select, [contenteditable="true"] {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+}
+
+/* Prevent image dragging */
+img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
 }
 
 .clip-slanted {
@@ -124,4 +141,10 @@ input, textarea, select {
 }
 .animate-marquee-right {
   animation: marquee-right 30s linear infinite;
+}
+
+/* Pause all CSS animations for sections that are out of viewport or when tab is hidden */
+[data-animate-in-view="false"],
+[data-animate-in-view="false"] * {
+  animation-play-state: paused !important;
 }

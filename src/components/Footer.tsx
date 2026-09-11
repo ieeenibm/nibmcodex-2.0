@@ -16,7 +16,7 @@ export default function Footer() {
   };
 
   return (
-    <footer className="bg-[#02040a] pt-24 pb-12 border-t border-white/5 relative overflow-hidden">
+    <footer className="bg-[#02040a] pt-24 pb-12 border-t border-white/5 relative overflow-hidden overflow-x-clip max-w-full">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent"></div>
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">

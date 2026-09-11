@@ -24,21 +24,21 @@ export default function Sponsors() {
   };
 
   return (
-    <section id="sponsors" className="py-32 bg-navy-950 border-t border-white/5">
+    <section id="sponsors" className="py-20 sm:py-32 bg-navy-950 border-t border-white/5">
       <div className="container mx-auto px-6 md:px-12">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-24"
+          className="text-center mb-14 sm:mb-24"
         >
           <span className="inline-block px-4 py-1 mb-6 border border-white/10 text-cyan-400 text-xs font-mono uppercase tracking-[0.2em] rounded-full">
             Partners
           </span>
-          <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter">Our Sponsors</h2>
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white tracking-tighter">Our Sponsors</h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-5xl mx-auto mb-14 sm:mb-20">
           {sponsors.map((sponsor, idx) => (
             <motion.div
               key={idx}
@@ -47,15 +47,15 @@ export default function Sponsors() {
               viewport={{ once: true, margin: "-50px" }}
               transition={{ delay: idx * 0.1, duration: 0.5 }}
             >
-              <SpotlightCard className="glass-panel-light p-8 clip-slanted h-full flex flex-col group">
-                <div className={`self-start px-3 py-1 text-xs font-mono uppercase tracking-widest mb-8 border ${getTierColor(sponsor.tier)} bg-white/5`}>
+              <SpotlightCard className="glass-panel-light p-6 sm:p-8 clip-slanted h-full flex flex-col group">
+                <div className={`self-start px-3 py-1 text-xs font-mono uppercase tracking-widest mb-6 sm:mb-8 border ${getTierColor(sponsor.tier)} bg-white/5`}>
                   {sponsor.tier}
                 </div>
-                <div className="flex items-center gap-6 mt-auto">
-                  <div className="w-12 h-12 bg-navy-950 border border-white/10 flex items-center justify-center group-hover:border-cyan-400 transition-colors duration-500 rounded-full">
+                <div className="flex items-center gap-4 sm:gap-6 mt-auto">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-navy-950 border border-white/10 flex items-center justify-center group-hover:border-cyan-400 transition-colors duration-500 rounded-full shrink-0">
                     <div className="w-2 h-2 rounded-full bg-slate-500 group-hover:bg-cyan-400 transition-colors duration-500 shadow-[0_0_10px_rgba(34,211,238,0)] group-hover:shadow-[0_0_10px_rgba(34,211,238,0.8)]"></div>
                   </div>
-                  <h3 className="text-2xl font-bold text-slate-200 group-hover:text-white transition-colors tracking-tight">{sponsor.name}</h3>
+                  <h3 className="text-xl sm:text-2xl font-bold text-slate-200 group-hover:text-white transition-colors tracking-tight">{sponsor.name}</h3>
                 </div>
               </SpotlightCard>
             </motion.div>
@@ -68,11 +68,11 @@ export default function Sponsors() {
           viewport={{ once: true }}
           className="text-center"
         >
-          <div className="glass-panel p-12 max-w-2xl mx-auto clip-slanted">
-            <h3 className="text-3xl font-bold text-white mb-4 tracking-tighter">Want to sponsor us?</h3>
-            <p className="text-slate-400 mb-10 font-light text-lg">Join us in shaping the future of technology by supporting the brightest minds.</p>
+          <div className="glass-panel p-6 sm:p-12 max-w-2xl mx-auto clip-slanted">
+            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4 tracking-tighter">Want to sponsor us?</h3>
+            <p className="text-slate-400 mb-8 sm:mb-10 font-light text-base sm:text-lg">Join us in shaping the future of technology by supporting the brightest minds.</p>
             <Magnetic>
-              <button className="px-10 py-5 glass-panel-light hover:bg-cyan-500 hover:text-navy-950 hover:border-transparent text-white font-bold uppercase tracking-widest transition-all duration-300 clip-slanted active:scale-95">
+              <button className="w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-5 glass-panel-light hover:bg-cyan-500 hover:text-navy-950 hover:border-transparent text-white font-bold uppercase tracking-widest transition-all duration-300 clip-slanted active:scale-95 text-xs sm:text-sm">
                 Become a Partner
               </button>
             </Magnetic>

@@ -158,7 +158,7 @@ function PartnerCard({ partner, idx }: { partner: PartnerData, idx: number }) {
 
 export default function Partners() {
   return (
-    <section id="partners" className="py-24 bg-navy-950 relative border-t border-white/5 z-20">
+    <section id="partners" className="py-24 bg-navy-950 relative border-t border-white/5 z-20 overflow-hidden overflow-x-clip max-w-full">
       <div className="container mx-auto px-6 md:px-12 relative z-10">
         
         {/* Header */}

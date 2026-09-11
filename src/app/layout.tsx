@@ -7,6 +7,7 @@ import PageTransition from '@/components/PageTransition';
 import NoiseOverlay from '@/components/ui/NoiseOverlay';
 import Preloader from '@/components/Preloader';
 import ClickSpark from '@/components/ui/ClickSpark';
+import SiteProtection from '@/components/SiteProtection';
 import { ToastProvider } from '@/components/ui/Toast';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -101,6 +102,7 @@ export default function RootLayout({
         <Preloader />
         <NoiseOverlay />
         <ClickSpark />
+        <SiteProtection />
         <ToastProvider>
           <SmoothScroll>
             <PageTransition>{children}</PageTransition>

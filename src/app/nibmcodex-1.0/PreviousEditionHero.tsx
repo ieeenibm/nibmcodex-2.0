@@ -5,14 +5,20 @@ import Link from 'next/link';
 import { ChevronDown, ArrowLeft } from 'lucide-react';
 import Magnetic from '@/components/ui/Magnetic';
 import { useLenisScroll } from '@/components/SmoothScroll';
+import { useSectionInView } from '@/hooks/useSectionInView';
 
 export default function PreviousEditionHero() {
+  const [heroRef, isInView] = useSectionInView<HTMLElement>();
   const { scrollY } = useLenisScroll();
   const y = useTransform(scrollY, [0, 1000], [0, 250]);
   const opacity = useTransform(scrollY, [0, 500], [1, 0]);
 
   return (
-    <section className="relative h-screen w-full flex items-center justify-center overflow-hidden">
+    <section 
+      ref={heroRef}
+      data-animate-in-view={isInView}
+      className="relative h-screen w-full flex items-center justify-center overflow-hidden"
+    >
       {/* Parallax Background */}
       <motion.div style={{ y, scale: 1.05 }} className="absolute inset-0 z-0">
         <Image
@@ -53,7 +59,7 @@ export default function PreviousEditionHero() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6 }}
-          className="inline-block px-5 py-2 mb-8 glass-panel-light text-cyan-300 text-xs font-mono uppercase tracking-[0.3em] clip-slanted shadow-[0_0_20px_rgba(34,211,238,0.1)]"
+          className="inline-block px-3.5 py-1.5 sm:px-5 sm:py-2 mb-6 sm:mb-8 glass-panel-light text-cyan-300 text-[10px] sm:text-xs font-mono uppercase tracking-[0.15em] sm:tracking-[0.3em] clip-slanted shadow-[0_0_20px_rgba(34,211,238,0.1)]"
         >
           Previous Edition • IEEEXtreme 19.0 • October 2025
         </motion.div>
@@ -62,7 +68,7 @@ export default function PreviousEditionHero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
-          className="text-6xl md:text-8xl lg:text-[10rem] font-bold tracking-tighter mb-4 text-white leading-none font-['Times_New_Roman',_Georgia,_serif]"
+          className="text-4xl sm:text-6xl md:text-8xl lg:text-[10rem] font-bold tracking-tighter mb-4 text-white leading-tight sm:leading-none font-['Times_New_Roman',_Georgia,_serif]"
         >
           NIBM<span className="text-gradient-cyan">CodeX</span> 1.0
         </motion.h1>
@@ -71,7 +77,7 @@ export default function PreviousEditionHero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.9 }}
-          className="text-lg md:text-2xl text-slate-300 max-w-3xl mx-auto mb-6 font-light tracking-wide"
+          className="text-base sm:text-lg md:text-2xl text-slate-300 max-w-3xl mx-auto mb-6 font-light tracking-wide"
         >
           A 24-hour coding challenge hosted by NIBM IEEE Student Branch as part of{' '}
           <span className="text-cyan-400 font-semibold">IEEEXtreme 19.0</span>.
@@ -82,7 +88,7 @@ export default function PreviousEditionHero() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.0 }}
-          className="text-sm text-slate-500 max-w-xl mx-auto mb-10 font-mono tracking-wide"
+          className="text-xs sm:text-sm text-slate-500 max-w-xl mx-auto mb-8 sm:mb-10 font-mono tracking-wide"
         >
           Solve tough algorithm problems and compete with coders worldwide.
         </motion.p>
@@ -91,9 +97,10 @@ export default function PreviousEditionHero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.1 }}
+          className="w-full sm:w-auto px-4 sm:px-0"
         >
           <Magnetic>
-            <a href="#gallery" className="group relative inline-flex items-center justify-center px-10 py-5 bg-cyan-500 text-navy-950 font-bold uppercase tracking-widest clip-slanted overflow-hidden transition-transform active:scale-95">
+            <a href="#gallery" className="group relative inline-flex items-center justify-center w-full sm:w-auto px-8 sm:px-10 py-4 sm:py-5 bg-cyan-500 text-navy-950 font-bold uppercase tracking-widest clip-slanted overflow-hidden transition-transform active:scale-95 text-xs sm:text-sm">
               <span className="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-gradient-to-b from-transparent via-transparent to-black"></span>
               <span className="relative z-10">Explore Highlights</span>
               <div className="absolute inset-0 h-full w-full bg-white/20 group-hover:translate-x-full transition-transform duration-500 ease-out -translate-x-full skew-x-12"></div>
@@ -109,7 +116,7 @@ export default function PreviousEditionHero() {
       >
         <span className="text-xs font-mono text-slate-500 mb-3 uppercase tracking-[0.2em]">Scroll</span>
         <motion.div
-          animate={{ y: [0, 10, 0] }}
+          animate={isInView ? { y: [0, 10, 0] } : { y: 0 }}
           transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut' }}
         >
           <ChevronDown className="text-cyan-400" size={24} strokeWidth={1.5} />

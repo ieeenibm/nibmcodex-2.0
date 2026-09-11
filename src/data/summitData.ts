@@ -72,7 +72,7 @@ export const SPEAKERS: Speaker[] = [
     company: 'Ministry of Digital Economy',
     isChiefGuest: true,
     tag: 'Chief Guest & Keynote Dignitary',
-    image: '/speakers/waruna.png',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/speakers/waruna.png',
     credentials: [
       'Special Grade Officer of the Sri Lanka Administrative Service (SLAS)',
       'MSc. in International Development Studies (GRIPS, Japan)',
@@ -90,7 +90,7 @@ export const SPEAKERS: Speaker[] = [
     title: 'Chief Technology Officer',
     company: '99x Technology',
     tag: 'AI-Native Software Delivery',
-    image: '/speakers/sachith.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/speakers/sachith.jpg',
     shortBio:
       'CTO at 99x spearheading the global shift toward AI-native software delivery and pioneer of the open-source Intent Delivery Framework (IDF).',
     fullBio:
@@ -102,7 +102,7 @@ export const SPEAKERS: Speaker[] = [
     title: 'Head – Cyber & Physical Security, ICT & Digital Solutions',
     company: 'Dialog Axiata PLC',
     tag: 'Cybersecurity & Enterprise Resilience',
-    image: '/speakers/don.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/speakers/don.jpg',
     credentials: [
       'MSc in Cyber Security (University of Staffordshire)',
       'Certified Data Protection Officer (C-DPO, Sri Lanka PDPA)',
@@ -118,7 +118,7 @@ export const SPEAKERS: Speaker[] = [
     title: 'CEO and Chief Software Architect',
     company: 'Dilexus Infotech',
     tag: 'Generative AI & Intelligent Systems',
-    image: '/speakers/dilan.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/speakers/dilan.jpg',
     shortBio:
       'Visionary tech entrepreneur and architect with expertise in Generative AI, intelligent autonomous systems, mobile engineering, and blockchain.',
     fullBio:
@@ -130,7 +130,7 @@ export const SPEAKERS: Speaker[] = [
     title: 'Director & Co-Founder',
     company: 'InfoSurv / nearby.lk',
     tag: 'Startups & Digital Innovation',
-    image: '/speakers/sampath.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/speakers/sampath.jpg',
     credentials: [
       'B.Sc. in Management Information Systems (UCD, Ireland)',
       'Master in Information Technology (UCSC, University of Colombo)',
@@ -146,7 +146,7 @@ export const SPEAKERS: Speaker[] = [
     title: 'Senior Engineering Manager',
     company: 'Virtusa',
     tag: 'Engineering Strategy & AI Enablement',
-    image: '/speakers/yasoma.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/speakers/yasoma.jpg',
     credentials: [
       'MSc in Computer Science',
       'Master of Business Administration (MBA)',
@@ -164,7 +164,7 @@ export const SPEAKERS: Speaker[] = [
     title: 'Head of People and Culture',
     company: 'VitalHub',
     tag: 'People Strategy & Future of Work',
-    image: '/speakers/thisari.jpg',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/speakers/thisari.jpg',
     shortBio:
       'HR executive with 14+ years across tech, telecom, and manufacturing, championing future-ready workplaces and industry-academia talent integration.',
     fullBio:
@@ -176,7 +176,7 @@ export const SPEAKERS: Speaker[] = [
     title: 'Senior Product Manager - Data & AI',
     company: 'Dialog Axiata PLC',
     tag: 'Data & Enterprise AI Product Strategy',
-    image: '/speakers/nimnaz.png',
+    image: 'https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/speakers/nimnaz.png',
     credentials: [
       'BSc. Eng in Electrical & Electronic Engineering (University of Peradeniya)',
       'MBA with Gold Medal for Excellent Academic Performance (Cardiff Metropolitan University, UK)',

@@ -160,6 +160,7 @@ const teamsData: Team[] = [
 
 export default function Committee() {
   const [activeTeam, setActiveTeam] = useState(0);
+  const [isInView, setIsInView] = useState(true);
   const teamsRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -193,6 +194,7 @@ export default function Committee() {
     const checkAndToggle = () => {
       const isVisible = inView && document.visibilityState === 'visible';
       isVisibleRef.current = isVisible;
+      setIsInView(isVisible);
       if (isVisible) {
         startAutoSwitch();
       } else {
@@ -247,24 +249,27 @@ export default function Committee() {
   }, [startAutoSwitch]);
 
   return (
-    <section className="py-32 bg-navy-950 border-t border-white/5 relative overflow-hidden">
+    <section 
+      data-animate-in-view={isInView}
+      className="py-20 sm:py-32 bg-navy-950 border-t border-white/5 relative overflow-hidden"
+    >
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(34,211,238,0.04),transparent_50%)] z-0"></div>
 
-      <div className="container mx-auto px-6 md:px-12 relative z-10">
+      <div className="container mx-auto px-4 sm:px-6 md:px-12 relative z-10">
         {/* Organizing Committee (Executive Board) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-20"
+          className="text-center mb-14 sm:mb-20"
         >
           <span className="inline-block px-4 py-1 mb-6 border border-white/10 text-cyan-400 text-xs font-mono uppercase tracking-[0.2em] rounded-full glass-panel-light">
             Leadership
           </span>
-          <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white tracking-tighter">
             Organizing <span className="text-gradient-cyan">Committee</span>
           </h2>
-          <p className="text-slate-400 mt-4 font-light tracking-wide max-w-lg mx-auto">
+          <p className="text-slate-400 mt-4 font-light tracking-wide max-w-lg mx-auto text-sm sm:text-base">
             Guiding the event from start to finish.
           </p>
         </motion.div>
@@ -414,21 +419,21 @@ export default function Committee() {
             <span className="inline-block px-4 py-1 mb-6 border border-white/10 text-cyan-400 text-xs font-mono uppercase tracking-[0.2em] rounded-full glass-panel-light">
               The Crew
             </span>
-            <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter">
+            <h2 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white tracking-tighter">
               OC <span className="text-gradient-cyan">Teams</span>
             </h2>
-            <p className="text-slate-400 mt-4 font-light tracking-wide max-w-lg mx-auto">
+            <p className="text-slate-400 mt-4 font-light tracking-wide max-w-lg mx-auto text-sm sm:text-base">
               The dedicated teams that made NIBMCodeX 1.0 possible.
             </p>
           </motion.div>
 
           {/* Team Tabs */}
-          <div className="flex flex-wrap justify-center gap-2 mb-12">
+          <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2 mb-8 sm:mb-12">
             {teamsData.map((team, idx) => (
               <button
                 key={idx}
                 onClick={() => handleManualClick(idx)}
-                className={`px-4 py-2 text-xs font-mono uppercase tracking-wider clip-slanted transition-all duration-300 ${
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-mono uppercase tracking-wider clip-slanted transition-all duration-300 ${
                   activeTeam === idx
                     ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
                     : 'text-slate-400 border border-white/5 hover:border-white/20 hover:text-slate-300'
@@ -451,7 +456,7 @@ export default function Committee() {
               onMouseEnter={handleHoverStart}
               onMouseLeave={handleHoverEnd}
             >
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 max-w-6xl mx-auto justify-items-center">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-4 max-w-6xl mx-auto justify-items-center">
                 {teamsData[activeTeam].members.map((member, idx) => (
                   <motion.div
                     key={`${activeTeam}-${idx}-${member.first}-${member.last}`}

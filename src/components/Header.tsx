@@ -50,11 +50,11 @@ export default function Header() {
       animate={{ y: 0 }}
       transition={{ type: 'spring', stiffness: 100, damping: 20 }}
       className={`fixed top-0 w-full z-50 transition-all duration-500 border-b ${
-        scrolled ? 'bg-navy-950/70 backdrop-blur-xl border-white/5 py-4' : 'bg-transparent border-transparent py-8'
+        scrolled ? 'bg-navy-950/70 backdrop-blur-xl border-white/5 py-3.5 sm:py-4' : 'bg-transparent border-transparent py-5 sm:py-8'
       }`}
     >
       <div className="container mx-auto px-6 md:px-12 flex justify-between items-center">
-        <Link href="/" onClick={handleLogoClick} className="text-2xl font-bold tracking-tighter cursor-pointer">
+        <Link href="/" onClick={handleLogoClick} className="text-xl sm:text-2xl font-bold tracking-tighter cursor-pointer">
           <span className="text-white">NIBM</span>
           <span className="text-cyan-400">CodeX</span>
           <span className="text-white ml-1 font-light opacity-80">2.0</span>
@@ -74,7 +74,7 @@ export default function Header() {
           ))}
         </nav>
 
-        <button className="md:hidden text-white" onClick={() => setIsOpen(!isOpen)}>
+        <button className="md:hidden text-white p-1" aria-label="Toggle navigation menu" onClick={() => setIsOpen(!isOpen)}>
           <motion.div animate={{ rotate: isOpen ? 90 : 0 }}>
             {isOpen ? <X strokeWidth={1.5} /> : <Menu strokeWidth={1.5} />}
           </motion.div>
