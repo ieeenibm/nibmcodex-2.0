@@ -160,6 +160,7 @@ const teamsData: Team[] = [
 
 export default function Committee() {
   const [activeTeam, setActiveTeam] = useState(0);
+  const [isInView, setIsInView] = useState(true);
   const teamsRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -193,6 +194,7 @@ export default function Committee() {
     const checkAndToggle = () => {
       const isVisible = inView && document.visibilityState === 'visible';
       isVisibleRef.current = isVisible;
+      setIsInView(isVisible);
       if (isVisible) {
         startAutoSwitch();
       } else {
@@ -247,7 +249,10 @@ export default function Committee() {
   }, [startAutoSwitch]);
 
   return (
-    <section className="py-20 sm:py-32 bg-navy-950 border-t border-white/5 relative overflow-hidden">
+    <section 
+      data-animate-in-view={isInView}
+      className="py-20 sm:py-32 bg-navy-950 border-t border-white/5 relative overflow-hidden"
+    >
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(34,211,238,0.04),transparent_50%)] z-0"></div>
 
       <div className="container mx-auto px-4 sm:px-6 md:px-12 relative z-10">

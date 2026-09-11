@@ -1,15 +1,37 @@
 'use client';
+import { useRef, useEffect } from 'react';
+import { useSectionInView } from '@/hooks/useSectionInView';
 
 export default function SectionSeparator() {
+  const [containerRef, isInView] = useSectionInView<HTMLDivElement>();
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+    try {
+      if (isInView) {
+        svgRef.current.unpauseAnimations?.();
+      } else {
+        svgRef.current.pauseAnimations?.();
+      }
+    } catch {
+      // SVG animation control fallback
+    }
+  }, [isInView]);
+
   return (
-    <div className="relative flex flex-col items-center justify-center w-full max-w-full py-28 bg-navy-950 overflow-hidden overflow-x-clip isolate z-10">
+    <div 
+      ref={containerRef}
+      data-animate-in-view={isInView}
+      className="relative flex flex-col items-center justify-center w-full max-w-full py-28 bg-navy-950 overflow-hidden overflow-x-clip isolate z-10"
+    >
       
       {/* Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] h-40 bg-cyan-400/10 blur-[120px] rounded-full pointer-events-none z-0"></div>
 
       {/* Curved Text Loop (React Bits Inspiration) - Ambient Background */}
       <div className="absolute inset-0 z-0 opacity-10 pointer-events-none flex items-center justify-center scale-150 md:scale-100">
-        <svg className="w-[300%] md:w-[150%] h-[300px]" viewBox="0 0 1000 200" preserveAspectRatio="none">
+        <svg ref={svgRef} className="w-[300%] md:w-[150%] h-[300px]" viewBox="0 0 1000 200" preserveAspectRatio="none">
           <path id="curve" d="M0,100 Q250,200 500,100 T1000,100 T1500,100 T2000,100" fill="transparent" />
           <text className="text-xl md:text-3xl font-mono uppercase tracking-[0.3em] fill-cyan-400">
             <textPath href="#curve" startOffset="0%">

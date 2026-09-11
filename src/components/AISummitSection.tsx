@@ -17,10 +17,12 @@ import {
   Play 
 } from 'lucide-react';
 import { SPEAKERS, Speaker } from '@/data/summitData';
+import { useSectionInView } from '@/hooks/useSectionInView';
 
 const AUTO_ROTATE_INTERVAL_MS = 6000;
 
 export default function AISummitSection() {
+  const [sectionRef, isInView] = useSectionInView<HTMLElement>();
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection] = useState<1 | -1>(1);
   const [selectedSpeaker, setSelectedSpeaker] = useState<Speaker | null>(null);
@@ -130,7 +132,7 @@ export default function AISummitSection() {
     };
   }, []);
   useEffect(() => {
-    if (isPaused || selectedSpeaker !== null) {
+    if (!isInView || isPaused || selectedSpeaker !== null) {
       if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
       return;
     }
@@ -151,7 +153,7 @@ export default function AISummitSection() {
     return () => {
       if (progressIntervalRef.current) clearInterval(progressIntervalRef.current);
     };
-  }, [isPaused, selectedSpeaker, nextSpeaker]);
+  }, [isInView, isPaused, selectedSpeaker, nextSpeaker]);
 
   // Close modal on escape key
   useEffect(() => {
@@ -179,6 +181,8 @@ export default function AISummitSection() {
   return (
     <section 
       id="summit" 
+      ref={sectionRef}
+      data-animate-in-view={isInView}
       className="relative py-24 bg-navy-950 border-t border-cyan-500/20 overflow-hidden overflow-x-clip max-w-full"
     >
       {/* Ambient background lighting */}

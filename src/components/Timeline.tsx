@@ -8,21 +8,20 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { CldImage } from 'next-cloudinary';
 import { CLOUDINARY_CONFIG } from '@/lib/cloudinary';
+import { useSectionInView } from '@/hooks/useSectionInView';
 
 export default function Timeline() {
-  const containerRef = useRef<HTMLElement>(null);
+  const [containerRef, isInView] = useSectionInView<HTMLElement>();
   const [now, setNow] = useState<Date | null>(null);
   const [hoveredPreview, setHoveredPreview] = useState<{ src: string, idx: number } | null>(null);
   const [openGalleryIdx, setOpenGalleryIdx] = useState<number | null>(null);
 
   useEffect(() => {
-    const timeout = setTimeout(() => setNow(new Date()), 0); // delay slightly to avoid synchronous setState in effect
+    if (!isInView) return;
+    setNow(new Date());
     const interval = setInterval(() => setNow(new Date()), 60000); // update every minute
-    return () => {
-      clearTimeout(timeout);
-      clearInterval(interval);
-    };
-  }, []);
+    return () => clearInterval(interval);
+  }, [isInView]);
   
   const { scrollYProgress } = useScrollProgress(containerRef, {
     offset: ["start center", "end center"]
@@ -143,7 +142,13 @@ export default function Timeline() {
   }
 
   return (
-    <section id="timeline" ref={containerRef} onClick={() => setOpenGalleryIdx(null)} className="py-32 bg-navy-950 relative border-t border-white/5 overflow-hidden overflow-x-clip max-w-full">
+    <section 
+      id="timeline" 
+      ref={containerRef} 
+      data-animate-in-view={isInView}
+      onClick={() => setOpenGalleryIdx(null)} 
+      className="py-32 bg-navy-950 relative border-t border-white/5 overflow-hidden overflow-x-clip max-w-full"
+    >
       <div className="container mx-auto px-6 md:px-12">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}

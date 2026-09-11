@@ -89,6 +89,7 @@ function MemberCard({ member, idx, onMemberClick }: { member: Member; idx: numbe
 export default function Committee() {
   const [activeTeam, setActiveTeam] = useState(0);
   const [showEasterEgg, setShowEasterEgg] = useState(false);
+  const [isInView, setIsInView] = useState(true);
   const clickCountRef = useRef(0);
   const teamsRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -135,6 +136,7 @@ export default function Committee() {
     const checkAndToggle = () => {
       const isVisible = inView && document.visibilityState === 'visible';
       isVisibleRef.current = isVisible;
+      setIsInView(isVisible);
       if (isVisible) {
         startAutoSwitch();
       } else {
@@ -189,7 +191,11 @@ export default function Committee() {
   }, [startAutoSwitch]);
 
   return (
-    <section id="committee" className="relative py-20 sm:py-32 bg-navy-950 overflow-hidden overflow-x-clip max-w-full border-t border-white/5">
+    <section 
+      id="committee" 
+      data-animate-in-view={isInView}
+      className="relative py-20 sm:py-32 bg-navy-950 overflow-hidden overflow-x-clip max-w-full border-t border-white/5"
+    >
       <div className="absolute inset-0 z-0 opacity-20">
         <Image
           src="https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/misc/holodeck"

@@ -2,6 +2,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import CountdownTimer from './ui/CountdownTimer';
+import { useSectionInView } from '@/hooks/useSectionInView';
 
 const EVENTS = [
   {
@@ -43,6 +44,7 @@ function getNextEventIndex(): number {
 }
 
 export default function CountdownSection() {
+  const [sectionRef, isInView] = useSectionInView<HTMLElement>();
   const [activeIdx, setActiveIdx] = useState<number>(0);
   const [mounted, setMounted] = useState(false);
   const [nowMs, setNowMs] = useState<number>(0);
@@ -51,9 +53,14 @@ export default function CountdownSection() {
     setMounted(true);
     setActiveIdx(getNextEventIndex());
     setNowMs(Date.now());
+  }, []);
+
+  useEffect(() => {
+    if (!isInView) return;
+    setNowMs(Date.now());
     const interval = setInterval(() => setNowMs(Date.now()), 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [isInView]);
 
   const active = EVENTS[activeIdx];
   const allPast = useMemo(() => {
@@ -64,6 +71,8 @@ export default function CountdownSection() {
   return (
     <section
       id="about"
+      ref={sectionRef}
+      data-animate-in-view={isInView}
       className="relative py-28 md:py-36 w-full max-w-full flex items-center min-h-[70vh] overflow-hidden overflow-x-clip bg-navy-950 border-t border-white/5"
     >
       {/* Ambient glow - colour follows the active event */}

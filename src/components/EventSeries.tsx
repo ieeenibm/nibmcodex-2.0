@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, MapPin } from 'lucide-react';
+import { useSectionInView } from '@/hooks/useSectionInView';
 
 const events = [
   {
@@ -51,10 +52,16 @@ const events = [
 ];
 
 export default function EventSeries() {
+  const [sectionRef, isInView] = useSectionInView<HTMLElement>();
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   return (
-    <section id="events" className="relative py-20 sm:py-28 bg-navy-950 border-t border-white/5 overflow-hidden overflow-x-clip max-w-full">
+    <section 
+      id="events" 
+      ref={sectionRef}
+      data-animate-in-view={isInView}
+      className="relative py-20 sm:py-28 bg-navy-950 border-t border-white/5 overflow-hidden overflow-x-clip max-w-full"
+    >
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
 

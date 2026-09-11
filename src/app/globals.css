@@ -142,3 +142,9 @@ img {
 .animate-marquee-right {
   animation: marquee-right 30s linear infinite;
 }
+
+/* Pause all CSS animations for sections that are out of viewport or when tab is hidden */
+[data-animate-in-view="false"],
+[data-animate-in-view="false"] * {
+  animation-play-state: paused !important;
+}

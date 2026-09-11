@@ -104,15 +104,31 @@ const DriftWall = ({
   const [isInView, setIsInView] = useState(true);
 
   useEffect(() => {
-    if (!containerRef.current || typeof IntersectionObserver === 'undefined') return;
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+
+    let isIntersecting = false;
+    const updateVisibility = () => {
+      const visible = isIntersecting && document.visibilityState === 'visible';
+      setIsInView(visible);
+    };
+
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsInView(entry.isIntersecting);
+        isIntersecting = entry.isIntersecting;
+        updateVisibility();
       },
       { rootMargin: '100px' }
     );
-    observer.observe(containerRef.current);
-    return () => observer.disconnect();
+    observer.observe(el);
+
+    const handleVisibilityChange = () => updateVisibility();
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, []);
 
   useEffect(() => {
@@ -359,7 +375,8 @@ const DriftWall = ({
   return (
     <div
       ref={containerRef}
-      className={cx('relative h-full w-full overflow-hidden', className)}
+      data-animate-in-view={isInView}
+      className={cx('relative h-full w-full overflow-hidden overflow-x-clip max-w-full', className)}
       style={cssVars}
       onPointerMove={handlePointerMove}
       onPointerEnter={() => {

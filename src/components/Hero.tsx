@@ -5,8 +5,10 @@ import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import Magnetic from './ui/Magnetic';
 import { useLenisScroll } from './SmoothScroll';
+import { useSectionInView } from '@/hooks/useSectionInView';
 
 export default function Hero() {
+  const [heroRef, isInView] = useSectionInView<HTMLElement>();
   const { scrollY, scrollTo } = useLenisScroll();
   const y = useTransform(scrollY, [0, 1000], [0, 300]);
   const opacity = useTransform(scrollY, [0, 500], [1, 0]);
@@ -33,7 +35,12 @@ export default function Hero() {
   };
 
   return (
-    <section id="hero" className="relative h-screen w-full max-w-full flex items-center justify-center overflow-hidden overflow-x-clip">
+    <section 
+      id="hero" 
+      ref={heroRef}
+      data-animate-in-view={isInView}
+      className="relative h-screen w-full max-w-full flex items-center justify-center overflow-hidden overflow-x-clip"
+    >
       {/* Parallax Background Image */}
       <motion.div style={{ y, scale: 1.05 }} className="absolute inset-0 z-0">
         <Image
@@ -83,7 +90,7 @@ export default function Hero() {
       >
         <span className="text-xs font-mono text-slate-500 mb-3 uppercase tracking-[0.2em]">Scroll</span>
         <motion.div
-          animate={{ y: [0, 10, 0] }}
+          animate={isInView ? { y: [0, 10, 0] } : { y: 0 }}
           transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
         >
           <ChevronDown className="text-cyan-400" size={24} strokeWidth={1.5} />

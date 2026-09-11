@@ -1,11 +1,11 @@
 'use client';
-import { useRef } from 'react';
 import Image from 'next/image';
 import { motion, useTransform } from 'framer-motion';
 import { useScrollProgress } from './SmoothScroll';
+import { useSectionInView } from '@/hooks/useSectionInView';
 
 export default function VerticalScrollMoment() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerRef, isInView] = useSectionInView<HTMLDivElement>();
 
   const { scrollYProgress } = useScrollProgress(containerRef, {
     offset: ["start end", "end start"]
@@ -16,7 +16,11 @@ export default function VerticalScrollMoment() {
   const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.3, 1, 0.3]);
 
   return (
-    <section ref={containerRef} className="relative z-10 h-[70vh] w-full max-w-full overflow-hidden overflow-x-clip flex items-center justify-center bg-navy-950 border-t border-white/5">
+    <section 
+      ref={containerRef} 
+      data-animate-in-view={isInView}
+      className="relative z-10 h-[70vh] w-full max-w-full overflow-hidden overflow-x-clip flex items-center justify-center bg-navy-950 border-t border-white/5"
+    >
       <motion.div style={{ y, scale }} className="absolute inset-0 z-0">
         <Image
           src="https://res.cloudinary.com/jwuioa0d/image/upload/v1/nibmcodex/2.0/misc/holodeck"
