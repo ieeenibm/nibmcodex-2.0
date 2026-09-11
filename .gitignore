@@ -38,6 +38,7 @@ __pycache__/
 # Orphaned scripts
 crop*.py
 extract.py
+scratch/
 process_logo.py
 patch_*.py
 patch_*.js
