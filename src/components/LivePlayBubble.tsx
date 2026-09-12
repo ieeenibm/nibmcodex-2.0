@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Gamepad2, Sparkles, ExternalLink, X, Trophy, Bot, Flame } from 'lucide-react';
+import { Gamepad2, Sparkles, ExternalLink, X, Trophy, Bot, Flame, QrCode } from 'lucide-react';
 
 interface GameItem {
   id: string;
@@ -12,7 +12,7 @@ interface GameItem {
   description: string;
   url: string;
   icon: typeof Gamepad2;
-  accentColor: 'cyan' | 'purple';
+  accentColor: 'cyan' | 'purple' | 'amber';
   status: string;
 }
 
@@ -37,6 +37,17 @@ const GAMES: GameItem[] = [
     url: 'https://nibmcodex-ai.nibmieee.lk',
     icon: Bot,
     accentColor: 'purple',
+    status: 'ACTIVE NOW',
+  },
+  {
+    id: 'hunt',
+    title: 'NIBMCodeX Golden QR Hunt',
+    badge: 'SCAVENGER HUNT',
+    tagline: 'Find, Scan & Solve',
+    description: 'Search the summit venue for hidden golden QR codes, solve trivia, and climb the leaderboard.',
+    url: 'https://nibmcodex-hunt.nibmieee.lk',
+    icon: QrCode,
+    accentColor: 'amber',
     status: 'ACTIVE NOW',
   },
 ];
@@ -100,11 +111,12 @@ export default function LivePlayBubble() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 15, scale: 0.94 }}
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="w-[calc(100vw-2rem)] sm:w-88 md:w-96 bg-navy-950/95 backdrop-blur-2xl border border-cyan-500/30 rounded-2xl p-4 sm:p-5 shadow-2xl shadow-black/80 relative overflow-hidden"
+            className="w-[calc(100vw-2rem)] sm:w-88 md:w-96 bg-navy-950/95 backdrop-blur-2xl border border-cyan-500/30 rounded-2xl p-4 sm:p-5 shadow-2xl shadow-black/80 relative overflow-hidden max-h-[calc(100vh-5rem)] overflow-y-auto"
           >
             {/* Background Cyber Accent Glows */}
             <div className="absolute -top-12 -right-12 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
             <div className="absolute -bottom-12 -left-12 w-32 h-32 bg-purple-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute top-1/2 -right-12 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
 
             {/* Top Header */}
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/10 relative z-10">
@@ -139,10 +151,11 @@ export default function LivePlayBubble() {
             </div>
 
             {/* Game Cards List */}
-            <div className="space-y-3 relative z-10">
+            <div className="space-y-2.5 relative z-10">
               {GAMES.map((game) => {
                 const IconComponent = game.icon;
                 const isCyan = game.accentColor === 'cyan';
+                const isAmber = game.accentColor === 'amber';
 
                 return (
                   <a
@@ -150,9 +163,11 @@ export default function LivePlayBubble() {
                     href={game.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`block group p-3.5 rounded-xl border transition-all duration-300 relative overflow-hidden ${
+                    className={`block group p-3 sm:p-3.5 rounded-xl border transition-all duration-300 relative overflow-hidden ${
                       isCyan
                         ? 'bg-gradient-to-r from-navy-900/90 to-navy-900/60 border-cyan-500/25 hover:border-cyan-400 hover:shadow-lg hover:shadow-cyan-500/10'
+                        : isAmber
+                        ? 'bg-gradient-to-r from-navy-900/90 to-navy-900/60 border-amber-500/25 hover:border-amber-400 hover:shadow-lg hover:shadow-amber-500/10'
                         : 'bg-gradient-to-r from-navy-900/90 to-navy-900/60 border-purple-500/25 hover:border-purple-400 hover:shadow-lg hover:shadow-purple-500/10'
                     }`}
                   >
@@ -161,6 +176,8 @@ export default function LivePlayBubble() {
                       className={`absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none ${
                         isCyan
                           ? 'bg-gradient-to-r from-cyan-500/10 via-transparent to-cyan-500/5'
+                          : isAmber
+                          ? 'bg-gradient-to-r from-amber-500/10 via-transparent to-amber-500/5'
                           : 'bg-gradient-to-r from-purple-500/10 via-transparent to-purple-500/5'
                       }`}
                     />
@@ -168,25 +185,37 @@ export default function LivePlayBubble() {
                     <div className="flex items-start gap-3 relative z-10">
                       {/* Game Icon */}
                       <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border transition-transform duration-300 group-hover:scale-105 ${
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shrink-0 border transition-transform duration-300 group-hover:scale-105 ${
                           isCyan
                             ? 'bg-cyan-500/15 border-cyan-500/30 text-cyan-400 group-hover:border-cyan-400'
+                            : isAmber
+                            ? 'bg-amber-500/15 border-amber-500/30 text-amber-400 group-hover:border-amber-400'
                             : 'bg-purple-500/15 border-purple-500/30 text-purple-400 group-hover:border-purple-400'
                         }`}
                       >
-                        <IconComponent className="w-5 h-5" />
+                        <IconComponent className="w-4 h-4 sm:w-5 sm:h-5" />
                       </div>
 
                       {/* Content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between gap-1 mb-1">
-                          <h4 className="text-white font-bold text-sm tracking-tight group-hover:text-cyan-300 transition-colors truncate">
+                          <h4
+                            className={`text-white font-bold text-sm tracking-tight transition-colors truncate ${
+                              isCyan
+                                ? 'group-hover:text-cyan-300'
+                                : isAmber
+                                ? 'group-hover:text-amber-300'
+                                : 'group-hover:text-purple-300'
+                            }`}
+                          >
                             {game.title}
                           </h4>
                           <span
                             className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border shrink-0 ${
                               isCyan
                                 ? 'bg-cyan-950/80 text-cyan-300 border-cyan-500/30'
+                                : isAmber
+                                ? 'bg-amber-950/80 text-amber-300 border-amber-500/30'
                                 : 'bg-purple-950/80 text-purple-300 border-purple-500/30'
                             }`}
                           >
@@ -206,7 +235,11 @@ export default function LivePlayBubble() {
                         <div className="flex items-center justify-between text-[11px] font-mono">
                           <span
                             className={`inline-flex items-center gap-1 ${
-                              isCyan ? 'text-cyan-400' : 'text-purple-400'
+                              isCyan
+                                ? 'text-cyan-400'
+                                : isAmber
+                                ? 'text-amber-400'
+                                : 'text-purple-400'
                             }`}
                           >
                             <Flame className="w-3 h-3" />
@@ -214,7 +247,11 @@ export default function LivePlayBubble() {
                           </span>
                           <span
                             className={`inline-flex items-center gap-1 font-bold group-hover:underline ${
-                              isCyan ? 'text-cyan-400' : 'text-purple-400'
+                              isCyan
+                                ? 'text-cyan-400'
+                                : isAmber
+                                ? 'text-amber-400'
+                                : 'text-purple-400'
                             }`}
                           >
                             Launch Game
@@ -234,7 +271,7 @@ export default function LivePlayBubble() {
                 <Sparkles className="w-3 h-3 text-cyan-400/70" />
                 NIBMCodeX 2.0 Arenas
               </span>
-              <span className="text-slate-500">IEEE SB NIBM</span>
+              <span className="text-cyan-400/80">3 Interactive Platforms</span>
             </div>
           </motion.div>
         )}
