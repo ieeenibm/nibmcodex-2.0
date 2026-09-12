@@ -1,59 +1,77 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, Clock, MapPin } from 'lucide-react';
 import { useSectionInView } from '@/hooks/useSectionInView';
 
-const events = [
-  {
-    number: '01',
-    title: 'AI for Learning Workshop',
-    completed: true,
-    accentColor: 'from-violet-500/20 to-purple-500/10',
-    borderColor: 'border-violet-400/20',
-    glowColor: 'rgba(167, 139, 250, 0.15)',
-    description:
-      'A focused 3-hour AI/ML session bridging the gap between academic theory and real-world application. Gain clarity on how AI is reshaping the modern tech industry.',
-    highlights: [
-      { icon: Calendar, text: '19 August 2026' },
-      { icon: Clock, text: '3-Hour Session' },
-      { icon: MapPin, text: 'Trace Expert City' },
-    ],
-  },
-  {
-    number: '02',
-    title: 'Code Grid Summit 2026',
-    nextUp: true,
-    accentColor: 'from-cyan-500/20 to-sky-500/10',
-    borderColor: 'border-cyan-400/20',
-    glowColor: 'rgba(34, 211, 238, 0.15)',
-    description:
-      'Our flagship full-day technology summit. Join working practitioners for honest conversations about emerging technologies, career readiness, and the future of work.',
-    highlights: [
-      { icon: Calendar, text: '12 September 2026' },
-      { icon: Clock, text: 'Full Day' },
-      { icon: MapPin, text: 'NIBM Campus' },
-    ],
-  },
-  {
-    number: '03',
-    title: '24hr IEEEXtreme 20.0',
-    accentColor: 'from-cyan-500/20 to-blue-500/10',
-    borderColor: 'border-cyan-400/20',
-    glowColor: 'rgba(6, 182, 212, 0.15)',
-    description:
-      'The 24-hour physical coding finale. Compete in the official IEEEXtreme 20.0 and experience real teamwork, debugging under pressure, and endurance.',
-    highlights: [
-      { icon: Calendar, text: '31 October 2026' },
-      { icon: Clock, text: '24 Hours' },
-      { icon: MapPin, text: 'NIBM Campus' },
-    ],
-  },
-];
+const SUMMIT_END_DATE = new Date(Date.UTC(2026, 8, 12, 11, 30, 0)); // Sep 12, 2026, 5:00 PM SLST (17:00 SLST)
 
 export default function EventSeries() {
   const [sectionRef, isInView] = useSectionInView<HTMLElement>();
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [isSummitEnded, setIsSummitEnded] = useState(false);
+
+  useEffect(() => {
+    const check = () => {
+      setIsSummitEnded(Date.now() >= SUMMIT_END_DATE.getTime());
+    };
+    check();
+    const interval = setInterval(check, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const events = [
+    {
+      number: '01',
+      title: 'AI for Learning Workshop',
+      completed: true,
+      nextUp: false,
+      accentColor: 'from-violet-500/20 to-purple-500/10',
+      borderColor: 'border-violet-400/20',
+      glowColor: 'rgba(167, 139, 250, 0.15)',
+      description:
+        'A focused 3-hour AI/ML session bridging the gap between academic theory and real-world application. Gain clarity on how AI is reshaping the modern tech industry.',
+      highlights: [
+        { icon: Calendar, text: '19 August 2026' },
+        { icon: Clock, text: '3-Hour Session' },
+        { icon: MapPin, text: 'Trace Expert City' },
+      ],
+    },
+    {
+      number: '02',
+      title: 'Code Grid Summit 2026',
+      completed: isSummitEnded,
+      nextUp: !isSummitEnded,
+      // Summit is cyan until 5 PM, then switches to emerald green after
+      accentColor: isSummitEnded ? 'from-emerald-500/20 to-teal-500/10' : 'from-cyan-500/20 to-sky-500/10',
+      borderColor: isSummitEnded ? 'border-emerald-400/20' : 'border-cyan-400/20',
+      glowColor: isSummitEnded ? 'rgba(52, 211, 153, 0.15)' : 'rgba(34, 211, 238, 0.15)',
+      description:
+        'Our flagship full-day technology summit. Join working practitioners for honest conversations about emerging technologies, career readiness, and the future of work.',
+      highlights: [
+        { icon: Calendar, text: '12 September 2026' },
+        { icon: Clock, text: 'Full Day' },
+        { icon: MapPin, text: 'NIBM Campus' },
+      ],
+    },
+    {
+      number: '03',
+      title: '24hr IEEEXtreme 20.0',
+      completed: false,
+      nextUp: isSummitEnded,
+      // IEEEXtreme stays green (emerald) until summit ends, then switches to cyan/accent blue after
+      accentColor: isSummitEnded ? 'from-cyan-500/20 to-sky-500/10' : 'from-emerald-500/20 to-teal-500/10',
+      borderColor: isSummitEnded ? 'border-cyan-400/20' : 'border-emerald-400/20',
+      glowColor: isSummitEnded ? 'rgba(6, 182, 212, 0.15)' : 'rgba(52, 211, 153, 0.15)',
+      description:
+        'The 24-hour physical coding finale. Compete in the official IEEEXtreme 20.0 and experience real teamwork, debugging under pressure, and endurance.',
+      highlights: [
+        { icon: Calendar, text: '31 October 2026' },
+        { icon: Clock, text: '24 Hours' },
+        { icon: MapPin, text: 'NIBM Campus' },
+      ],
+    },
+  ];
 
   return (
     <section 

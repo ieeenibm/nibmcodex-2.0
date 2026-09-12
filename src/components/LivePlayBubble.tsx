@@ -53,6 +53,7 @@ const GAMES: GameItem[] = [
 ];
 
 const GAMES_UNLOCK_DATE = new Date('2026-09-12T08:00:00+05:30');
+const GAMES_LOCK_DATE = new Date('2026-09-12T17:00:00+05:30'); // Remove games bubble at 5 PM today
 
 export default function LivePlayBubble() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -65,7 +66,9 @@ export default function LivePlayBubble() {
     setMounted(true);
     const checkUnlocked = () => {
       const isParamPreview = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('preview_games');
-      setIsUnlocked(Date.now() >= GAMES_UNLOCK_DATE.getTime() || isParamPreview);
+      const now = Date.now();
+      const isWithinWindow = now >= GAMES_UNLOCK_DATE.getTime() && now < GAMES_LOCK_DATE.getTime();
+      setIsUnlocked(isWithinWindow || isParamPreview);
     };
     checkUnlocked();
     const timer = setInterval(checkUnlocked, 1000);

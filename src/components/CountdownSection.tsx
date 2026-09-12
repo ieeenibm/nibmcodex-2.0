@@ -4,55 +4,63 @@ import { motion, AnimatePresence } from 'framer-motion';
 import CountdownTimer from './ui/CountdownTimer';
 import { useSectionInView } from '@/hooks/useSectionInView';
 
-const EVENTS = [
-  {
-    label: 'AI for Learning Workshop',
-    shortLabel: 'AI Workshop',
-    startDate: new Date(Date.UTC(2026, 7, 19, 4, 30, 0)), // Aug 19, 10:00 AM SLST
-    endDate: new Date(Date.UTC(2026, 7, 19, 7, 30, 0)),   // Aug 19, 01:00 PM SLST
-    date: new Date(Date.UTC(2026, 7, 19, 4, 30, 0)),
-    displayDate: 'Aug 19, 2026, 10:00 AM',
-    subtext: 'A focused three-hour AI/ML session with a Coventry University lecturer.',
-    accentClass: 'text-violet-400',
-    dotClass: 'bg-violet-400',
-    glowClass: 'bg-violet-400/5',
-  },
-  {
-    label: 'Code Grid Summit 2026',
-    shortLabel: 'Code Grid Summit',
-    startDate: new Date(Date.UTC(2026, 8, 12, 2, 30, 0)), // Sep 12, 08:00 AM SLST
-    endDate: new Date(Date.UTC(2026, 8, 12, 11, 30, 0)),  // Sep 12, 05:00 PM SLST (17:00 SLST)
-    date: new Date(Date.UTC(2026, 8, 12, 2, 30, 0)),
-    displayDate: 'Sep 12, 2026, 08:00 AM',
-    subtext: 'A full-day flagship technology summit confronting the academia-industry gap.',
-    accentClass: 'text-cyan-400',
-    dotClass: 'bg-cyan-400',
-    glowClass: 'bg-cyan-400/5',
-  },
-  {
-    label: '24hr IEEEXtreme 20.0',
-    shortLabel: 'IEEEXtreme 20.0',
-    startDate: new Date(Date.UTC(2026, 9, 31, 0, 0, 0)), // Oct 31, 2026
-    endDate: new Date(Date.UTC(2026, 10, 1, 18, 30, 0)), // Nov 01, 2026, 23:59:59 SLST
-    date: new Date(Date.UTC(2026, 9, 31, 0, 0, 0)),
-    displayDate: 'Oct 31, 2026',
-    subtext: 'The 24-hour physical hackathon finale for NIBM teams in IEEEXtreme 20.0.',
-    accentClass: 'text-cyan-400',
-    dotClass: 'bg-cyan-400',
-    glowClass: 'bg-cyan-400/5',
-  },
-];
+const SUMMIT_END_DATE = new Date(Date.UTC(2026, 8, 12, 11, 30, 0)); // Sep 12, 2026, 5:00 PM SLST (17:00 SLST)
 
-function getAutoEventIndex(now: number = Date.now()): number {
+function getEvents(now: number = Date.now()) {
+  const isSummitEnded = now >= SUMMIT_END_DATE.getTime();
+
+  return [
+    {
+      label: 'AI for Learning Workshop',
+      shortLabel: 'AI Workshop',
+      startDate: new Date(Date.UTC(2026, 7, 19, 4, 30, 0)), // Aug 19, 10:00 AM SLST
+      endDate: new Date(Date.UTC(2026, 7, 19, 7, 30, 0)),   // Aug 19, 01:00 PM SLST
+      date: new Date(Date.UTC(2026, 7, 19, 4, 30, 0)),
+      displayDate: 'Aug 19, 2026, 10:00 AM',
+      subtext: 'A focused three-hour AI/ML session with a Coventry University lecturer.',
+      accentClass: 'text-violet-400',
+      dotClass: 'bg-violet-400',
+      glowClass: 'bg-violet-400/5',
+    },
+    {
+      label: 'Code Grid Summit 2026',
+      shortLabel: 'Code Grid Summit',
+      startDate: new Date(Date.UTC(2026, 8, 12, 2, 30, 0)), // Sep 12, 08:00 AM SLST
+      endDate: SUMMIT_END_DATE,                             // Sep 12, 05:00 PM SLST (17:00 SLST)
+      date: new Date(Date.UTC(2026, 8, 12, 2, 30, 0)),
+      displayDate: 'Sep 12, 2026, 08:00 AM',
+      subtext: 'A full-day flagship technology summit confronting the academia-industry gap.',
+      // Summit is cyan before 5 PM, switches to emerald green after 5 PM
+      accentClass: isSummitEnded ? 'text-emerald-400' : 'text-cyan-400',
+      dotClass: isSummitEnded ? 'bg-emerald-400' : 'bg-cyan-400',
+      glowClass: isSummitEnded ? 'bg-emerald-400/5' : 'bg-cyan-400/5',
+    },
+    {
+      label: '24hr IEEEXtreme 20.0',
+      shortLabel: 'IEEEXtreme 20.0',
+      startDate: new Date(Date.UTC(2026, 9, 31, 0, 0, 0)), // Oct 31, 2026
+      endDate: new Date(Date.UTC(2026, 10, 1, 18, 30, 0)), // Nov 01, 2026, 23:59:59 SLST
+      date: new Date(Date.UTC(2026, 9, 31, 0, 0, 0)),
+      displayDate: 'Oct 31, 2026',
+      subtext: 'The 24-hour physical hackathon finale for NIBM teams in IEEEXtreme 20.0.',
+      // IEEEXtreme stays green (emerald) until summit ends, switches to accent blue (cyan) after 5 PM
+      accentClass: isSummitEnded ? 'text-cyan-400' : 'text-emerald-400',
+      dotClass: isSummitEnded ? 'bg-cyan-400' : 'bg-emerald-400',
+      glowClass: isSummitEnded ? 'bg-cyan-400/5' : 'bg-emerald-400/5',
+    },
+  ];
+}
+
+function getAutoEventIndex(events: ReturnType<typeof getEvents>, now: number = Date.now()): number {
   // If an event is currently ongoing (between start and end time), show it
-  const ongoingIdx = EVENTS.findIndex((e) => now >= e.startDate.getTime() && now < e.endDate.getTime());
+  const ongoingIdx = events.findIndex((e) => now >= e.startDate.getTime() && now < e.endDate.getTime());
   if (ongoingIdx !== -1) return ongoingIdx;
 
   // Otherwise, find the next upcoming event that has not ended yet
-  const nextIdx = EVENTS.findIndex((e) => now < e.endDate.getTime());
+  const nextIdx = events.findIndex((e) => now < e.endDate.getTime());
   if (nextIdx !== -1) return nextIdx;
 
-  return EVENTS.length - 1;
+  return events.length - 1;
 }
 
 export default function CountdownSection() {
@@ -66,7 +74,7 @@ export default function CountdownSection() {
     const currentNow = Date.now();
     setMounted(true);
     setNowMs(currentNow);
-    setActiveIdx(getAutoEventIndex(currentNow));
+    setActiveIdx(getAutoEventIndex(getEvents(currentNow), currentNow));
   }, []);
 
   useEffect(() => {
@@ -77,20 +85,21 @@ export default function CountdownSection() {
 
       // Auto-switch to next event once current event ends (e.g. after 5 PM today)
       if (userSelectedIdx === null) {
-        const nextIdx = getAutoEventIndex(currentNow);
+        const nextIdx = getAutoEventIndex(getEvents(currentNow), currentNow);
         setActiveIdx((prev) => (prev !== nextIdx ? nextIdx : prev));
       }
     }, 1000);
     return () => clearInterval(interval);
   }, [isInView, mounted, userSelectedIdx]);
 
-  const active = EVENTS[activeIdx];
+  const events = useMemo(() => getEvents(nowMs || Date.now()), [nowMs]);
+  const active = events[activeIdx] || events[0];
   const isOngoing = mounted && nowMs > 0 && nowMs >= active.startDate.getTime() && nowMs < active.endDate.getTime();
   const isPast = mounted && nowMs > 0 && nowMs >= active.endDate.getTime();
   const allPast = useMemo(() => {
     if (!mounted || !nowMs) return false;
-    return EVENTS.every((e) => e.endDate.getTime() <= nowMs);
-  }, [mounted, nowMs]);
+    return events.every((e) => e.endDate.getTime() <= nowMs);
+  }, [mounted, nowMs, events]);
 
   const badgeText = isOngoing
     ? 'Happening Now'
@@ -188,11 +197,11 @@ export default function CountdownSection() {
           transition={{ duration: 0.6, delay: 0.5 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-0"
         >
-          {EVENTS.map((event, idx) => {
+          {events.map((event, idx) => {
             const isEventOngoing = nowMs > 0 && nowMs >= event.startDate.getTime() && nowMs < event.endDate.getTime();
             const isEventPast = nowMs > 0 && nowMs >= event.endDate.getTime();
             const isActive = idx === activeIdx;
-            const isLast = idx === EVENTS.length - 1;
+            const isLast = idx === events.length - 1;
 
             return (
               <div key={event.shortLabel} className="flex items-center">
