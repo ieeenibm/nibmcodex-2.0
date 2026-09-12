@@ -24,7 +24,7 @@ export const SUMMIT_INFO = {
   subtitle: 'The AI Summit',
   theme: 'Where Academia Ends, Industry Begins',
   dateDisplay: 'Saturday, 12th September 2026',
-  timeDisplay: '08:00 AM – 04:30 PM (SLST)',
+  timeDisplay: '08:00 AM – 05:00 PM (SLST)',
   venue: 'NIBM Colombo Campus',
   isTomorrow: true,
   description:

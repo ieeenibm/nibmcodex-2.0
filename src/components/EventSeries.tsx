@@ -38,9 +38,9 @@ const events = [
   {
     number: '03',
     title: '24hr IEEEXtreme 20.0',
-    accentColor: 'from-emerald-500/20 to-teal-500/10',
-    borderColor: 'border-emerald-400/20',
-    glowColor: 'rgba(52, 211, 153, 0.15)',
+    accentColor: 'from-cyan-500/20 to-blue-500/10',
+    borderColor: 'border-cyan-400/20',
+    glowColor: 'rgba(6, 182, 212, 0.15)',
     description:
       'The 24-hour physical coding finale. Compete in the official IEEEXtreme 20.0 and experience real teamwork, debugging under pressure, and endurance.',
     highlights: [
