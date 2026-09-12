@@ -103,15 +103,15 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-white/5 pt-8 grid grid-cols-1 md:grid-cols-3 items-center gap-4 md:gap-0 text-xs text-slate-600 font-light tracking-wide">
+        <div className="border-t border-white/10 pt-8 grid grid-cols-1 md:grid-cols-3 items-center gap-4 md:gap-0 text-xs text-slate-500 font-light tracking-wide">
           <p className="text-center md:text-left">&copy; 2026 NIBMCodeX. All rights reserved.</p>
-          <p className="text-center text-[11px] text-slate-600 tracking-wider">
+          <p className="text-center text-[11px] text-slate-500 tracking-wider">
             Built by{' '}
             <a
               href="https://github.com/supunhg"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-500 hover:text-cyan-400 transition-colors underline-offset-4 hover:underline"
+              className="text-slate-400 hover:text-cyan-400 transition-colors underline-offset-4 hover:underline"
             >
               Supun Hewagamage
             </a>
