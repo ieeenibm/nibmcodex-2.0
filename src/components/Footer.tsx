@@ -115,7 +115,7 @@ export default function Footer() {
             >
               Supun Hewagamage
             </a>
-            {' '}• Web Master
+            {' '}• Webmaster
           </p>
           <p className="text-center md:text-right uppercase tracking-widest text-slate-500">Designed for the Future.</p>
         </div>
