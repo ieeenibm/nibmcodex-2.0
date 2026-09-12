@@ -99,9 +99,9 @@ export default function Timeline() {
     },
     { 
       title: 'Code Grid Summit', 
-      date: <>12<sup className="lowercase">th</sup> of September | 08:00 - 16:00</>, 
+      date: <>12<sup className="lowercase">th</sup> of September | 08:00 - 17:00</>, 
       startISO: '2026-09-12T08:00:00+05:30',
-      endISO: '2026-09-12T16:00:00+05:30',
+      endISO: '2026-09-12T17:00:00+05:30',
       desc: (
         <div className="inline-block text-left space-y-2">
           <div className="text-[14px] text-slate-300 font-medium italic -mt-1">
