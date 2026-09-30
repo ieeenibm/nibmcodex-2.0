@@ -44,8 +44,26 @@ const galleries: EventGallery[] = [
       'nibmcodex/2.0/memories/awareness-sessions-1/7',
       'nibmcodex/2.0/memories/awareness-sessions-1/8',
     ],
-  }
-,
+  },
+  {
+    id: 'awareness-2',
+    title: 'Branch Awareness Sessions 2',
+    date: 'August 24, 2026',
+    imageIds: [
+      'nibmcodex/2.0/memories/awareness-sessions-2/1',
+      'nibmcodex/2.0/memories/awareness-sessions-2/2',
+      'nibmcodex/2.0/memories/awareness-sessions-2/3',
+      'nibmcodex/2.0/memories/awareness-sessions-2/4',
+      'nibmcodex/2.0/memories/awareness-sessions-2/5',
+      'nibmcodex/2.0/memories/awareness-sessions-2/6',
+      'nibmcodex/2.0/memories/awareness-sessions-2/7',
+      'nibmcodex/2.0/memories/awareness-sessions-2/8',
+      'nibmcodex/2.0/memories/awareness-sessions-2/9',
+      'nibmcodex/2.0/memories/awareness-sessions-2/10',
+      'nibmcodex/2.0/memories/awareness-sessions-2/11',
+      'nibmcodex/2.0/memories/awareness-sessions-2/12',
+    ],
+  },
   {
     id: 'nibmcodex-1.0',
     title: 'NIBMCodeX 1.0 Memories',
