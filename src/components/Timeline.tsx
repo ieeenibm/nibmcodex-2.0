@@ -86,7 +86,8 @@ export default function Timeline() {
       date: <>24<sup className="lowercase">th</sup> of August</>, 
       startISO: '2026-08-24T10:30:00+05:30',
       endISO: '2026-08-24T16:00:00+05:30',
-
+      memories: Array.from({ length: 12 }, (_, i) => `nibmcodex/2.0/memories/awareness-sessions-2/${i + 1}`),
+      galleryTabId: 'awareness-2',
       desc: (
         <div className="inline-block text-left">
           <div className="grid grid-cols-[auto_auto_1fr] gap-x-2 gap-y-1">
@@ -276,7 +277,7 @@ export default function Timeline() {
                               onHoverImage={(src) => setHoveredPreview(src ? { src, idx } : null)}
                               isOpen={openGalleryIdx === idx}
                               onToggle={() => setOpenGalleryIdx(prev => prev === idx ? null : idx)}
-                              highlightButton={idx === 0 || idx === 1}
+                              highlightButton={idx === 0 || idx === 1 || idx === 2}
                               {...step.galleryTabId ? {
                                 extraAction: (
                                   <Link 

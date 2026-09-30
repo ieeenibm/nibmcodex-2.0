@@ -23,6 +23,18 @@ const baseImages = [
   "nibmcodex/2.0/memories/awareness-sessions-1/6",
   "nibmcodex/2.0/memories/awareness-sessions-1/7",
   "nibmcodex/2.0/memories/awareness-sessions-1/8",
+  "nibmcodex/2.0/memories/awareness-sessions-2/1",
+  "nibmcodex/2.0/memories/awareness-sessions-2/2",
+  "nibmcodex/2.0/memories/awareness-sessions-2/3",
+  "nibmcodex/2.0/memories/awareness-sessions-2/4",
+  "nibmcodex/2.0/memories/awareness-sessions-2/5",
+  "nibmcodex/2.0/memories/awareness-sessions-2/6",
+  "nibmcodex/2.0/memories/awareness-sessions-2/7",
+  "nibmcodex/2.0/memories/awareness-sessions-2/8",
+  "nibmcodex/2.0/memories/awareness-sessions-2/9",
+  "nibmcodex/2.0/memories/awareness-sessions-2/10",
+  "nibmcodex/2.0/memories/awareness-sessions-2/11",
+  "nibmcodex/2.0/memories/awareness-sessions-2/12",
 ];
 
 // Duplicate the items so the wall looks dense and masonry-like

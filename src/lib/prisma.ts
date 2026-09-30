@@ -86,9 +86,11 @@ export async function ensureDatabaseSchema() {
         ALTER TABLE "QrTicket" ADD COLUMN IF NOT EXISTS "options" JSONB;
         ALTER TABLE "QrTicket" ADD COLUMN IF NOT EXISTS "correctAnswer" TEXT;
         ALTER TABLE "QrTicket" ADD COLUMN IF NOT EXISTS "timeLimit" INTEGER DEFAULT 15;
+        ALTER TABLE "QrTicket" ADD COLUMN IF NOT EXISTS "maxAttempts" INTEGER DEFAULT 1;
         ALTER TABLE "QrScan" ADD COLUMN IF NOT EXISTS "answer" TEXT;
         ALTER TABLE "QrScan" ADD COLUMN IF NOT EXISTS "isCorrect" BOOLEAN DEFAULT TRUE;
         ALTER TABLE "QrScan" ADD COLUMN IF NOT EXISTS "timeTaken" DOUBLE PRECISION;
+        ALTER TABLE "QrScan" ADD COLUMN IF NOT EXISTS "attemptsUsed" INTEGER DEFAULT 1;
       `);
     } finally {
       client.release();
