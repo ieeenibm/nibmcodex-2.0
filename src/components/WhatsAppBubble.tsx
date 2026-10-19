@@ -41,7 +41,7 @@ export default function WhatsAppBubble() {
 
   return (
     <div
-      className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end gap-3"
+      className="fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-50 flex flex-col items-start gap-3"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -54,6 +54,7 @@ export default function WhatsAppBubble() {
             exit={{ opacity: 0, y: 15, scale: 0.95 }}
             transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
             className="bg-navy-900/95 backdrop-blur-xl border border-white/10 rounded-2xl p-5 shadow-2xl shadow-black/50 w-72 select-none"
+            style={{ transformOrigin: 'bottom left' }}
           >
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-2.5">
@@ -102,7 +103,7 @@ export default function WhatsAppBubble() {
             e.stopPropagation();
             setIsDismissed(true);
           }}
-          className="absolute -top-2 -left-2 w-7 h-7 rounded-full bg-navy-900 border border-white/20 text-slate-400 hover:text-white hover:bg-red-500 hover:border-red-500 flex items-center justify-center transition-all shadow-md opacity-80 hover:opacity-100 z-10 cursor-pointer"
+          className="absolute -top-2 -right-2 w-7 h-7 rounded-full bg-navy-900 border border-white/20 text-slate-400 hover:text-white hover:bg-red-500 hover:border-red-500 flex items-center justify-center transition-all shadow-md opacity-80 hover:opacity-100 z-10 cursor-pointer"
           title="Dismiss button"
           aria-label="Dismiss WhatsApp button"
         >
