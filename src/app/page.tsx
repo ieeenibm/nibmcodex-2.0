@@ -16,6 +16,7 @@ import FAQ from '@/components/FAQ';
 import Footer from '@/components/Footer';
 import RegistrationPill from '@/components/ui/RegistrationPill';
 import WhatsAppBubble from '@/components/WhatsAppBubble';
+import RegistrationClosingNotice from '@/components/RegistrationClosingNotice';
 
 export default function Home() {
   return (
@@ -38,6 +39,7 @@ export default function Home() {
       <Footer />
       <RegistrationPill />
       <WhatsAppBubble />
+      <RegistrationClosingNotice />
     </main>
   );
 }
