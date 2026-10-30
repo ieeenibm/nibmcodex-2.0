@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Physical Participation Rulebook | NIBMCodeX 2.0 // IEEEXTREME 20.0',
+  title: 'Physical Participation Rulebook | NIBMCodeX 2.0',
   description:
     'Official physical participation guidelines, competition rules, registration credentials, venue amenities, and pre-arrival checklist for IEEEXtreme 20.0 at NIBM Auditorium Colombo.',
   keywords: [
@@ -48,14 +48,14 @@ export const metadata: Metadata = {
 
 export default function RulebookPage() {
   return (
-    <main className="min-h-screen bg-navy-950 selection:bg-[#7bdfff]/30 selection:text-[#7bdfff] relative">
+    <main className="min-h-screen bg-navy-950 selection:bg-cyan-400/30 selection:text-cyan-400 relative">
       <Header />
       <div className="pt-32 pb-20 px-4 sm:px-6 md:px-12 max-w-7xl mx-auto">
         <Link
           href="/"
-          className="inline-flex items-center gap-2 text-slate-400 hover:text-[#7bdfff] transition-colors mb-6 font-mono text-xs sm:text-sm uppercase tracking-widest group"
+          className="inline-flex items-center gap-2 text-slate-400 hover:text-cyan-400 transition-colors mb-8 font-mono text-sm uppercase tracking-widest group"
         >
-          <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
+          <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" strokeWidth={1.5} />
           <span>Back to Home</span>
         </Link>
 
