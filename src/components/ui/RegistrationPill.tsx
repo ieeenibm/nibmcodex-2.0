@@ -49,12 +49,12 @@ export default function RegistrationPill() {
   const showExpanded = autoExpanded || isHovered;
 
   return (
-    <div className="fixed top-8 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex justify-center">
+    <div className="fixed top-20 sm:top-24 left-1/2 -translate-x-1/2 z-40 pointer-events-none flex justify-center">
       <AnimatePresence>
         {isVisible && (
           <motion.div
             layout
-            initial={{ y: -100, scale: 0.5, opacity: 0 }}
+            initial={{ y: -60, scale: 0.5, opacity: 0 }}
             animate={{ 
               y: 0, 
               scale: 1, 
@@ -65,7 +65,7 @@ export default function RegistrationPill() {
                 "0 0 15px rgba(34,211,238,0.1)"
               ]
             }}
-            exit={{ y: -100, scale: 0.8, opacity: 0 }}
+            exit={{ y: -60, scale: 0.8, opacity: 0 }}
             transition={{ 
               layout: { type: "spring", stiffness: 350, damping: 30 },
               y: { type: "spring", stiffness: 400, damping: 25 },
@@ -74,7 +74,7 @@ export default function RegistrationPill() {
             }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="pointer-events-auto flex items-center bg-navy-900/90 backdrop-blur-xl border border-cyan-500/30 rounded-full overflow-hidden p-1.5 cursor-pointer"
+            className="pointer-events-auto flex items-center bg-navy-900/90 backdrop-blur-xl border border-cyan-500/30 rounded-full overflow-hidden p-1.5 cursor-pointer shadow-xl"
           >
             {/* The Icon (Always visible) */}
             <motion.div 

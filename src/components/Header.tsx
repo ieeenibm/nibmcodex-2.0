@@ -61,7 +61,7 @@ export default function Header() {
           <span className="text-white ml-1 font-light opacity-80">2.0</span>
         </Link>
         
-        <nav className="hidden md:flex gap-10">
+        <nav className="hidden lg:flex gap-6 xl:gap-8 items-center">
           {navLinks.map((link) => (
             <Link 
               key={link.name} 
@@ -75,7 +75,7 @@ export default function Header() {
           ))}
         </nav>
 
-        <button className="md:hidden text-white p-1" aria-label="Toggle navigation menu" onClick={() => setIsOpen(!isOpen)}>
+        <button className="lg:hidden text-white p-1" aria-label="Toggle navigation menu" onClick={() => setIsOpen(!isOpen)}>
           <motion.div animate={{ rotate: isOpen ? 90 : 0 }}>
             {isOpen ? <X strokeWidth={1.5} /> : <Menu strokeWidth={1.5} />}
           </motion.div>
@@ -88,7 +88,7 @@ export default function Header() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden absolute top-full left-0 w-full bg-navy-950/95 backdrop-blur-3xl border-b border-white/10 overflow-hidden"
+            className="lg:hidden absolute top-full left-0 w-full bg-navy-950/95 backdrop-blur-3xl border-b border-white/10 overflow-hidden"
           >
             <div className="flex flex-col px-6 py-6 gap-6">
               {navLinks.map((link) => (
