@@ -25,6 +25,23 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/rules',
+        destination: '/rulebook',
+        permanent: true,
+      },
+    ];
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/rulebook.pdf',
+        destination: '/NIBMCodex2.0_Rulebook_VF.pdf',
+      },
+    ];
+  },
   env: {
     NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || 'jwuioa0d',
   },

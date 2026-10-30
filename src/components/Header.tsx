@@ -38,6 +38,7 @@ export default function Header() {
   const navLinks = [
     { name: 'Events', href: isHome ? '#events' : '/#events' },
     { name: 'AI Summit', href: isHome ? '#summit' : '/#summit' },
+    { name: 'Rulebook', href: '/rulebook' },
     { name: 'Timeline', href: isHome ? '#timeline' : '/#timeline' },
     { name: 'Our Partners', href: isHome ? '#partners' : '/#partners' },
     { name: 'FAQ', href: isHome ? '#faq' : '/#faq' },

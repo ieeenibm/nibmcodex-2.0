@@ -1,8 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, ExternalLink, X, Trophy, Users, Sparkles, Copy, Check } from 'lucide-react';
+import { Clock, ExternalLink, X, Trophy, Users, Sparkles, Copy, Check, BookOpen } from 'lucide-react';
 
 const REGISTRATION_DEADLINE = new Date('2026-10-25T23:59:59+05:30');
 const IEEEXTREME_URL = 'https://ieeextreme.org';
@@ -300,6 +301,15 @@ export default function RegistrationClosingNotice() {
                   <ExternalLink className="w-3.5 h-3.5 text-white transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                 </a>
 
+                {/* Direct Link to Rulebook */}
+                <Link
+                  href="/rulebook"
+                  className="w-full flex items-center justify-center gap-2 py-2 px-3 bg-[#03011a]/80 hover:bg-[#5a1cbd]/30 border border-[#5a1cbd]/40 hover:border-[#7bdfff]/50 text-[#bfe0e7] hover:text-white text-xs font-mono rounded-xl transition-all"
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-[#7bdfff]" />
+                  <span>Physical Participation Rulebook</span>
+                </Link>
+
                 <div className="flex items-center justify-between pt-1 text-[11px] font-mono text-[#d7d5e3]">
                   <span className="flex items-center gap-1 text-[#d7d5e3]/80">
                     <Users className="w-3 h-3 text-[#7bdfff]" />
@@ -319,7 +329,9 @@ export default function RegistrationClosingNotice() {
 
               {/* Footer Row */}
               <div className="mt-3 pt-2.5 border-t border-[#5a1cbd]/20 flex items-center justify-between text-[10px] font-mono text-[#d7d5e3]/70 relative z-10">
-                <span>Oct 31 • 24hr Challenge</span>
+                <Link href="/rulebook" className="hover:text-[#7bdfff] transition-colors underline underline-offset-2">
+                  View Rulebook & PDF
+                </Link>
                 <span className="text-[#7bdfff] font-medium">ieeextreme.org</span>
               </div>
             </motion.div>
